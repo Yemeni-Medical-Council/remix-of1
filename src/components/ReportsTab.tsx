@@ -62,6 +62,17 @@ const revenueName = (key: string) => {
   return revenueItemNames.get(itemKey) || revenueItemNames.get(itemKey.split("-").at(-1) || "") || itemKey || "—";
 };
 const amountValue = (value: unknown) => Number(value) || 0;
+const canonicalFeeCategory = (value: unknown) => {
+  const text = String(value || "")
+    .trim()
+    .replace(/[ًٌٍَُِّْـ]/g, "")
+    .replace(/[إأآ]/g, "ا")
+    .replace(/\s+/g, " ");
+  if (!text) return "رسوم أخرى";
+  if (/(امتحان|اختبار)/.test(text)) return "رسوم الامتحانات";
+  if (/(تسجيل|قيد|دراس|دراسه|قسط)/.test(text)) return "أقساط الدراسة والتسجيل";
+  return String(value).trim() || "رسوم أخرى";
+};
 export default function ReportsTab() {
   const hafiza = useStore((state) => state.hafiza);
   const accounts = useStore((state) => state.accounts);
@@ -80,7 +91,7 @@ export default function ReportsTab() {
   const traineeOptions = useMemo(() => Array.from(new Set(hafiza.map((row) => String(row.name || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ar")), [hafiza]);
   const feeOptions = useMemo(() => Array.from(new Set(hafiza
     .filter((row) => selectedTrainee === "all" || String(row.name || "").trim() === selectedTrainee)
-    .map((row) => String(row.description || "رسوم أخرى").trim())
+    .map((row) => canonicalFeeCategory(row.description))
     .filter(Boolean))).sort((a, b) => a.localeCompare(b, "ar")), [hafiza, selectedTrainee]);
 
   const inPeriod = (dateValue: unknown) => {
@@ -96,7 +107,7 @@ export default function ReportsTab() {
     const payments = hafiza.flatMap((row) => {
       const date = normalizeDate(row.date);
       const trainee = String(row.name || "").trim();
-      const category = String(row.description || "رسوم أخرى").trim();
+      const category = canonicalFeeCategory(row.description);
       const amount = amountValue(row.hafizaAmount);
       if (!date || date.getFullYear() < 2024 || !trainee || amount <= 0 || (selectedTrainee !== "all" && trainee !== selectedTrainee) || (selectedFee !== "all" && category !== selectedFee)) return [];
       const period = traineeGrouping === "year" ? String(date.getFullYear()) : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
@@ -131,7 +142,7 @@ export default function ReportsTab() {
       const amount = amountValue(row.hafizaAmount);
       if (amount <= 0 || !normalizeDate(row.date) || normalizeDate(row.date)!.getFullYear() < 2024) return;
       if (selectedTrainee !== "all" && name !== selectedTrainee) return;
-      const category = String(row.description || "رسوم أخرى").trim();
+      const category = canonicalFeeCategory(row.description);
       totals.set(category, (totals.get(category) || 0) + amount);
     });
     const rows = Array.from(totals.entries())
