@@ -16,7 +16,7 @@ export const reportDocumentCss = `
   .sub,.meta { text-align:center; color:var(--report-muted); font-size:18px; margin-bottom:10px; }
   table { width:100%; border-collapse:collapse; table-layout:auto; }
   th,td { border:1px solid var(--report-rule); padding:5px 6px; text-align:center; vertical-align:middle; }
-  thead th { background:var(--report-header); color:white font-weight:800; }
+  thead th { background:var(--report-header); color:white; font-weight:800; }
   tbody tr:nth-child(even) td { background:var(--report-stripe); }
   .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent); }
   .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
@@ -116,11 +116,22 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, widthMm, heightMm, undefined, 'FAST');
     }
     const blob = pdf.output('blob');
-    if (await saveBlobToInternalStorage(blob, fileName)) return;
+    // الحفظ الداخلي نسخة احتياطية للأجهزة، ولا نعود قبله حتى لا يتعطل
+    // تنزيل الملف للمستخدم في المتصفح أو داخل WebView.
+    try {
+      await saveBlobToInternalStorage(blob, fileName);
+    } catch (error) {
+      console.warn('[PDF] Internal storage save failed; using browser download', error);
+    }
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
-    anchor.href = url; anchor.download = fileName;
-    document.body.append(anchor); anchor.click(); anchor.remove();
+    anchor.href = url;
+    anchor.download = fileName.toLowerCase().endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+    anchor.rel = 'noopener';
+    anchor.style.display = 'none';
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1500);
   } finally { holder.remove(); }
 }
