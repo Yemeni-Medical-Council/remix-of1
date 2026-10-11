@@ -7,6 +7,7 @@ import revenueSchema from "@/data/revenueTemplate.json";
 type ReportSource = "hafiza" | "account" | "expenses" | "revenue" | "combined" | "trainee" | "feeTotals";
 type PeriodType = "month" | "quarter" | "half" | "year";
 type TraineeGrouping = "month" | "year";
+type TraineeDisplayMode = "detail" | "summary" | "both";
 type ReportRow = Record<string, string | number>;
 
 const MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
@@ -71,10 +72,16 @@ export default function ReportsTab() {
   const [month, setMonth] = useState(0);
   const [selectedTrainee, setSelectedTrainee] = useState("all");
   const [traineeGrouping, setTraineeGrouping] = useState<TraineeGrouping>("month");
+  const [selectedFee, setSelectedFee] = useState("all");
+  const [traineeDisplayMode, setTraineeDisplayMode] = useState<TraineeDisplayMode>("both");
   const selectedMonths = useMemo(() => periodMonths(period, month), [period, month]);
   const selectedMonthSet = useMemo(() => new Set(selectedMonths), [selectedMonths]);
   const years = useMemo(() => getYearOptions([...hafiza.map((row) => row.date), ...accounts.map((row) => row.date)]), [hafiza, accounts]);
   const traineeOptions = useMemo(() => Array.from(new Set(hafiza.map((row) => String(row.name || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ar")), [hafiza]);
+  const feeOptions = useMemo(() => Array.from(new Set(hafiza
+    .filter((row) => selectedTrainee === "all" || String(row.name || "").trim() === selectedTrainee)
+    .map((row) => String(row.description || "رسوم أخرى").trim())
+    .filter(Boolean))).sort((a, b) => a.localeCompare(b, "ar")), [hafiza, selectedTrainee]);
 
   const inPeriod = (dateValue: unknown) => {
     const date = normalizeDate(dateValue);
@@ -86,23 +93,36 @@ export default function ReportsTab() {
   const revenueRows = useMemo<ReportRow[]>(() => Object.entries(revenue).map(([key, amount]) => { const parts = key.split("-"); const rowYear = Number(parts[0]); const rowMonth = Number(parts[1]) - 1; return { date: `${MONTHS[rowMonth] || parts[1]} ${rowYear}`, item: revenueName(key), amount: amountValue(amount), _year: rowYear, _month: rowMonth }; }).filter((row) => row._year === year && selectedMonthSet.has(row._month as number)).map(({ _year, _month, ...row }) => row), [revenue, year, selectedMonthSet]);
 
   const traineeRows = useMemo<ReportRow[]>(() => {
-    const grouped = new Map<string, ReportRow>();
-    hafiza.forEach((row) => {
+    const payments = hafiza.flatMap((row) => {
       const date = normalizeDate(row.date);
-      const name = String(row.name || "").trim();
-      const amount = amountValue(row.hafizaAmount);
-      if (!date || date.getFullYear() < 2024 || !name || amount <= 0 || (selectedTrainee !== "all" && name !== selectedTrainee)) return;
-      const year = date.getFullYear();
-      const monthName = MONTHS[date.getMonth()];
-      const period = traineeGrouping === "year" ? String(year) : `${monthName} ${year}`;
+      const trainee = String(row.name || "").trim();
       const category = String(row.description || "رسوم أخرى").trim();
-      const key = `${year}|${traineeGrouping === "year" ? "" : date.getMonth()}|${name}|${category}`;
-      const current = grouped.get(key);
-      if (current) current.amount = amountValue(current.amount) + amount;
-      else grouped.set(key, { year, period, trainee: name, category, source: "حوافظ التوريد", amount });
+      const amount = amountValue(row.hafizaAmount);
+      if (!date || date.getFullYear() < 2024 || !trainee || amount <= 0 || (selectedTrainee !== "all" && trainee !== selectedTrainee) || (selectedFee !== "all" && category !== selectedFee)) return [];
+      const period = traineeGrouping === "year" ? String(date.getFullYear()) : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+      return [{ date: row.date, year: date.getFullYear(), period, trainee, category, source: "حوافظ التوريد", amount }];
     });
-    return Array.from(grouped.values()).sort((a, b) => Number(a.year) - Number(b.year) || String(a.period).localeCompare(String(b.period), "ar") || String(a.trainee).localeCompare(String(b.trainee), "ar"));
-  }, [hafiza, selectedTrainee, traineeGrouping]);
+    const categories = Array.from(new Set(payments.map((row) => String(row.category)))).sort((a, b) => a.localeCompare(b, "ar"));
+    const result: ReportRow[] = [];
+    categories.forEach((category) => {
+      const categoryPayments = payments.filter((row) => row.category === category).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      if (traineeDisplayMode === "detail" || traineeDisplayMode === "both") {
+        result.push(...categoryPayments.map((row) => ({ ...row, displayType: "تفصيلي" })));
+      }
+      if (traineeDisplayMode === "summary" || traineeDisplayMode === "both") {
+        const grouped = new Map<string, ReportRow>();
+        categoryPayments.forEach((row) => {
+          const key = `${row.year}|${row.period}`;
+          const current = grouped.get(key);
+          if (current) current.amount = amountValue(current.amount) + amountValue(row.amount);
+          else grouped.set(key, { year: row.year, period: row.period, trainee: row.trainee, category, source: "حوافظ التوريد", amount: row.amount, displayType: "إجمالي الفترة" });
+        });
+        result.push(...Array.from(grouped.values()));
+      }
+      result.push({ period: `إجمالي ${category}`, trainee: selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee, category, source: "حوافظ التوريد", amount: categoryPayments.reduce((sum, row) => sum + amountValue(row.amount), 0), displayType: "إجمالي الرسم", notes: "مسدد" });
+    });
+    return result;
+  }, [hafiza, selectedTrainee, selectedFee, traineeGrouping, traineeDisplayMode]);
 
   const feeTotalsRows = useMemo<ReportRow[]>(() => {
     const totals = new Map<string, number>();
@@ -122,7 +142,7 @@ export default function ReportsTab() {
   }, [hafiza, selectedTrainee]);
 
   const sourceConfig = useMemo(() => {
-    if (source === "trainee") return { title: "كشف مدفوعات المتدربين من حوافظ التوريد", columns: [{ key: "year", label: "السنة" }, { key: "period", label: "الشهر / السنة" }, { key: "trainee", label: "اسم المتدرب" }, { key: "category", label: "نوع الرسم / البيان" }, { key: "source", label: "المصدر" }, { key: "amount", label: "إجمالي المدفوع" }] satisfies TabCol[] };
+    if (source === "trainee") return { title: "كشف مدفوعات المتدربين من حوافظ التوريد", columns: [{ key: "year", label: "السنة" }, { key: "period", label: "الشهر / السنة" }, { key: "trainee", label: "اسم المتدرب" }, { key: "category", label: "نوع الرسم / البيان" }, { key: "displayType", label: "نوع السجل" }, { key: "source", label: "المصدر" }, { key: "amount", label: "المبلغ" }] satisfies TabCol[] };
     if (source === "feeTotals") return { title: "إجماليات الرسوم حسب النوع", columns: [{ key: "category", label: "نوع الرسم" }, { key: "source", label: "المصدر" }, { key: "amount", label: "الإجمالي" }] satisfies TabCol[] };
     if (source === "hafiza") return { title: "تقرير حوافظ التوريد", columns: [{ key: "date", label: "التاريخ" }, { key: "hafizaNo", label: "رقم الحافظة" }, { key: "description", label: "البيان" }, { key: "name", label: "الاسم" }, { key: "amount", label: "المبلغ" }, { key: "income", label: "الإيرادات" }] satisfies TabCol[] };
     if (source === "account") return { title: "تقرير الحساب الجاري", columns: [{ key: "date", label: "التاريخ" }, { key: "description", label: "البيان" }, { key: "name", label: "الاسم" }, { key: "income", label: "الإيرادات" }, { key: "expense", label: "المصروفات" }] satisfies TabCol[] };
@@ -139,12 +159,12 @@ export default function ReportsTab() {
     if (source === "revenue") return revenueRows;
     return [...hafizaRows.map((row) => ({ source: "حوافظ التوريد", date: row.date, description: row.description, income: row.income, amount: row.amount })), ...accountRows.map((row) => ({ source: "الحساب الجاري", date: row.date, description: row.description, income: row.income, expense: row.expense })), ...expenseRows.map((row) => ({ source: "المصروفات", date: row.date, description: row.item, expense: row.expense })), ...revenueRows.map((row) => ({ source: "الإيرادات", date: row.date, description: row.item, amount: row.amount }))];
   }, [source, hafizaRows, accountRows, expenseRows, revenueRows, traineeRows, feeTotalsRows]);
-  const title = source === "trainee" ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — حوافظ التوريد — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"} من 2024` : source === "feeTotals" ? `إجماليات الرسوم حسب النوع — ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — من 2024` : `${sourceConfig.title} — ${periodLabel(period, month)} ${year}`;
+  const title = source === "trainee" ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "detail" ? "تفصيلي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي وإجمالي"} — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"}` : source === "feeTotals" ? `إجماليات الرسوم حسب النوع — ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — من 2024` : `${sourceConfig.title} — ${periodLabel(period, month)} ${year}`;
   const numericKeys = source === "hafiza" ? ["amount", "income"] : source === "account" ? ["income", "expense"] : source === "expenses" ? ["expense"] : source === "revenue" ? ["amount"] : source === "trainee" || source === "feeTotals" ? ["amount"] : ["income", "expense", "amount"];
 
   return <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50 to-indigo-50 p-2 sm:p-4" dir="rtl"><section className="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-sky-200 bg-white shadow-xl"><header className="bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] p-4 text-white sm:p-6"><div className="flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/15"><BarChart3 className="h-6 w-6" /></span><div><h1 className="text-xl font-black sm:text-2xl">التقارير</h1><p className="text-xs font-semibold text-sky-100 sm:text-sm">تقارير دورية وكشوف مدفوعات المتدربين قابلة للطباعة والتنزيل بصيغة PDF</p></div></div></header>
-    <div className="grid gap-3 border-b border-slate-200 bg-slate-50 p-3 sm:grid-cols-4 sm:p-4"><label className="flex flex-col gap-1 text-xs font-black text-slate-700">مصدر التقرير<select value={source} onChange={(event) => setSource(event.target.value as ReportSource)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600">{SOURCES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>{source === "trainee" || source === "feeTotals" ? <><label className="flex flex-col gap-1 text-xs font-black text-slate-700">المتدرب<select value={selectedTrainee} onChange={(event) => setSelectedTrainee(event.target.value)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"><option value="all">كل المتدربين</option>{traineeOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></label><label className="flex flex-col gap-1 text-xs font-black text-slate-700">طريقة التجميع<select value={traineeGrouping} onChange={(event) => setTraineeGrouping(event.target.value as TraineeGrouping)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"><option value="month">إجمالي كل شهر</option><option value="year">إجمالي كل سنة</option></select></label></> : <><label className="flex flex-col gap-1 text-xs font-black text-slate-700">نوع الفترة<select value={period} onChange={(event) => setPeriod(event.target.value as PeriodType)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600">{PERIODS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label><label className="flex flex-col gap-1 text-xs font-black text-slate-700">السنة<select value={year} onChange={(event) => setYear(Number(event.target.value))} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600">{years.map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label className={`flex flex-col gap-1 text-xs font-black text-slate-700 ${period === "year" ? "opacity-50" : ""}`}>الشهر / بداية الفترة<select disabled={period === "year"} value={month} onChange={(event) => setMonth(Number(event.target.value))} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600 disabled:cursor-not-allowed">{MONTHS.map((item, index) => <option key={item} value={index}>{item}</option>)}</select></label></>}</div>
+    <div className="grid gap-3 border-b border-slate-200 bg-slate-50 p-3 sm:grid-cols-4 sm:p-4"><label className="flex flex-col gap-1 text-xs font-black text-slate-700">مصدر التقرير<select value={source} onChange={(event) => setSource(event.target.value as ReportSource)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600">{SOURCES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>{source === "trainee" || source === "feeTotals" ? <><label className="flex flex-col gap-1 text-xs font-black text-slate-700">المتدرب<select value={selectedTrainee} onChange={(event) => setSelectedTrainee(event.target.value)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"><option value="all">كل المتدربين</option>{traineeOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></label><label className="flex flex-col gap-1 text-xs font-black text-slate-700">طريقة التجميع<select value={traineeGrouping} onChange={(event) => setTraineeGrouping(event.target.value as TraineeGrouping)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"><option value="month">إجمالي كل شهر</option><option value="year">إجمالي كل سنة</option></select></label>{source === "trainee" && <><label className="flex flex-col gap-1 text-xs font-black text-slate-700">نوع الرسم<select value={selectedFee} onChange={(event) => setSelectedFee(event.target.value)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"><option value="all">كل الرسوم</option>{feeOptions.map((fee) => <option key={fee} value={fee}>{fee}</option>)}</select></label><label className="flex flex-col gap-1 text-xs font-black text-slate-700">نمط التقرير<select value={traineeDisplayMode} onChange={(event) => setTraineeDisplayMode(event.target.value as TraineeDisplayMode)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"><option value="detail">تفصيلي فقط</option><option value="summary">إجمالي فقط</option><option value="both">تفصيلي وإجمالي</option></select></label></>}</> : <><label className="flex flex-col gap-1 text-xs font-black text-slate-700">نوع الفترة<select value={period} onChange={(event) => setPeriod(event.target.value as PeriodType)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600">{PERIODS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label><label className="flex flex-col gap-1 text-xs font-black text-slate-700">السنة<select value={year} onChange={(event) => setYear(Number(event.target.value))} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600">{years.map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label className={`flex flex-col gap-1 text-xs font-black text-slate-700 ${period === "year" ? "opacity-50" : ""}`}>الشهر / بداية الفترة<select disabled={period === "year"} value={month} onChange={(event) => setMonth(Number(event.target.value))} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600 disabled:cursor-not-allowed">{MONTHS.map((item, index) => <option key={item} value={index}>{item}</option>)}</select></label></>}</div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-3 sm:p-4"><div className="flex items-center gap-2 text-sm font-black text-slate-800">{source === "trainee" ? <UserRound className="h-5 w-5 text-sky-700" /> : <CalendarDays className="h-5 w-5 text-sky-700" />}<span>{title}</span><span className="rounded-full bg-sky-100 px-2 py-1 text-xs text-sky-800">{reportRows.length} سجل</span></div><TabActions title={title} rows={reportRows} columns={sourceConfig.columns} fileName={`كشف-مدفوعات-${selectedTrainee === "all" ? "الجميع" : selectedTrainee}-من-2024`} numericKeys={numericKeys} pdfLayout="wide-centered" pdfOrientation="landscape" className="w-full sm:w-auto" /></div>
-    <div className="overflow-x-auto p-3 sm:p-4">{reportRows.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-slate-500"><FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />لا توجد مدفوعات مسجلة منذ 2024 للخيارات المحددة.</div> : <table className="w-full min-w-[860px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm"><thead className="bg-sky-900 text-white"><tr><th className="border border-sky-700 px-2 py-2">م</th>{sourceConfig.columns.map((column) => <th key={column.key} className="border border-sky-700 px-2 py-2">{column.label}</th>)}</tr></thead><tbody>{reportRows.map((row, index) => <tr key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`} className={index % 2 ? "bg-slate-50" : "bg-white"}><td className="border border-slate-200 px-2 py-2 font-bold">{index + 1}</td>{sourceConfig.columns.map((column) => <td key={column.key} className="border border-slate-200 px-2 py-2 font-semibold">{row[column.key] ?? "—"}</td>)}</tr>)}</tbody></table>}</div>
+    <div className="overflow-x-auto p-3 sm:p-4">{reportRows.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-slate-500"><FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />لا توجد مدفوعات مسجلة منذ 2024 للخيارات المحددة.</div> : <table className="w-full min-w-[860px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm"><thead className="bg-sky-900 text-white"><tr><th className="border border-sky-700 px-2 py-2">م</th>{sourceConfig.columns.map((column) => <th key={column.key} className="border border-sky-700 px-2 py-2">{column.label}</th>)}</tr></thead><tbody>{reportRows.map((row, index) => <tr key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`} className={row.notes ? "bg-emerald-200 font-black text-emerald-950" : index % 2 ? "bg-slate-50" : "bg-white"}><td className="border border-slate-200 px-2 py-2 font-bold">{index + 1}</td>{sourceConfig.columns.map((column) => <td key={column.key} className="border border-slate-200 px-2 py-2 font-semibold">{row[column.key] ?? "—"}</td>)}</tr>)}</tbody></table>}</div>
   </section></div>;
 }
