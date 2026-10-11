@@ -2289,7 +2289,7 @@ font-weight: 800; color: #000; }
     table {
       table-layout: auto;
       width: 100%;
-      min-width: 100%;
+      max-width: 100%;
       height: 100%;
       flex: 1 1 auto;
       border-collapse: collapse;
@@ -2302,7 +2302,7 @@ font-weight: 800; color: #000; }
       text-align: center;
       vertical-align: middle;
  padding: 0 2px;
-      font-size: 20px;
+font-size: 20px;
 line-height: 1.25;
 white-space: normal;
 overflow: hidden;
@@ -2313,13 +2313,16 @@ text-overflow: clip;
     }
     th { 
 background: #0f766e;
-color: #ffffff !important; 
-font-weight: 900; 
+color:#fff!important; 
+font-weight:900;
+text-align: center;
+font-size: 20px;
     }
     td { color: #000 !important;
 font-weight: 900; }
     .lbl { 
-text-align: center; font-weight: 800; }
+text-align: center;
+font-weight: 800; }
 .num { 
 font-family: Cairo; 
 font-weight: 900; 
