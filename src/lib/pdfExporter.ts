@@ -28,7 +28,7 @@ box-sizing: border-box;
 
 table {
 width: 100% !important;
-max-width:auto !important;
+min-width:auto !important;
 font-size: 20px !important;
 table-layout:fixed 
 !important; 
@@ -38,6 +38,10 @@ min-height:auto !important;
 font-family:cairo;
 
   }
+th{
+  color: white;
+  font-size: 20px;
+}
   .info {
     width: 100%; 
     border: solid 1px black;
