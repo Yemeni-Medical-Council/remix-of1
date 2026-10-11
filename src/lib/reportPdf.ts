@@ -50,8 +50,15 @@ const dimensions = (size: ReportPaperSize, orientation: ReportOrientation) => {
 };
 
 async function ready(doc: Document) {
-  await doc.fonts.ready;
-  await Promise.all(Array.from(doc.images).map(image => image.decode().catch(() => undefined)));
+  const fontReady = doc.fonts?.ready ?? Promise.resolve();
+  await Promise.race([
+    fontReady,
+    new Promise<void>((resolve) => window.setTimeout(resolve, 1500)),
+  ]);
+  await Promise.all(Array.from(doc.images).map(image => {
+    if (image.complete) return Promise.resolve();
+    return image.decode().catch(() => undefined);
+  }));
 }
 
 export async function downloadRenderedReportPdf(source: HTMLElement, options: {
@@ -110,8 +117,9 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       fitWidth();
       if (overflows()) throw new Error('أحد صفوف التقرير أكبر من مساحة الورقة؛ اختر ورقة أكبر');
       footer.textContent = `صفحة ${index + 1} من ${groups.length}`;
-      const canvas = await html2canvas(paper, { scale:2, useCORS:true, backgroundColor:null,
+    const canvas = await html2canvas(paper, { scale:2, useCORS:true, allowTaint:false, backgroundColor:'#ffffff',
         logging:false, windowWidth:Math.ceil(widthMm * pxPerMm), scrollX:0, scrollY:0 });
+      if (!canvas.width || !canvas.height) throw new Error('تعذر تجهيز صورة التقرير');
       if (index) pdf.addPage();
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, widthMm, heightMm, undefined, 'FAST');
     }
@@ -123,15 +131,23 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     } catch (error) {
       console.warn('[PDF] Internal storage save failed; using browser download', error);
     }
+    const downloadName = fileName.toLowerCase().endsWith('.pdf') ? fileName : `${fileName}.pdf`;
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = fileName.toLowerCase().endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+    anchor.download = downloadName;
     anchor.rel = 'noopener';
     anchor.style.display = 'none';
     document.body.append(anchor);
-    anchor.click();
-    anchor.remove();
+    try {
+      anchor.click();
+    } catch (error) {
+      console.warn('[PDF] Anchor download failed; opening the generated file', error);
+      const opened = window.open(url, '_blank');
+      if (!opened) throw new Error('تعذر فتح ملف PDF الناتج');
+    } finally {
+      anchor.remove();
+    }
     window.setTimeout(() => URL.revokeObjectURL(url), 1500);
   } finally { holder.remove(); }
 }
@@ -155,6 +171,7 @@ export async function downloadReportPdf(options: {
     doc.close();
     const source = doc.getElementById('report-source');
     if (!source) throw new Error('تعذر تحديد محتوى التقرير');
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
     await downloadRenderedReportPdf(source, options);
   } finally { frame.remove(); }
 }
