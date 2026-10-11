@@ -38,8 +38,10 @@ min-height:auto !important;
 font-family:cairo;
 
   }
-th{
-  color: white;
+    th { 
+background: #0f766e;
+
+  color: white !important;
   font-size: 20px;
 }
   .info {

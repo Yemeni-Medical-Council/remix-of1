@@ -2287,9 +2287,9 @@ font-weight: 800; color: #000; }
     .info-val { font-size: 18px; line-height: 1.15; font-weight: 1000; margin-top: 2px; overflow-wrap: anywhere; }
 
     table {
-      table-layout: auto;
+      table-layout: fixed;
       width: 100%;
-      max-width: 100%;
+      min-width: 100%;
       height: 100%;
       flex: 1 1 auto;
       border-collapse: collapse;
@@ -2313,7 +2313,7 @@ text-overflow: clip;
     }
     th { 
 background: #0f766e;
-color:#fff!important; 
+color: white !important; 
 font-weight:900;
 text-align: center;
 font-size: 20px;
