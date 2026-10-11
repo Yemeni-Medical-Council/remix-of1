@@ -16,7 +16,7 @@ export const reportDocumentCss = `
   .sub,.meta { text-align:center; color:var(--report-muted); font-size:18px; margin-bottom:10px; }
   table { width:100%; border-collapse:collapse; table-layout:auto; }
   th,td { border:1px solid var(--report-rule); padding:5px 6px; text-align:center; vertical-align:middle; }
-  thead th { background:var(--report-header); color:var(--report-ink); font-weight:800; }
+  thead th { background:var(--report-header); color:white font-weight:800; }
   tbody tr:nth-child(even) td { background:var(--report-stripe); }
   .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent); }
   .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
