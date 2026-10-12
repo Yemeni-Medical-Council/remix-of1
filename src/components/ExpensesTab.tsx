@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import schemaJson from "@/lib/expensesSchema.json";
 import { useReportDate } from "@/lib/reportDate";
 import { escapeHtml, reportLetterheadHtml, runningLetterheadCss } from "@/lib/printTableHtml";
-import { printReportHtml } from "@/lib/nativePrinter";
+import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 import WebActionMenu, { type WebActionItem } from "./WebActionMenu";
 import { useStore } from "@/lib/store";
 
@@ -890,7 +890,17 @@ export default function ExpensesTab() {
                 }
                 </style></head><body><div class="print-page">${reportLetterheadHtml()}<div id="expenses-report">${el.innerHTML}</div></div>
                 <script>window.onload=()=>setTimeout(()=>window.print(),300)</script></body></html>`;
-              const opened = printReportHtml(html, `المصروفات - ${view} - ${reportDateLabel}`);
+              const parsed = new DOMParser().parseFromString(html, "text/html");
+              parsed.querySelectorAll("script").forEach((script) => script.remove());
+              const opened = openBrowserPrintPreview({
+                title: `المصروفات - ${view}`,
+                reportDateLabel,
+                tableHtml: parsed.body.innerHTML,
+                contentCss: Array.from(parsed.querySelectorAll("style")).map((style) => style.textContent || "").join("\n"),
+                defaultOrientation: "portrait",
+                defaultPageSize: "A4",
+                defaultMarginMm: 3,
+              });
               if (!opened) toast.error("تم منع فتح نافذة الطباعة، يرجى السماح بالنوافذ المنبثقة");
             }}
             className="px-3 py-1.5 bg-white text-[#10528e] border border-[#10528e]/30 rounded-lg text-xs font-bold shadow-sm hover:bg-blue-50"

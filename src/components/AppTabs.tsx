@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import { useReportDate } from "@/lib/reportDate";
 import { toast } from "sonner";
 import { reportLetterheadHtml, runningLetterheadCss } from "@/lib/printTableHtml";
-import { printReportHtml } from "@/lib/nativePrinter";
+import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 import { downloadReportDocumentPdf } from "@/lib/reportPdf";
 import { importUsageInWorker } from "@/lib/excelImportWorkerClient";
 import { saveBlobToInternalStorage } from "@/lib/nativeFileStorage";
@@ -728,10 +728,18 @@ background:#0b3d6d; color:white !important; font-weight:700 !important; -webkit-
   };
 
   const handlePrint = () => {
-    const opened = printReportHtml(
-      buildAllMonthsHtml(),
-      `سجل مفردات الاستخدامات والنفقات العامة - ${reportDateLabel}`,
-    );
+    const html = buildAllMonthsHtml();
+    const parsed = new DOMParser().parseFromString(html, "text/html");
+    parsed.querySelectorAll("script").forEach((script) => script.remove());
+    const opened = openBrowserPrintPreview({
+      title: "سجل مفردات الاستخدامات والنفقات العامة",
+      reportDateLabel,
+      tableHtml: parsed.body.innerHTML,
+      contentCss: Array.from(parsed.querySelectorAll("style")).map((style) => style.textContent || "").join("\n"),
+      defaultOrientation: "landscape",
+      defaultPageSize: "A4",
+      defaultMarginMm: 3,
+    });
     if (!opened) toast.error("تم منع فتح نافذة الطباعة، يرجى السماح بالنوافذ المنبثقة");
   };
 

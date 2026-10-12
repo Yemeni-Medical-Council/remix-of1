@@ -10,6 +10,7 @@ import {
 import { REPORT_LETTERHEAD_SRC } from "@/lib/printTableHtml";
 import revSchema from "@/data/revenueTemplate.json";
 import { printReportHtmlAsync } from "@/lib/nativePrinter";
+import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 
 const reportLetterheadRow = (columnCount: number) => `
   <tr class="report-letterhead-row">
@@ -386,10 +387,17 @@ margin-top: 4px; }
     }
   </style>`;
 
-  await printReportHtmlAsync(
-    `<!doctype html><html lang="ar" dir="rtl"><head>${head}</head><body>${body}<script>window.onload=()=>{setTimeout(()=>window.print(),400)}</script></body></html>`,
-    `${title} - ${periodLabel}`,
-  );
+  const css = head.match(/<style>([\s\S]*)<\/style>/)?.[1] || "";
+  const opened = openBrowserPrintPreview({
+    title: REV_SCHEMA.title,
+    reportDateLabel,
+    tableHtml: body,
+    contentCss: css,
+    defaultOrientation: "landscape",
+    defaultPageSize: "A4",
+    defaultMarginMm: 3,
+  });
+  if (!opened) throw new Error("تم منع فتح نافذة الطباعة");
 }
 
 type RType = { no: number; title: string };
