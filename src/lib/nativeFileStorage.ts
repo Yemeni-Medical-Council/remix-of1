@@ -62,6 +62,21 @@ export async function saveBlobToInternalStorage(
   return uri;
 }
 
+/** يحفظ الملف ثم يفتحه في نافذة المشاركة ليتمكن المستخدم من اختيار التنزيل أو تطبيق آخر. */
+export async function deliverBlobToUser(blob: Blob, fileName: string): Promise<boolean> {
+  if (!isNativeFileStorageAvailable()) return false;
+  const uri = await saveBlobToInternalStorage(blob, fileName);
+  if (!uri) return false;
+  const { Share } = await import("@capacitor/share");
+  await Share.share({
+    title: fileName,
+    text: "ملف PDF تم إنشاؤه من التطبيق",
+    url: uri,
+    dialogTitle: "حفظ أو مشاركة ملف PDF",
+  });
+  return true;
+}
+
 export async function getInternalFileUri(fileName: string): Promise<string | null> {
   if (!isNativeFileStorageAvailable()) return null;
   const path = `${INTERNAL_EXPORTS_DIRECTORY}/${sanitizeFileName(fileName)}`;

@@ -1,4 +1,4 @@
-import { saveBlobToInternalStorage } from './nativeFileStorage';
+import { deliverBlobToUser } from './nativeFileStorage';
 import { escapeHtml, reportLetterheadHtml } from './printTableHtml';
 
 export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
@@ -147,9 +147,9 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
 
     const blob = pdf.output('blob');
     try {
-      await saveBlobToInternalStorage(blob, fileName);
+      if (await deliverBlobToUser(blob, fileName)) return;
     } catch (error) {
-      console.warn('[PDF] Internal storage save failed; using browser download', error);
+      console.warn('[PDF] Native delivery failed; using browser download', error);
     }
     const downloadName = fileName.toLowerCase().endsWith('.pdf') ? fileName : `${fileName}.pdf`;
     const url = URL.createObjectURL(blob);

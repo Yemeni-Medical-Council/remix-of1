@@ -1,11 +1,11 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useStore } from "@/lib/store";
 import { useReportDate } from "@/lib/reportDate";
-import { exportMonthlyStatement, matchStatementAccount } from "@/lib/exportImport";
+import { buildMonthlyStatementRows, exportMonthlyStatement, normName } from "@/lib/exportImport";
 import monthlySchema from "@/data/monthlyStatement.json";
-import { monthlyStatementPdf } from "@/lib/exportPdf";
 import { toast } from "sonner";
 import { Printer } from "lucide-react";
+import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 import ImportButton from "./ImportButton";
 import {
   getPeriodRange,
@@ -221,7 +221,7 @@ function parseJournalDate(dateStr?: string | number): { year: number; month: num
 
 export default function MonthlyStatementTab() {
   const { journal } = useStore();
-  const { reportDate } = useReportDate();
+  const { reportDate, reportDateLabel } = useReportDate();
   const tableRef = useRef<HTMLTableElement>(null);
 
   const [year, setYear] = useState(new Date().getFullYear());
@@ -232,71 +232,24 @@ export default function MonthlyStatementTab() {
 
   const { startMonth, endMonth } = getPeriodRange({ mode, year, month, quarter, halfYear });
 
-  // ── الترحيل الآلي الفوري لمبالغ القيود اليومية شهراً بشهر وحساباً بحساب ──
+  // مصدر موحد للمجاميع: الشاشة وPDF وExcel تعتمد نفس الترحيل والمطابقة.
   const { data, matchedEntriesCount, activeMonths } = useMemo(() => {
-    const map: Record<
-      string,
-      { prevDebit: number; prevCredit: number; curDebit: number; curCredit: number }
-    > = {};
-    ALL_ACCOUNTS.forEach((a) => {
-      map[cleanArabic(a)] = { prevDebit: 0, prevCredit: 0, curDebit: 0, curCredit: 0 };
+    const statement = buildMonthlyStatementRows(journal, year, startMonth, endMonth);
+    const map = Object.fromEntries(Object.entries(statement.map).map(([key, row]) => [key, {
+      prevDebit: row.prevD,
+      prevCredit: row.prevC,
+      curDebit: row.curD,
+      curCredit: row.curC,
+    }])) as Record<string, { prevDebit: number; prevCredit: number; curDebit: number; curCredit: number }>;
+    const active = new Set<number>();
+    journal.forEach((entry) => {
+      const parsed = parseJournalDate(entry.date);
+      if (parsed?.year === year) active.add(parsed.month);
     });
-
-    let matched = 0;
-    const monthsSet = new Set<number>();
-
-    journal.forEach((j) => {
-      const parsedDate = parseJournalDate(j.date);
-      if (!parsedDate || parsedDate.year !== year) return;
-
-      const m = parsedDate.month;
-      monthsSet.add(m);
-
-      const isCurrent = m >= startMonth && m <= endMonth;
-      const isPrev = m < startMonth;
-      if (!isCurrent && !isPrev) return;
-
-      const debitAmt = Number(j.debit) || 0;
-      const creditAmt = Number(j.credit) || 0;
-
-      // يدعم القيود الجديدة والملفات القديمة التي خزّنت اسم الحساب في عمود
-      // debitCol/creditCol أو في الحقل العام account.
-      const debitAccountRaw =
-        j.debitAccount || j.debitCol || (debitAmt > 0 ? j.account : "") || "";
-      const creditAccountRaw =
-        j.creditAccount || j.creditCol || (creditAmt > 0 ? j.account : "") || "";
-
-      // المطابقة الموحدة تتعرف على: الباب الأول/الثاني = الاستخدامات،
-      // الباب الثالث = الموارد، مع اختلاف الهمزات والتشكيل وعبارات الوصف.
-      const dMatch = matchStatementAccount(debitAccountRaw) || matchAccount(debitAccountRaw);
-      const cMatch = matchStatementAccount(creditAccountRaw) || matchAccount(creditAccountRaw);
-      const dKey = dMatch ? cleanArabic(dMatch) : "";
-      const cKey = cMatch ? cleanArabic(cMatch) : "";
-
-      let hasMatchedLeg = false;
-
-      // ترحيل المبلغ المدين
-      if (dKey && map[dKey] && debitAmt > 0) {
-        if (isCurrent) map[dKey].curDebit += debitAmt;
-        else map[dKey].prevDebit += debitAmt;
-        hasMatchedLeg = true;
-      }
-
-      // ترحيل المبلغ الدائن
-      if (cKey && map[cKey] && creditAmt > 0) {
-        if (isCurrent) map[cKey].curCredit += creditAmt;
-        else map[cKey].prevCredit += creditAmt;
-        hasMatchedLeg = true;
-      }
-
-      if (hasMatchedLeg) matched++;
-    });
-
-    return {
-      data: map,
-      matchedEntriesCount: matched,
-      activeMonths: Array.from(monthsSet).sort((a, b) => a - b),
-    };
+    const matched = Object.values(map).filter((row) =>
+      row.prevDebit || row.prevCredit || row.curDebit || row.curCredit,
+    ).length;
+    return { data: map, matchedEntriesCount: matched, activeMonths: Array.from(active).sort((a, b) => a - b) };
   }, [journal, year, startMonth, endMonth]);
 
   const totals = useMemo(() => {
@@ -314,6 +267,30 @@ export default function MonthlyStatementTab() {
   const movementLabel = getReportMovementLabel({ mode, year, month, quarter, halfYear });
   const periodLabel = getReportPeriodLabel({ mode, year, month, quarter, halfYear });
   const netBalance = totals.curDebit - totals.curCredit;
+  const handlePrint = () => {
+    const tableHtml = tableRef.current?.outerHTML;
+    if (!tableHtml) {
+      toast.error("تعذر تجهيز كشف الحساب للطباعة");
+      return;
+    }
+    const opened = openBrowserPrintPreview({
+      title: `كشف الحساب الشهري - ${periodLabel}`,
+      reportDateLabel,
+      tableHtml,
+      defaultOrientation: "landscape",
+      defaultPageSize: "A4",
+      defaultMarginMm: 3,
+      contentCss: `
+        table { width:100% !important; border-collapse:collapse !important; table-layout:auto !important; background:#fff; }
+        th,td { border:1px solid #000 !important; padding:4px 5px !important; text-align:center !important; vertical-align:middle !important; color:#000 !important; font-family:Cairo,Arial,sans-serif !important; font-weight:700 !important; white-space:normal !important; }
+        th { background:#dbeafe !important; font-weight:900 !important; }
+        tbody tr:nth-child(even) td { background:#f8fafc !important; }
+        tbody tr td:first-child { text-align:right !important; font-weight:800 !important; }
+        tfoot td { background:#1e3a8a !important; color:#fff !important; font-weight:900 !important; }
+      `,
+    });
+    if (!opened) toast.error("تم منع فتح نافذة الطباعة، يرجى السماح بالنوافذ المنبثقة");
+  };
 
   return (
  <div
@@ -346,12 +323,7 @@ export default function MonthlyStatementTab() {
             <ImportButton kind="monthly" />
             <button
               type="button"
-              onClick={() =>
-                void monthlyStatementPdf({ journal, year, startMonth, endMonth, mode, month, quarter, halfYear, reportDate }).catch((e) => {
-                  console.error(e);
-                  toast.error("تعذّرت الطباعة، حاول مرة أخرى");
-                })
-              }
+              onClick={handlePrint}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-sky-100 to-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all"
               title="طباعة كشف الحساب الشهري"
             >
@@ -381,7 +353,7 @@ export default function MonthlyStatementTab() {
             <div className="text-xl sm:text-2xl font-black text-emerald-800 tracking-tight font-mono">
               {matchedEntriesCount}
             </div>
-            <span className="text-[10px] text-emerald-600 font-medium mt-1 block">قيد متطابق من دفتر اليومية</span>
+            <span className="text-[10px] text-emerald-600 font-medium mt-1 block">حسابات بها حركة في الفترة</span>
           </div>
 
           {/* مدين الفترة */}
@@ -608,7 +580,7 @@ export default function MonthlyStatementTab() {
 
                   {/* سطور الحسابات التفصيلية */}
                   {group.accounts.map((acc, aIdx) => {
-                    const rowData = data[cleanArabic(acc)] || {
+                    const rowData = data[normName(acc)] || {
                       prevDebit: 0,
                       prevCredit: 0,
                       curDebit: 0,
