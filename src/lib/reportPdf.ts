@@ -1,10 +1,9 @@
-import { deliverBlobToUser } from './nativeFileStorage';
+import { saveBlobToInternalStorage } from './nativeFileStorage';
 import { escapeHtml, reportLetterheadHtml } from './printTableHtml';
 
 export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
 export type ReportOrientation = 'portrait' | 'landscape';
 
-/** Shared, isolated document palette; does not inherit the application's screen theme. */
 export const reportDocumentCss = `
   :root { --report-paper:#ffffff; --report-ink:#172b35; --report-muted:#526773;
     --report-rule:#718994; --report-header:#dceef2; --report-stripe:#f0f7f8;
@@ -80,10 +79,16 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);
+
   try {
     const table = Array.from(content.querySelectorAll('table')).sort((a, b) => b.rows.length - a.rows.length)[0];
     const body = table?.tBodies[0];
-    const rows = body ? Array.from(body.rows).map(row => row.cloneNode(true) as HTMLTableRowElement) : [];
+
+    // استخراج الصفوف الظاهرة فقط (استبعاد المخفية بسبب فلترة التاريخ)
+    const allRows = body ? Array.from(body.rows).filter(r => (r as HTMLElement).style.display !== 'none') : [];
+    const totalRow = allRows.find(r => r.classList.contains('total-row'));
+    const rows = allRows.filter(r => !r.classList.contains('total-row')).map(r => r.cloneNode(true) as HTMLTableRowElement);
+
     if (body) body.replaceChildren();
 
     const maxHeight = (heightMm - marginMm * 2) * pxPerMm - 35;
@@ -127,9 +132,15 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     pdf.setProperties({ title: fileName.replace(/\.pdf$/i, ''), subject: 'تقرير مالي', creator: 'المجلس اليمني للاختصاصات الطبية' });
 
     for (let index = 0; index < groups.length; index++) {
-      if (body) body.replaceChildren(...groups[index]);
+      const currentRows = [...groups[index]];
+      // إضافة صف الإجمالي في الصفحة الأخيرة دائماً
+      if (index === groups.length - 1 && totalRow) {
+        currentRows.push(totalRow.cloneNode(true) as HTMLTableRowElement);
+      }
+      if (body) body.replaceChildren(...currentRows);
       fitWidth();
       footer.textContent = `صفحة ${index + 1} من ${groups.length}`;
+
       const canvas = await html2canvas(paper, {
         scale: 2,
         useCORS: true,
@@ -147,9 +158,9 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
 
     const blob = pdf.output('blob');
     try {
-      if (await deliverBlobToUser(blob, fileName)) return;
+      await saveBlobToInternalStorage(blob, fileName);
     } catch (error) {
-      console.warn('[PDF] Native delivery failed; using browser download', error);
+      console.warn('[PDF] Internal storage save failed; using browser download', error);
     }
     const downloadName = fileName.toLowerCase().endsWith('.pdf') ? fileName : `${fileName}.pdf`;
     const url = URL.createObjectURL(blob);
@@ -201,7 +212,6 @@ export async function downloadReportPdf(options: {
   }
 }
 
-/** Accept legacy builders without running their embedded automatic-print scripts. */
 export async function downloadReportDocumentPdf(html: string, title: string, orientation: ReportOrientation = 'landscape') {
   const parsed = new DOMParser().parseFromString(html, 'text/html');
   parsed.querySelectorAll('script').forEach(script => script.remove());

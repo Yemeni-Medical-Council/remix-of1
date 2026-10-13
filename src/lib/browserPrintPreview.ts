@@ -5,17 +5,12 @@ export interface BrowserPreviewOptions {
   title: string;
   reportDateLabel?: string;
   tableHtml: string;
-  /** أنماط التقرير الأصلية، مثل تنسيق كشف حساب المتدرب. */
   contentCss?: string;
   defaultOrientation?: "portrait" | "landscape";
   defaultPageSize?: "A4" | "A3" | "Letter";
   defaultMarginMm?: number;
 }
 
-/**
- * يفتح نافذة متصفح كروم مستقلة لمعاينة التقرير مع أدوات تحكم كاملة
- * في أبعاد الورقة واتجاهها وهوامشها وتنزيل PDF وطباعة متطابقة 100%.
- */
 export function openBrowserPrintPreview({
   title,
   reportDateLabel = "",
@@ -61,8 +56,8 @@ export function openBrowserPrintPreview({
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 8px 16px;
+      gap: 8px;
+      padding: 8px 14px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
       border-bottom: 2px solid #1f5f7a;
     }
@@ -71,7 +66,7 @@ export function openBrowserPrintPreview({
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #e0f2fe;
     }
@@ -80,14 +75,14 @@ export function openBrowserPrintPreview({
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .preview-toolbar select, .preview-toolbar button {
+    .preview-toolbar select, .preview-toolbar input[type="date"], .preview-toolbar button {
       font-family: inherit;
       font-size: 12px;
       font-weight: 700;
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 6px;
       border: 1px solid #336d88;
       background: #173b50;
@@ -97,15 +92,45 @@ export function openBrowserPrintPreview({
       transition: all 0.15s ease;
     }
 
+    .preview-toolbar input[type="date"] {
+      cursor: text;
+      background: #0b1f2d;
+      border-color: #38bdf8;
+      color: #f8fafc;
+      padding: 3px 6px;
+      font-family: monospace, 'Cairo';
+    }
+
     .preview-toolbar select:hover, .preview-toolbar button:hover {
       background: #1e4b65;
       border-color: #38bdf8;
     }
 
+    .filter-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .preview-toolbar button.btn-apply-filter {
+      background: #0284c7;
+      border-color: #38bdf8;
+      padding: 4px 10px;
+    }
+    .preview-toolbar button.btn-reset-filter {
+      background: #475569;
+      border-color: #64748b;
+      padding: 4px 8px;
+    }
+
     .preview-toolbar button.btn-print {
       background: #059669;
       border-color: #10b981;
-      padding: 7px 16px;
+      padding: 6px 14px;
       font-size: 13px;
       color: #ffffff;
       box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
@@ -117,7 +142,7 @@ export function openBrowserPrintPreview({
     .preview-toolbar button.btn-download-pdf {
       background: #0284c7;
       border-color: #38bdf8;
-      padding: 7px 14px;
+      padding: 6px 12px;
       font-size: 13px;
       color: #ffffff;
       box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
@@ -134,7 +159,6 @@ export function openBrowserPrintPreview({
       background: #ef4444;
     }
 
-    /* مساحة عرض الورقة داخل نافذة المتصفح */
     .sheet-viewport {
       display: flex;
       justify-content: center;
@@ -164,7 +188,6 @@ export function openBrowserPrintPreview({
       padding: 6mm;
     }
 
-    /* ترويسة الصفحة الرسمية */
     .report-letterhead-block {
       display: flex;
       width: 100%;
@@ -183,7 +206,6 @@ export function openBrowserPrintPreview({
       object-position: top;
     }
 
-    /* تنسيقات الجدول العامة التكيفية */
     table {
       width: 100%;
       max-width: 100%;
@@ -216,11 +238,16 @@ export function openBrowserPrintPreview({
       width: auto;
     }
 
-    /* تطبيق الأنماط المخصصة للتقرير (مثل كشف الحساب) */
+    .total-row td {
+      background: #fef3c7 !important;
+      font-weight: 900 !important;
+      font-size: 14px !important;
+      border-top: 2px solid #000 !important;
+    }
+
     ${contentCss}
     ${reportContainmentCss}
 
-    /* قواعد أمان لضمان بقاء المحتوى داخل حدود الورقة */
     .sheet-paper, .sheet-paper * {
       max-width: 100%;
     }
@@ -228,7 +255,6 @@ export function openBrowserPrintPreview({
       width: 100% !important;
     }
 
-    /* أنماط أمر الطباعة الحقيقي عبر متصفح كروم */
     @media print {
       .preview-toolbar {
         display: none !important;
@@ -254,10 +280,6 @@ export function openBrowserPrintPreview({
         margin: 0 !important;
         transform: none !important;
       }
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
     }
   </style>
 
@@ -277,15 +299,23 @@ export function openBrowserPrintPreview({
     </div>
 
     <div class="controls-group">
-      <label style="font-size: 12px; font-weight: bold;">
+      <div class="filter-box">
+        <span style="font-size:11px; font-weight:bold; color:#7dd3fc;">الفترة:</span>
+        <label style="font-size:11px;">من <input type="date" id="dateFrom" /></label>
+        <label style="font-size:11px;">إلى <input type="date" id="dateTo" /></label>
+        <button type="button" class="btn-apply-filter" id="btnFilter">تطبيق</button>
+        <button type="button" class="btn-reset-filter" id="btnResetFilter" title="إلغاء الفلترة">إلغاء</button>
+      </div>
+
+      <label style="font-size: 11px; font-weight: bold;">
         الاتجاه:
         <select id="selOrientation">
-          <option value="portrait" ${defaultOrientation === "portrait" ? "selected" : ""}>طولي (Portrait)</option>
-          <option value="landscape" ${defaultOrientation === "landscape" ? "selected" : ""}>عرضي (Landscape)</option>
+          <option value="portrait" ${defaultOrientation === "portrait" ? "selected" : ""}>طولي</option>
+          <option value="landscape" ${defaultOrientation === "landscape" ? "selected" : ""}>عرضي</option>
         </select>
       </label>
 
-      <label style="font-size: 12px; font-weight: bold;">
+      <label style="font-size: 11px; font-weight: bold;">
         الحجم:
         <select id="selPageSize">
           <option value="A4" ${defaultPageSize === "A4" ? "selected" : ""}>A4</option>
@@ -294,21 +324,21 @@ export function openBrowserPrintPreview({
         </select>
       </label>
 
-      <label style="font-size: 12px; font-weight: bold;">
+      <label style="font-size: 11px; font-weight: bold;">
         الهوامش:
         <select id="selMargin">
-          <option value="0mm"${defaultMarginMm === 0 ? " selected" : ""}>بدون هوامش</option>
-          <option value="3mm"${defaultMarginMm === 3 ? " selected" : ""}>ضيقة (3 مم)</option>
-          <option value="5mm"${defaultMarginMm === 5 ? " selected" : ""}>عادية (5 مم)</option>
-          <option value="8mm">متوسطة (8 مم)</option>
-          <option value="12mm">واسعة (12 مم)</option>
+          <option value="0mm"${defaultMarginMm === 0 ? " selected" : ""}>بدون</option>
+          <option value="3mm"${defaultMarginMm === 3 ? " selected" : ""}>3 مم</option>
+          <option value="5mm"${defaultMarginMm === 5 ? " selected" : ""}>5 مم</option>
+          <option value="8mm">8 مم</option>
+          <option value="12mm">12 مم</option>
         </select>
       </label>
 
-      <label style="font-size: 12px; font-weight: bold;">
+      <label style="font-size: 11px; font-weight: bold;">
         الملاءمة:
         <select id="selScale">
-          <option value="1">100% (طبيعي)</option>
+          <option value="1">100%</option>
           <option value="0.95">95%</option>
           <option value="0.90">90%</option>
           <option value="0.85">85%</option>
@@ -318,15 +348,15 @@ export function openBrowserPrintPreview({
       </label>
 
       <button type="button" class="btn-print" id="btnPrint">
-        🖨️ طباعة التقرير (Ctrl+P)
+        🖨️ طباعة
       </button>
 
       <button type="button" class="btn-download-pdf" id="btnDownloadPdf">
-        📥 تنزيل كملف PDF
+        📥 تنزيل PDF
       </button>
 
       <button type="button" class="btn-close" id="btnClose">
-        ✕ إغلاق
+        ✕
       </button>
     </div>
   </div>
@@ -353,7 +383,123 @@ export function openBrowserPrintPreview({
       const btnPrint = document.getElementById('btnPrint');
       const btnDownloadPdf = document.getElementById('btnDownloadPdf');
       const btnClose = document.getElementById('btnClose');
+      const dateFrom = document.getElementById('dateFrom');
+      const dateTo = document.getElementById('dateTo');
+      const btnFilter = document.getElementById('btnFilter');
+      const btnResetFilter = document.getElementById('btnResetFilter');
+      const subTitleEl = document.querySelector('.sub');
+      const originalSubText = subTitleEl ? subTitleEl.textContent : '';
+
       let printInProgress = false;
+
+      function parseRowDate(text) {
+        if (!text) return null;
+        text = text.trim();
+        let m = text.match(/(\\d{4})[-\\/](\\d{1,2})[-\\/](\\d{1,2})/);
+        if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        m = text.match(/(\\d{1,2})[-\\/](\\d{1,2})[-\\/](\\d{4})/);
+        if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+        const d = new Date(text);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      function formatNum(num) {
+        return Number(num).toLocaleString('en-US');
+      }
+
+      function applyDateFilter() {
+        const fromVal = dateFrom.value ? new Date(dateFrom.value + 'T00:00:00') : null;
+        const toVal = dateTo.value ? new Date(dateTo.value + 'T23:59:59') : null;
+
+        const table = document.querySelector('.sheet-paper table');
+        if (!table) return;
+
+        const ths = Array.from(table.querySelectorAll('thead th'));
+        let dateColIdx = -1;
+        ths.forEach((th, idx) => {
+          const t = th.textContent.trim();
+          if (/تاريخ|التاريخ|date/i.test(t)) dateColIdx = idx;
+        });
+
+        // تحديد الأعمدة الرقمية لجمعها
+        const numericColIndices = [];
+        const totalRow = table.querySelector('.total-row');
+        if (totalRow) {
+          Array.from(totalRow.cells).forEach((cell, idx) => {
+            if (cell.classList.contains('numeric-cell') || cell.classList.contains('num')) {
+              if (idx > 0) numericColIndices.push(idx);
+            }
+          });
+        }
+
+        const colTotals = {};
+        numericColIndices.forEach(idx => colTotals[idx] = 0);
+
+        const rows = Array.from(table.querySelectorAll('tbody tr')).filter(r => !r.classList.contains('total-row'));
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+          let rowDate = null;
+          if (dateColIdx >= 0 && row.cells[dateColIdx]) {
+            rowDate = parseRowDate(row.cells[dateColIdx].textContent);
+          } else {
+            for (let c of row.cells) {
+              rowDate = parseRowDate(c.textContent);
+              if (rowDate) break;
+            }
+          }
+
+          let show = true;
+          if (rowDate) {
+            if (fromVal && rowDate < fromVal) show = false;
+            if (toVal && rowDate > toVal) show = false;
+          }
+
+          row.style.display = show ? '' : 'none';
+          if (show) {
+            visibleCount++;
+            if (row.cells[0]) {
+              const idxSpan = row.cells[0].querySelector('.pdf-cell-text') || row.cells[0];
+              idxSpan.textContent = visibleCount;
+            }
+
+            // تجميع المبالغ للأعمدة الرقمية
+            numericColIndices.forEach(colIdx => {
+              if (row.cells[colIdx]) {
+                const rawVal = row.cells[colIdx].textContent.replace(/[^0-9.-]/g, '');
+                const num = parseFloat(rawVal) || 0;
+                colTotals[colIdx] += num;
+              }
+            });
+          }
+        });
+
+        // تحديث سطر الإجمالي فورياً
+        if (totalRow) {
+          numericColIndices.forEach(colIdx => {
+            if (totalRow.cells[colIdx]) {
+              const span = totalRow.cells[colIdx].querySelector('.pdf-cell-text') || totalRow.cells[colIdx];
+              span.textContent = formatNum(colTotals[colIdx]);
+            }
+          });
+        }
+
+        if (subTitleEl) {
+          if (fromVal || toVal) {
+            const rangeStr = (fromVal ? 'من ' + dateFrom.value : '') + (toVal ? ' إلى ' + dateTo.value : '');
+            subTitleEl.textContent = originalSubText + ' • الفترة المحددة: ' + rangeStr + ' (السجلات: ' + visibleCount + ')';
+          } else {
+            subTitleEl.textContent = originalSubText;
+          }
+        }
+      }
+
+      btnFilter.addEventListener('click', applyDateFilter);
+      btnResetFilter.addEventListener('click', function() {
+        dateFrom.value = '';
+        dateTo.value = '';
+        applyDateFilter();
+      });
 
       function printOnce() {
         if (printInProgress) return;
@@ -398,10 +544,10 @@ export function openBrowserPrintPreview({
           });
         } catch (err) {
           console.error(err);
-          alert('تعذر تنزيل PDF؛ جرّب حجم ورقة أكبر أو استخدم حفظ PDF من نافذة الطباعة');
+          alert('تعذر تنزيل PDF؛ يمكنك استخدام خيار الحفظ كـ PDF من نافذة الطباعة');
         } finally {
           btnDownloadPdf.disabled = false;
-          btnDownloadPdf.innerText = '📥 تنزيل كملف PDF';
+          btnDownloadPdf.innerText = '📥 تنزيل PDF';
         }
       }
 
@@ -428,7 +574,7 @@ export function openBrowserPrintPreview({
 </body>
 </html>`;
 
-  (newWin as Window & { downloadReportFromPreview?: (settings: { pageSize: "A4" | "A3" | "Letter"; orientation: "portrait" | "landscape"; marginMm: number }) => Promise<void> }).downloadReportFromPreview = async (settings) => {
+  (newWin as any).downloadReportFromPreview = async (settings: any) => {
     const paper = newWin.document.getElementById("paperContainer");
     if (!paper) throw new Error("تعذر تحديد الورقة");
     await downloadRenderedReportPdf(paper, { ...settings, fileName: `${title.replace(/[\\/:*?"<>|]/g, "-")}.pdf` });
