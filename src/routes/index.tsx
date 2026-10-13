@@ -35,16 +35,16 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "قيادة النظام المالي - المجلس اليمني للاختصاصات الطبية" },
+      { title: "مِيزان | النظام المالي" },
       {
         name: "description",
         content:
-          "تطبيق إدارة قيود اليومية وحوافظ التوريد للمجلس اليمني للاختصاصات الطبية - يعمل بدون إنترنت",
+          "مِيزان — نظام مالي عصري لإدارة القيود والحوافظ والأقساط والتقارير",
       },
-      { property: "og:title", content: "قيادة النظام المالي - المجلس اليمني للاختصاصات الطبية" },
+      { property: "og:title", content: "مِيزان | النظام المالي" },
       {
         property: "og:description",
-        content: "إدارة القيود اليومية والحوافظ والأقساط والتقارير المالية للمجلس اليمني للاختصاصات الطبية.",
+        content: "إدارة القيود اليومية والحوافظ والأقساط والتقارير المالية بسهولة ووضوح.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -256,17 +256,17 @@ function Index() {
 
         {/* الجزء الأيمن: الشعار والعنوان والوصف */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="relative shrink-0 p-2 sm:p-2.5 bg-white/15 border border-white/30 rounded-2xl text-white hidden sm:flex items-center justify-center">
-            <FileSpreadsheet className="w-5 h-5" />
+          <div className="relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46]/20">
+            <img src="/app-logo.png" alt="شعار مِيزان" className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col gap-0.5 min-w-0">
- <h1 className="text-[clamp(1rem,3.4vw,1.35rem)] font-bold tracking-wide text-white leading-tight truncate sm:whitespace-normal">
-المجلس اليمني للاختصاصات الطبية
+ <h1 className="text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
+مِيزان
             </h1>
             <p className="text-[clamp(0.75rem,2.4vw,0.875rem)] text-[#e8f0f8] font-medium flex items-center gap-1.5 leading-snug min-w-0">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#b8d4e8] shrink-0"></span>
               <span className="truncate sm:whitespace-normal">
-                نظام الإدارة المالية وحوافظ التوريد — صعدة، 2026م
+                النظام المالي — المجلس اليمني للاختصاصات الطبية
               </span>
             </p>
           </div>
