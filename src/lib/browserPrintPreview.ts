@@ -211,7 +211,7 @@ export function openBrowserPrintPreview({
       max-width: 100%;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 13px;
+      font-size: 19px;
       margin: 0 auto;
       word-break: keep-all;
     }
