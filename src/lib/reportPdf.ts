@@ -10,9 +10,9 @@ export const reportDocumentCss = `
     --report-total:#e4f1de; --report-accent:#176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
-    color:var(--report-ink); font-family:'Cairo',Tahoma,sans-serif; font-size:16px; line-height:1.5; }
-  h1,h2 { text-align:center; color:var(--report-accent); font-size:20px; margin:0 0 6px; }
-  .sub,.meta { text-align:center; color:var(--report-muted); font-size:16px; margin-bottom:10px; }
+    color:var(--report-ink); font-family:'Cairo',Tahoma,sans-serif; font-size:18px; line-height:1.6; }
+  h1,h2 { text-align:center; color:var(--report-accent); font-size:22px; margin:0 0 6px; }
+  .sub,.meta { text-align:center; color:var(--report-muted); font-size:18px; margin-bottom:10px; }
   table { width:100%; border-collapse:collapse; table-layout:auto; }
   th,td { border:1px solid var(--report-rule); padding:5px 6px; text-align:center; vertical-align:middle; }
   thead th { background:var(--report-header); color:#172b35; font-weight:800; }
@@ -30,11 +30,11 @@ export const reportContainmentCss = `
   .report-page-content th,.report-page-content td { min-width:auto !important; padding:4px 6px !important;
     margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:normal !important;
     overflow-wrap:anywhere !important; word-break:break-word !important; font-family:'Cairo',Arial,sans-serif !important;
-    font-size:18px !important; font-weight:700 !important; color:#fff !important; line-height:1.3 !important; }
+    font-size:20px !important; font-weight:700 !important; color:#fff !important; line-height:1.4 !important; }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
   .report-page-content .idx,.report-page-content .cell-number { direction:ltr !important; unicode-bidi:isolate;
     white-space:nowrap !important; overflow-wrap:normal !important; word-break:keep-all !important; }
-  .report-page-content .pdf-cell-text { white-space:normal !important; font-size:18px; }
+  .report-page-content .pdf-cell-text { white-space:normal !important; font-size:20px; }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
   .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:0 !important; }
@@ -75,7 +75,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   content.classList.add('report-page-content');
   content.style.cssText = 'width:100%;min-height:auto;height:auto;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
-  footer.style.cssText = 'margin-top:auto;padding-top:2mm;text-align:center;font-size:18px;color:var(--report-muted);direction:rtl;';
+  footer.style.cssText = 'margin-top:auto;padding-top:2mm;text-align:center;font-size:20px;color:var(--report-muted);direction:rtl;';
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);
@@ -197,7 +197,7 @@ export async function downloadReportPdf(options: {
     const doc = frame.contentDocument;
     if (!doc) throw new Error('تعذر تجهيز التقرير');
     doc.open();
-    doc.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(options.title)}</title>
+    doc.write(`<!doctype html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\"><title>${escapeHtml(options.title)}</title>
       <style>${reportDocumentCss}
       ${options.css || ''}
       ${reportContainmentCss}</style></head><body><div id="report-source" class="report-page-content">
