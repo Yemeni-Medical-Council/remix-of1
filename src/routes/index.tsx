@@ -77,7 +77,7 @@ type TabItem = {
   activeClass: string;
 };
 
-// تعريف قائمة التبويبات مع بياناتها (تدرج موحّد لهوية "صقيع قطبي")
+// تعريف قائمة التبويبات مع بياناتها (التعديل: لكل تبويب لون مميز عند التفعيل)
 const ACTIVE_TAB_CLASS = "bg-gradient-to-b from-[#2e6b8a] to-[#6ba3c8]";
 
 const tabs: TabItem[] = [
@@ -86,63 +86,72 @@ const tabs: TabItem[] = [
     label: "كشف الأقساط",
     shortLabel: "أقساط",
     icon: <WalletCards className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // أزرق: افتراضي
+    activeClass: "bg-gradient-to-b from-[#2e6b8a] to-[#6ba3c8]",
   },
   {
     value: "hafiza",
     label: "حوافظ التوريد",
     shortLabel: "حوافظ",
     icon: <FileBox className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // أخضر
+    activeClass: "bg-gradient-to-b from-[#166b4e] to-[#3fa270]",
   },
   {
     value: "account",
     label: "الحساب الجاري",
     shortLabel: "حساب",
     icon: <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // تركوازي/أزرق مخضر
+    activeClass: "bg-gradient-to-b from-[#1f5f7a] to-[#4b8db0]",
   },
   {
     value: "journal",
     label: "القيود اليومية",
     shortLabel: "قيود",
     icon: <BookOpenText className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // بنفسجي
+    activeClass: "bg-gradient-to-b from-[#6b3d9c] to-[#b77ac1]",
   },
   {
     value: "monthly",
     label: "كشف شهري",
     shortLabel: "شهري",
     icon: <PieChart className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // برتقالي
+    activeClass: "bg-gradient-to-b from-[#b96b00] to-[#f0a54a]",
   },
   {
     value: "revenue",
     label: "الإيرادات",
     shortLabel: "إيرادات",
     icon: <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // أخضر فاتح
+    activeClass: "bg-gradient-to-b from-[#1f7a2e] to-[#6bc97a]",
   },
   {
     value: "expenses-table",
     label: "المصروفات",
     shortLabel: "مصروفات",
     icon: <ReceiptText className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // أحمر
+    activeClass: "bg-gradient-to-b from-[#9c3d3d] to-[#d67b7b]",
   },
   {
     value: "reports",
     label: "التقارير",
     shortLabel: "تقارير",
     icon: <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // كحلي/أزرق متدرج
+    activeClass: "bg-gradient-to-b from-[#2e5e9a] to-[#5f8fd0]",
   },
   {
     value: "general-expenses-ledger",
     label: "سجل النفقات",
     shortLabel: "السجل",
     icon: <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6" />,
-    activeClass: ACTIVE_TAB_CLASS,
+    // بنفسجي عميق
+    activeClass: "bg-gradient-to-b from-[#4b2e6a] to-[#7a58a0]",
   },
 ];
 
@@ -250,18 +259,18 @@ function Index() {
       dir="rtl"
     >
       {/* قسم الهيدر العلوي — أزرق ثلجي عصري */}
-<div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-3 py-3 sm:px-5 sm:py-4 border-b border-[#b8d4e8] shadow-sm text-white overflow-hidden">
+<div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-3 py-3 sm:px-5 sm:py-4 border-b border-[#b8d4e8] shad[...]
         {/* خيط زخرفي أعلى الهيدر */}
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#b8d4e8,#e8f0f8,#b8d4e8)] opacity-80" />
 
         {/* الجزء الأيمن: الشعار والعنوان والوصف */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46]/20">
+          <div className="relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46[...]
             <img src="/app-logo.png" alt="شعار مِيزان" className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col gap-0.5 min-w-0">
  <h1 className="text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
-مِيزان
+ مِيزان
             </h1>
             <p className="text-[clamp(0.75rem,2.4vw,0.875rem)] text-[#e8f0f8] font-medium flex items-center gap-1.5 leading-snug min-w-0">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#b8d4e8] shrink-0"></span>
@@ -277,7 +286,7 @@ function Index() {
           {pwaInstallable && (
             <button
               onClick={handlePWAInstall}
-              className="flex items-center gap-1.5 bg-white text-[#2e6b8a] hover:bg-[#e8f0f8] font-bold text-[13px] px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap active:scale-[0.97]"
+              className="flex items-center gap-1.5 bg-white text-[#2e6b8a] hover:bg-[#e8f0f8] font-bold text-[13px] px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap active:scale-[0[...]
             >
               <DownloadCloud className="w-4 h-4 shrink-0" />
               <span>تثبيت التطبيق</span>
