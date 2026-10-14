@@ -131,7 +131,7 @@ export function openBrowserPrintPreview({
       background: #059669;
       border-color: #10b981;
       padding: 6px 14px;
-      font-size: 13px;
+      font-size: 24px;
       color: #ffffff;
       box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
     }
@@ -143,8 +143,8 @@ export function openBrowserPrintPreview({
       background: #0284c7;
       border-color: #38bdf8;
       padding: 6px 12px;
-      font-size: 13px;
-      color: #ffffff;
+      font-size: 24px;
+      color: #000;
       box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
     }
     .preview-toolbar button.btn-download-pdf:hover {
@@ -211,8 +211,9 @@ export function openBrowserPrintPreview({
       max-width: 100%;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 19px;
+      font-size: 24px;
       margin: 0 auto;
+      color: #000;
       word-break: keep-all;
     }
 
@@ -225,13 +226,17 @@ export function openBrowserPrintPreview({
       text-align: center;
       vertical-align: middle;
       padding: 4px 5px;
+      color: #000;
+      font-size: 24px;
       box-sizing: border-box;
     }
 
     .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"] {
       white-space: nowrap !important;
       word-break: keep-all !important;
-      font-family: 'Times New Roman', serif !important;
+      font-family: cairo !important;
+      font-size: 24px;
+      color: #000;
       direction: ltr !important;
       font-weight: 800 !important;
       padding: 3px 4px !important;
@@ -241,18 +246,22 @@ export function openBrowserPrintPreview({
     .total-row td {
       background: #fef3c7 !important;
       font-weight: 900 !important;
-      font-size: 14px !important;
+      font-size: 20px !important;
       border-top: 2px solid #000 !important;
+color: #000;
     }
 
     ${contentCss}
     ${reportContainmentCss}
 
     .sheet-paper, .sheet-paper * {
-      max-width: 100%;
+      max-width: auto;
+      width: 100%
     }
     .sheet-paper table {
       width: 100% !important;
+      max-width: auto !important;
+
     }
 
     @media print {
@@ -265,6 +274,8 @@ export function openBrowserPrintPreview({
         padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        font-size: 24px;
+      color: #000;
       }
       .sheet-viewport {
         padding: 0 !important;
@@ -272,6 +283,8 @@ export function openBrowserPrintPreview({
         overflow: visible !important;
       }
       .sheet-paper {
+      font-size: 24px;
+      color: #000;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
