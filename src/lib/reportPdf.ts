@@ -25,16 +25,18 @@ export const reportDocumentCss = `
 `;
 
 export const reportContainmentCss = `
-  .report-page-content { width:100%; max-width:100%; }
-  .report-page-content table { width:100% !important; max-width: 100% !important; table-layout:auto !important; }
+  .report-page-content { width:100%; max-width: auto; 
+
+  }
+  .report-page-content table { width:100% !important; max-width:auto !important; table-layout:auto !important; }
   .report-page-content th,.report-page-content td { min-width:auto !important; padding:4px 6px !important;
-    margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:normal !important;
+    margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:nowrap !important;
     overflow-wrap:anywhere !important; word-break:break-word !important; font-family:'Cairo';
     font-size:24px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
   .report-page-content .idx,.report-page-content .cell-number { direction:ltr !important; unicode-bidi:isolate;
     white-space:nowrap !important; overflow-wrap:normal !important; word-break:keep-all !important; }
-  .report-page-content .pdf-cell-text { white-space:normal !important; font-size:24px; }
+  .report-page-content .pdf-cell-text { white-space:nowrap !important; font-size:24px; }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
   .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:0 !important; }
@@ -61,7 +63,7 @@ async function ready(doc: Document) {
 export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   fileName: string; pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
 }) {
-  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 2 } = options;
+  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 4 } = options;
   const doc = source.ownerDocument;
   await ready(doc);
   const [{ default: html2canvas }, { default: JsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
@@ -75,7 +77,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   content.classList.add('report-page-content');
   content.style.cssText = 'width:100%;min-height:auto;height:auto;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
-  footer.style.cssText = 'margin-top:auto;padding-top:2mm;text-align:center;font-size:25px;color:#000;direction:rtl;';
+  footer.style.cssText = 'margin-top:auto;padding-top:2mm;text-align:center;font-size:22px;color:#000;direction:rtl;';
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);

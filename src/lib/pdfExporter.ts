@@ -22,13 +22,13 @@ font-family: cairo;
     padding: 0;
 width: 100%;
 height: 100%;
-min-height: 260mm;
+min-height: auto;
 box-sizing: border-box;
   }
 
 table {
 width: 100% !important;
-min-width:auto !important;
+max-width:auto !important;
 font-size: 20px !important;
 table-layout:fixed 
 !important; 
@@ -156,7 +156,7 @@ font-family:cairo;
           color: #000 !important;
           background: white;
           line-height: 1.5;
-          font-size: 17px;
+          font-size: 24px;
           font-weight: 900 !important;
           width: 100%;
           margin: 0;
@@ -179,14 +179,14 @@ font-family:cairo;
           padding: 3px 5px !important;
           text-align: center;
           vertical-align: middle;
-          font-size: 16px;
+          font-size: 20px;
           color: #000 !important;
           font-weight: 900 !important;
         }
         th {
           border: 1px solid #000 !important;
           background: #1f7fb8;
-          color: #000 !important;
+          color: #fff !important;
           font-weight: 900 !important;
           white-space: normal !important;
           font-size: 18px;
@@ -220,9 +220,12 @@ font-family: AlQabas-Bold;
         }
         @media print {
           * { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          body { background: white; color: #000 !important; font-weight: 900 !important; width: 100%; margin: 0; padding: 0; }
+          body { background: white; color: #000 !important; font-weight: 900 !important; width: 100%; margin: 0; padding: 0;
+          height: 100%; 
+            
+          }
           table { 
-width: 100% !important; max-width:auto!important; }
+width: 100% !important; max-width:auto !important; }
 th, td { color: #000 !important; font-weight: 900 !important; }
           .no-print { display: none !important; }
         }

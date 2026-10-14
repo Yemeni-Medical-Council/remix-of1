@@ -72,7 +72,7 @@ export const tablePrintStyles = `
     direction: rtl;
     width: 100%;
     font-weight: 700;
-    font-size: 18.5px;
+    font-size: 24.5px;
     background: #fff;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -119,7 +119,7 @@ export const tablePrintStyles = `
   thead th,
   th {
     background: #f5deb3 !important;
-    color: white !important;
+    color:#fff !important;
     font-weight: 900 !important;
     font-size: 19px !important;
     line-height: 1.5 !important;
@@ -151,8 +151,7 @@ font-family: AlQabas-Bold;
     text-align: center !important;
     width: 100% !important;
 max-width: auto !important;
-
-  font-size: 18px; 
+  font-size: 20px; 
   font-family: cairo;
     font-weight: 900; 
     white-space: nowrap !important;
