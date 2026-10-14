@@ -86,8 +86,9 @@ ${reportLetterheadStyles}
     }
     table { 
       width: 100%;
+      min-width: auto;
       border: solid 1px black; 
-      font-size:18px; 
+      font-size:24px; 
       table-layout: auto;
       margin-top: 6px;
     }
@@ -105,7 +106,7 @@ ${reportLetterheadStyles}
     }
     .num, .numeric-cell, .date-cell {
       font-family: 'Times New Roman', Times, serif !important;
-      font-size: clamp(16px, 1vw, 18px) !important;
+      font-size: 20px !important;
       color: #000 !important;
       font-weight: 1000 !important;
       direction: ltr;
@@ -116,7 +117,7 @@ ${reportLetterheadStyles}
     }
     th { 
       background: #1f7fb8 !important;
-      color: #000 !important;
+      color: #fff !important;
       font-weight: 900 !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -126,7 +127,7 @@ word-break: normal !important;
     tr:nth-child(even) td { background: #f8fafc; }
     tr:nth-child(odd) td { background: #ffffff; }
     .meta { 
-      font-size: 16px; 
+      font-size: 20px; 
       color: #000 !important; 
       margin: 2px 0;
       text-align: center;
@@ -354,7 +355,7 @@ tr.subtotal-row td {
     object-position:top;
     }
     table { width: 100%; 
-max-width:auto; 
+min-width:auto; 
 table-layout: auto !important; 
 margin-top: 4px; }
     th:first-child, td:first-child,
@@ -532,9 +533,17 @@ ${reportLetterheadStyles}
       unicode-bidi: embed;
     }
     td.acc { text-align: center; font-weight: 800 !important; }
-    th { background: #1f7fb8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    tr.group-row td { background: #fef3c7 !important; font-weight: 900 !important; }
-    tr.subtotal-row td { background: #cbd5e1 !important; font-weight: 800 !important; }
+    th { background: #1f7fb8 !important; 
+        color: #fff;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    tr.group-row td {
+  background: #fef3c7 !important; font-weight: 900 !important; 
+  color: #fff;
+    }
+    tr.subtotal-row td { background: #cbd5e1 !important;
+  font-weight: 800 !important;
+    }
     tr.total-row td { background: #1f7fb8 !important; font-weight: 900 !important; }
     /* تحسينات محصورة بتقريري كشف الحساب الشهري والإيرادات */
     @page { size: A4 landscape; margin: 3mm; padding: 0; }
@@ -543,7 +552,7 @@ ${reportLetterheadStyles}
     .report-letterhead-cell { padding: 0 !important; 
     width: 100%; }
     .report-letterhead-image { width: 100% !important; max-width: auto !important; height: 50mm !important; 
-    object-fit:content !important; margin: 0 !important; }
+    object-fit:fill !important; margin: 0 !important; }
     table { width: 100%; max-width: 100%;
   table-layout: auto !important; margin-top: 4px; }
     th:first-child, td:first-child,

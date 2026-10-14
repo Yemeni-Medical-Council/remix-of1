@@ -2272,7 +2272,7 @@ font-weight: 800; color: #000; }
         margin-top:6px;
         flex: 0 0 auto;
 width: 100٪;
-        max-width: auto;
+        min-width: auto;
  }
 
      /* كروت المعلومات مصغّرة لتناسب ورقة A4 عند الطباعة */
@@ -2291,7 +2291,7 @@ width: 100٪;
     table {
       table-layout: fixed;
       width: 100%;
-      max-width: auto;
+        min-width: auto;
       height: 100%;
       min-height: auto;
       flex: 1 1 auto;
@@ -2316,7 +2316,7 @@ text-overflow: clip;
     }
     th {
 background: #0f766e;
-color: white !important;
+color:white !important;
 font-weight:900;
 text-align: center;
 font-size: 24px;
