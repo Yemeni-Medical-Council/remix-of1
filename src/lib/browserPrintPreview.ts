@@ -44,6 +44,7 @@ export function openBrowserPrintPreview({
       font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #0f172a;
       direction: rtl;
+      display: flex;
     }
 
     .preview-toolbar {
@@ -259,7 +260,6 @@ color: #000;
     }
     .sheet-paper table {
       width: 100% !important;
-      max-width: 100% !important;
 
     }
 
