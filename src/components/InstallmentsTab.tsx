@@ -2302,7 +2302,7 @@ font-weight: 800; color: #000; }
       text-align: center;
       vertical-align: middle;
  padding: 0 2px;
-font-size: 20px;
+font-size: 24px;
 line-height: 1.25;
 white-space: normal;
 overflow: hidden;
@@ -2311,29 +2311,29 @@ text-overflow: clip;
       word-break: break-word;
       hyphens: auto;
     }
-    th { 
+    th {
 background: #0f766e;
-color: white !important; 
+color: white !important;
 font-weight:900;
 text-align: center;
-font-size: 20px;
+font-size: 24px;
     }
     td { color: #000 !important;
 font-weight: 900; }
     .lbl { 
 text-align: center;
 font-weight: 800; }
-.num { 
-font-family: Cairo; 
-font-weight: 900; 
-font-size: 20px; 
+.num {
+font-family: Cairo;
+font-weight: 900;
+font-size: 24px;
 font-variant-numeric: tabular-nums; direction: ltr; }
     .row-fees td { background: #eff6ff; }
     .row-due-old td { background: #fef3c7; color: #000 !important; }
     .row-total-due td { background: #fee2e2; color: #000 !important; font-weight: 800; }
     .row-paid td { color: #000 !important; }
     .row-total-paid td { background: #d1fae5; color: #000 !important; font-weight: 800; }
-    .row-final td { background: #fee2e2; font-size: 16px; font-weight: 800; color: #000 !important; border-top: 1pt solid #000; }
+    .row-final td { background: #fee2e2; font-size: 24px; font-weight: 800; color: #000 !important; border-top: 1pt solid #000; }
     .foot {
       margin-top: 3mm;
       flex: 0 0 auto;
