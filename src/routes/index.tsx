@@ -78,8 +78,6 @@ type TabItem = {
 };
 
 // تعريف قائمة التبويبات مع بياناتها (التعديل: لكل تبويب لون مميز عند التفعيل)
-const ACTIVE_TAB_CLASS = "bg-gradient-to-b from-[#2e6b8a] to-[#6ba3c8]";
-
 const tabs: TabItem[] = [
   {
     value: "installments",
@@ -155,7 +153,6 @@ const tabs: TabItem[] = [
   },
 ];
 
-
 const isTabValue = (value: string | null): value is Tab =>
   value !== null && tabs.some((tab) => tab.value === value);
 
@@ -204,8 +201,6 @@ function Index() {
       return true;
     }
 
-    // عند فتح رابط مباشر على تبويب داخلي لا توجد حالة سابقة في history؛
-    // نعيده إلى التبويب الأساسي داخل نفس الصفحة بدلاً من مغادرة التطبيق.
     activeTabRef.current = "installments";
     tabHistoryRef.current = ["installments"];
     startTransition(() => setActiveTab("installments"));
@@ -259,18 +254,18 @@ function Index() {
       dir="rtl"
     >
       {/* قسم الهيدر العلوي — أزرق ثلجي عصري */}
-<div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-3 py-3 sm:px-5 sm:py-4 border-b border-[#b8d4e8] shad[...]
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-3 py-3 sm:px-5 sm:py-4 border-b border-[#b8d4e8] shadow-sm text-white overflow-hidden">
         {/* خيط زخرفي أعلى الهيدر */}
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#b8d4e8,#e8f0f8,#b8d4e8)] opacity-80" />
 
         {/* الجزء الأيمن: الشعار والعنوان والوصف */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46[...]
+          <div className="relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46]/20">
             <img src="/app-logo.png" alt="شعار مِيزان" className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col gap-0.5 min-w-0">
- <h1 className="text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
- مِيزان
+            <h1 className="text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
+              مِيزان
             </h1>
             <p className="text-[clamp(0.75rem,2.4vw,0.875rem)] text-[#e8f0f8] font-medium flex items-center gap-1.5 leading-snug min-w-0">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#b8d4e8] shrink-0"></span>
@@ -286,7 +281,7 @@ function Index() {
           {pwaInstallable && (
             <button
               onClick={handlePWAInstall}
-              className="flex items-center gap-1.5 bg-white text-[#2e6b8a] hover:bg-[#e8f0f8] font-bold text-[13px] px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap active:scale-[0[...]
+              className="flex items-center gap-1.5 bg-white text-[#2e6b8a] hover:bg-[#e8f0f8] font-bold text-[13px] px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap active:scale-[0.97]"
             >
               <DownloadCloud className="w-4 h-4 shrink-0" />
               <span>تثبيت التطبيق</span>
@@ -353,7 +348,6 @@ function Index() {
           })}
         </div>
       </nav>
-
 
       <Toaster position="top-center" richColors />
     </div>
