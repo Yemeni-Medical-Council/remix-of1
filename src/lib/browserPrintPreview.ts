@@ -131,7 +131,7 @@ export function openBrowserPrintPreview({
       background: #059669;
       border-color: #10b981;
       padding: 6px 14px;
-      font-size: 24px;
+      font-size: 13px;
       color: #ffffff;
       box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
     }
@@ -143,7 +143,7 @@ export function openBrowserPrintPreview({
       background: #0284c7;
       border-color: #38bdf8;
       padding: 6px 12px;
-      font-size: 24px;
+      font-size: 13px;
       color: #000;
       box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
     }
