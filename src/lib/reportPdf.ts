@@ -10,7 +10,7 @@ export const reportDocumentCss = `
     --report-total:#e4f1de; --report-accent:#176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
-    color:#000; font-family:'Cairo',Tahoma,sans-serif; font-size:24px; line-height:1.6; }
+    color:#000; font-family:'Cairo'; font-size:24px; line-height:1.6; }
   h1,h2 { text-align:center; color:#000; font-size:22px; margin:0 0 6px; }
   .sub,.meta { text-align:center; color:#000; font-size:24px; margin-bottom:10px; }
   table { width:100%; border-collapse:collapse; table-layout:auto; }
@@ -61,7 +61,7 @@ async function ready(doc: Document) {
 export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   fileName: string; pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
 }) {
-  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 4 } = options;
+  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 2 } = options;
   const doc = source.ownerDocument;
   await ready(doc);
   const [{ default: html2canvas }, { default: JsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);

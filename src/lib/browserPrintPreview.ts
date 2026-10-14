@@ -208,7 +208,7 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: 100%;
+      max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 24px;
@@ -255,12 +255,11 @@ color: #000;
     ${reportContainmentCss}
 
     .sheet-paper, .sheet-paper * {
-      max-width: auto;
-      width: 100%
+      max-width: 100%;
     }
     .sheet-paper table {
       width: 100% !important;
-      max-width: auto !important;
+      max-width: 100% !important;
 
     }
 
