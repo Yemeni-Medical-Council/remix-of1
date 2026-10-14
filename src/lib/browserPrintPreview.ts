@@ -208,7 +208,7 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: auto;
+      min-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 24px;
