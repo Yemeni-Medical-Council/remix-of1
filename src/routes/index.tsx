@@ -317,7 +317,7 @@ function Index() {
 
       {/* شريط التبويبات السفلي — عائم زجاجي فاتح */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-teal/75 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
+        className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-gold pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
         dir="rtl"
         aria-label="التنقل الرئيسي"
       >
