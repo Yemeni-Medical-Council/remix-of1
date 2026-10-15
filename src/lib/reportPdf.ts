@@ -25,12 +25,12 @@ export const reportDocumentCss = `
 `;
 
 export const reportContainmentCss = `
-  .report-page-content { width:100%; max-width: auto; 
+  .report-page-content { width:100%; max-width:100%; 
 
   }
-  .report-page-content table { width:100% !important; max-width:auto !important; table-layout:auto !important; }
+  .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
   .report-page-content th,.report-page-content td { min-width:auto !important; padding:4px 6px !important;
-    margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:normal !important;
+    margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:nowrap !important;
     overflow-wrap:anywhere !important; word-break:break-word !important; font-family:'Cairo';
     font-size:20px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,

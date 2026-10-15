@@ -208,7 +208,7 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: auto;
+      min-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 18px;
@@ -232,15 +232,16 @@ export function openBrowserPrintPreview({
     }
 
     .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"] {
-      white-space: normal !important;
+      white-space: nowrap !important;
       word-break: keep-all !important;
-      font-family: cairo !important;
+  font-family: Cairo !important;
       font-size: 18px;
       color: #000;
       direction: ltr !important;
       font-weight: 800 !important;
       padding: 3px 4px !important;
       width: auto;
+
     }
 
     .total-row td {
@@ -286,7 +287,8 @@ color: #000;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-        min-height: auto !important;
+      min-width: auto !important;
+    min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
         transform: none !important;
