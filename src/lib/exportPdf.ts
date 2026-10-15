@@ -32,7 +32,7 @@ const reportLetterheadStyles = `
       display: flex;
       width: 100%;
       max-height: 20mm;
-      height: auto;
+      height: 100%;
       object-fit:fill;
       margin: 0 auto;
     object-position:top;
@@ -52,7 +52,7 @@ export async function exportToPdf(opts: {
   const reportDateLabel =
     formatReportDate(opts.reportDate) || new Date().toLocaleDateString("ar-EG-u-nu-latn");
   const orient = opts.orientation || (opts.columns.length > 6 ? "landscape" : "portrait");
-  const fontSize = opts.columns.length > 12 ? 11 : opts.columns.length > 8 ? 12 : 14;
+  const fontSize = opts.columns.length > 18 ? 20 : opts.columns.length > 8 ? 12 : 14;
   const numericColumnHints = ["رقم", "الباب", "الفصل", "البند", "النوع", "مبلغ", "مدين", "دائن", "الرصيد", "الجملة", "الإجمالي", "المتبقي", "المدفوع", "الأشهر", "الشهر"];
   const dateColumnHints = ["التاريخ", "تاريخ"];
   const isNumericColumn = (column: string) => column.trim() === "م" || numericColumnHints.some((hint) => column.includes(hint));
@@ -86,9 +86,9 @@ ${reportLetterheadStyles}
     }
     table { 
       width: 100%;
-      min-width: auto;
+      max-width: auto;
       border: solid 1px black; 
-      font-size:24px; 
+      font-size:20px; 
       table-layout: auto;
       margin-top: 6px;
     }
@@ -97,7 +97,7 @@ ${reportLetterheadStyles}
       padding: 2px 4px !important;
       text-align: center; 
       vertical-align: middle;
-      font-size: clamp(14px, 1.05vw, 18px);
+      font-size: 18px;
       word-wrap: break-word;
       overflow-wrap: break-word;
       font-weight: 700 !important;
@@ -106,7 +106,7 @@ ${reportLetterheadStyles}
     }
     .num, .numeric-cell, .date-cell {
       font-family: 'Times New Roman', Times, serif !important;
-      font-size: 20px !important;
+      font-size: 28px !important;
       color: #000 !important;
       font-weight: 1000 !important;
       direction: ltr;
@@ -127,7 +127,7 @@ word-break: normal !important;
     tr:nth-child(even) td { background: #f8fafc; }
     tr:nth-child(odd) td { background: #ffffff; }
     .meta { 
-      font-size: 20px; 
+      font-size: 18px; 
       color: #000 !important; 
       margin: 2px 0;
       text-align: center;
@@ -300,7 +300,6 @@ ${reportLetterheadStyles}
     table { 
     width: 100%; 
     border: solid 1px black; 
-    font-size: 16px; 
     table-layout: auto; 
     margin-top: 6px;
     }
@@ -331,8 +330,10 @@ ${reportLetterheadStyles}
     th { 
 background: #94e6ff 
 !important; 
--webkit-print-color-adjust: exact; 
-print-color-adjust: exact; }
+color: white;
+-webkit-print-color-adjust: exact;
+print-color-adjust: exact; 
+    }
 tr.group-row td {
 background: #32a4c7 !important; 
 font-weight: 900 !important; }
@@ -377,11 +378,11 @@ margin-top: 4px; }
       word-break: keep-all !important;
       hyphens: none !important;
       font-family: 'Times New Roman', Times, serif !important;
-      font-size: 16px !important;
+      font-size: 20px !important;
       font-variant-numeric: tabular-nums;
       direction: ltr;
     }
-    td.acc { width: 100% !important; white-space:normal !important; overflow-wrap: break-word !important; word-break: normal !important; }
+    td.acc { width: 100% !important; white-space:nowrap !important; overflow-wrap: break-word !important; word-break: normal !important; }
     @media print {
       body { padding: 0; }
       @page { size: A4 landscape; margin: 3mm; }

@@ -18,7 +18,7 @@ export function openBrowserPrintPreview({
   contentCss = "",
   defaultOrientation = "portrait",
   defaultPageSize = "A4",
-  defaultMarginMm = 5,
+  defaultMarginMm = 3,
 }: BrowserPreviewOptions): boolean {
   const newWin = window.open("", "_blank");
   if (!newWin) {
@@ -208,13 +208,15 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      min-width: auto;
+      max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 18px;
       margin: 0 auto;
       color: #000;
       word-break: keep-all;
+    white-space: normal !important;
+
     }
 
     thead { display: table-header-group; }
@@ -287,7 +289,7 @@ color: #000;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-      min-width: auto !important;
+      max-width: auto !important;
     min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;

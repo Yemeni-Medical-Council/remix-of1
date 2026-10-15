@@ -62,7 +62,7 @@ font-family: Cairo;
     background: #f1f5f9 !important; 
     width: 100%; 
       max-width: auto;
- white-space: normal !important; 
+ white-space: nowrap !important; 
   }
   .sign {
     margin-top: 30px; 
