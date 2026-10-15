@@ -61,7 +61,7 @@ font-family: Cairo;
   .info td.lbl { 
     background: #f1f5f9 !important; 
     width: 100%; 
-      max-width: auto;
+  max-width: auto;
  white-space: nowrap !important; 
   }
   .sign {

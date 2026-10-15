@@ -1131,7 +1131,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                         value={filters[c.key] || ""}
                         onChange={(e) => setFilter(c.key, e.target.value)}
                         placeholder="تصفية..."
- className="w-10 min-w-0 max-w-auto px-1 py-1 text-xs border rounded bg-white text-[#0f2f44] outline-none focus:border-[#0f2f44] font-bold transition-colors"
+ className="w-7 min-w-0 max-w-auto px-1 py-1 text-xs border rounded bg-white text-[#0f2f44] outline-none focus:border-[#0f2f44] font-bold transition-colors"
                       />
                     </th>
                   ))}
@@ -1158,22 +1158,22 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
  <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.date}
                       </td>
-                      <td className="border border-black font-mono tabular-nums numeric-cell font-black text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+<td className="border border-black font-mono tabular-nums numeric-cell font-black text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.hafizaNo || "—"}
                       </td>
-                      <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+<td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.notifyNo || "—"}
                       </td>
-                      <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+ <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.notifyDate || "—"}
                       </td>
                       <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkNo || "—"}
                       </td>
-                      <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+ <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+<td className="min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.description || "—"}
                       </td>
  <td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
@@ -1211,7 +1211,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                         </select>
                       </td>
 
-<td className="border border-black font-bold tabular-nums numeric-cell font-white text-center text-white bg-[#1f5f7a] px-1 py-1.5 sm:px-2 sm:py-2 text-xm whitespace-nowrap">
+<td className="border border-black font-bold tabular-nums numeric-cell font-bold text-center text-white bg-[#1f5f7a] px-1 py-1.5 sm:px-2 sm:py-2 text-xm whitespace-nowrap">
                         {fmt(acc.balance)}
                       </td>
                       <td className="accounts-print-hide border border-black text-center px-1 py-1.5 sm:px-2 sm:py-2 text-xs whitespace-nowrap">
@@ -1270,8 +1270,8 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
         onClose={() => setEditingRow(null)}
       >
         {editingRow && (
-          <form onSubmit={handleEditSave} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<form onSubmit={handleEditSave} className="space-y-9">
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">التاريخ</label>
                 <input
@@ -1308,7 +1308,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">البيان والشرح</label>
+ <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">البيان والشرح</label>
                 <input
                   value={editingRow.description}
                   onChange={(e) => setEditingRow({ ...editingRow, description: e.target.value })}
