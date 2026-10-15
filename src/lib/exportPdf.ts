@@ -86,11 +86,12 @@ ${reportLetterheadStyles}
     }
     table { 
       width: 100%;
-      min-width: auto;
+      max-width: auto;
       border: solid 1px black; 
       font-size: 20px; 
       table-layout: auto;
       margin-top: 6px;
+      text-align:center;
       border-collapse: collapse;
     }
     th, td { 
@@ -107,7 +108,7 @@ ${reportLetterheadStyles}
     }
     .num, .numeric-cell, .date-cell {
       font-family: 'Times New Roman', Times, serif !important;
-      font-size: 28px !important;
+      font-size: 20px !important;
       color: #000 !important;
       font-weight: 1000 !important;
       direction: ltr;
@@ -300,6 +301,8 @@ ${reportLetterheadStyles}
     margin: 2px 0; }
     table { 
     width: 100%; 
+    text-align:center;
+   max-width: auto;
     border: solid 1px black; 
     table-layout: auto; 
     margin-top: 6px;
@@ -356,10 +359,13 @@ tr.subtotal-row td {
     margin: 0 !important;
     object-position:top;
     }
-    table { width: 100%; 
-min-width:auto; 
+    table { 
+width: 100%; 
+max-width: auto; 
 table-layout: auto !important; 
-margin-top: 4px; }
+margin-top: 4px; 
+text-align:center;
+    }
     th:first-child, td:first-child,
     th:not(:first-child), td:not(:first-child) { width: auto !important; }
     th, td {
@@ -503,11 +509,21 @@ ${reportLetterheadStyles}
       color: #000 !important; 
       padding: 6px; 
       background: white;
+    font-size: 19.5px !important;
+text-align:center;
       font-weight: 700 !important;
     }
-    h1 { text-align: center; font-size: 16px; font-weight: 900; margin: 0 0 4px; }
-    .meta { text-align: center; font-size: 19px; font-weight: 700; margin: 2px 0; }
-    table { width: 100%; border:solid 1px black; font-size: 16px; table-layout: auto; margin-top: 6px; }
+    h1 { text-align: center; 
+  font-size: 22px; font-weight: 900; margin: 0 0 4px; }
+    .meta { text-align: center; font-size: 20px; font-weight: 900; margin: 2px 0; }
+    table { 
+width: 100%; 
+max-width: auto;
+text-align:center;
+border:solid 1px black; 
+font-size: 20px; 
+table-layout: auto; 
+margin-top: 6px; }
     
     th:nth-child(1), td:nth-child(1) { width: 44%; }
     th:nth-child(2), td:nth-child(2),
@@ -523,24 +539,26 @@ ${reportLetterheadStyles}
       padding: 3px 2px !important;
       text-align: center;
       vertical-align: middle;
-      font-weight: 700 !important;
+      font-weight: 900 !important;
       line-height: 1.25;
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
     .num {
       font-family: 'Times New Roman', Times, serif !important;
-      font-size: 14px !important;
+      font-size: 20px !important;
       direction: ltr;
       unicode-bidi: embed;
     }
-    td.acc { text-align: center; font-weight: 800 !important; }
-    th { background: #1f7fb8 !important; 
-        color: #fff;
+    td.acc {
+  text-align: center; font-weight: 800 !important; }
+    th { background: gold !important; 
+    font-size: 20.5px !important;
+        color: #000;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     tr.group-row td {
-  background: #fef3c7 !important; font-weight: 900 !important; 
+  background: #fef3c7 !important; font-weight: 900 !important;
   color: #fff;
     }
     tr.subtotal-row td { background: #cbd5e1 !important;
@@ -576,7 +594,7 @@ ${reportLetterheadStyles}
       word-break: keep-all !important;
       hyphens: none !important;
       font-family: 'Times New Roman', Times, serif !important;
-      font-size: clamp(14px, 1vw, 16px) !important;
+      font-size: 19px !important;
       font-variant-numeric: tabular-nums;
       direction: ltr;
     }

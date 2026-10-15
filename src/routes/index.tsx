@@ -295,7 +295,7 @@ function Index() {
         <Suspense
           fallback={
             <div
-              className="flex min-h-[35vh] items-center justify-center rounded-2xl border border-[#b8d4e8] bg-white/80 p-6 text-sm font-semibold text-[#2e6b8a]"
+              className="flex min-h-[35vh] items-center justify-center rounded-2xl border border-[#b8d4e8] bg-gold/95 p-6 text-xs font-semibold text-[#2e6b8a]"
               role="status"
               aria-live="polite"
             >
@@ -317,7 +317,7 @@ function Index() {
 
       {/* شريط التبويبات السفلي — عائم زجاجي فاتح */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-gold/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
+        className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
         dir="rtl"
         aria-label="التنقل الرئيسي"
       >

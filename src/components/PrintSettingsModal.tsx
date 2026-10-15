@@ -20,7 +20,7 @@ export const DEFAULT_PRINT_SETTINGS: InstallmentsPrintSettings = {
   pageSize: "A4",
   margin: "narrow",
   fontMode: "auto",
-  fontSize: 13,
+  fontSize: 18,
   hiddenColumns: [],
   showTotals: true,
   showHeader: true,
@@ -30,7 +30,7 @@ export const DEFAULT_PRINT_SETTINGS: InstallmentsPrintSettings = {
 const STORAGE_PREFIX = "installments-print-settings";
 
 export const marginToCss = (m: PrintMargin) =>
-  m === "narrow" ? "1mm 1mm" : m === "wide" ? "14mm 12mm" : "8mm 6mm";
+  m === "narrow" ? "1mm 1mm" : m === "wide" ? "3mm 3mm" : "3mm 3mm";
 
 export function loadPrintSettings(year: number): InstallmentsPrintSettings {
   try {
