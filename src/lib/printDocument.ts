@@ -50,7 +50,7 @@ const baseCss = (
   /* جداول: احتواء تلقائي للأعمدة بحسب محتواها وتوسيط تام */
   table { 
     width: 100%!important; 
-    max-width:auto; 
+    min-width:auto; 
     border-collapse: collapse;
 
     border: solid 1px #000; 
@@ -132,25 +132,26 @@ font-size: 19px !important;
     vertical-align: middle !important;
   }
 
-  th { font-weight: 800; white-space:normal !important; vertical-align: middle !important; }
-  img { max-width: 100%; height: auto; display: flex; }
+  th { font-weight: 800; 
+  white-space: normal !important; vertical-align: middle !important; }
+  img { width:100% max-width: auto; height: auto; display: flex; }
 
   /* ترويسة التقرير داخل thead تتكرر مع رؤوس الأعمدة في كل صفحة */
   .report-letterhead-row { page-break-after: avoid; break-after: avoid; }
   
   .report-letterhead-cell
   {
-    height: 30mm!important;
-min-height: 30mm!important;
-padding: 0!important;
-border: 0!important;
-background: #fff!important;
+    height: 30mm !important;
+min-height: 30mm !important;
+padding: 0 !important;
+border: 0 !important;
+background: #fff !important;
 text-align: center; 
   }
   .report-letterhead-cell img {
     display: flex;
     width: 100%;
-    max-width:auto;
+    max-width: auto;
     height: 30mm;
     max-height: 30mm;
     object-fit: fill;
@@ -169,8 +170,8 @@ text-align: center;
     }
     body { 
 width: 100%;
-min-height: auto;
 height: 100%;
+min-height: auto;
     margin: 0; 
     padding: 0; 
     font-size:18px; 

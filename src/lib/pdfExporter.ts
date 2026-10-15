@@ -150,9 +150,9 @@ export function printHtmlContent(htmlContent: string): void {
       <title>طباعة</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-@page { size: A4; margin: 5mm; }
+@page { size: A4; margin: 3mm; }
         body {
-font-family:cairo;
+font-family: Cairo;
           direction: rtl;
           color: #000 !important;
           background: white;
@@ -160,6 +160,7 @@ font-family:cairo;
           font-size: 24px;
           font-weight: 900 !important;
           width: 100%;
+         min-width: auto;
           margin: 0;
           padding: 0;
         }
@@ -170,7 +171,7 @@ font-family:cairo;
         }
         table {
           width: 100% !important;
-          max-width:auto !important;
+          min-width:auto !important;
           border-collapse: collapse;
           table-layout: auto !important;
           margin: 10px 0;
@@ -187,7 +188,7 @@ font-family:cairo;
         th {
           border: 1px solid #000 !important;
           background: #1f7fb8;
-          color: #fff !important;
+          color: #fffff !important;
           font-weight: 900 !important;
           white-space: normal !important;
           font-size: 18px;
@@ -196,7 +197,7 @@ font-family: AlQabas-Bold;
 
         }
         td:not(.num):not(.idx):not(.numeric-cell) {
-          white-space: nowrap !important;
+          white-space: normal !important;
           overflow-wrap: break-word !important;
           word-break: normal !important;
           overflow: visible;
@@ -221,12 +222,26 @@ font-family: AlQabas-Bold;
         }
         @media print {
           * { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          body { background: white; color: #000 !important; font-weight: 900 !important; width: 100%; margin: 0; padding: 0;
+body {
+background: white; color: #000 !important;
+    font-weight: 900 !important; 
+        width: 100%; 
+      margin: 0; padding: 0;
           height: 100%; 
             
           }
-          table { 
-width: 100% !important; max-width:auto !important; }
+table { 
+width: 100% !important; 
+min-width: auto !important; 
+border-collapse: collapse;
+table-layout: auto !important;
+margin: 10px 0;
+text-align: center;
+vertical-align: middle;
+font-size: 20px;
+color: #000 !important;
+font-weight: 900 !important;
+          }
 th, td { color: #000 !important; font-weight: 900 !important; }
           .no-print { display: none !important; }
         }
@@ -465,7 +480,7 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
       padding: 2px 2px !important;
       text-align: center;
       vertical-align: middle;
-      font-size: 16px !important;
+      font-size: 20px !important;
       font-weight: 900 !important;
       color: #000 !important;
     }
@@ -474,7 +489,7 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
       background: #1f7fb8;
       color: #000 !important;
       font-weight: 900 !important;
-      white-space: nowrap !important;
+      white-space: normal !important;
     }
     td:not(.num):not(.idx) {
       white-space: nowrap !important;

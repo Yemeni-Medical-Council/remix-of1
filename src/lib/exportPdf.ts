@@ -33,7 +33,7 @@ const reportLetterheadStyles = `
       width: 100%;
       max-height: 20mm;
       height: 100%;
-      object-fit:fill;
+      object-fit: fill;
       margin: 0 auto;
     object-position:top;
     }
@@ -64,10 +64,10 @@ export async function exportToPdf(opts: {
     * { margin: 0; padding: 0; box-sizing: border-box; }
 ${reportLetterheadStyles}
     @page { size: A4 ${orient}; margin: 2mm; padding: 0; }
-    @page :first { margin-top: 3mm; }
+    @page :first { margin-top: 6mm; }
     html { margin: 0; padding: 0; }
     body { 
-      font-family: cairo; 
+      font-family: Cairo; 
       direction: rtl; 
       color: #000 !important; 
       margin: 0; 
@@ -79,25 +79,26 @@ ${reportLetterheadStyles}
     }
     h1 { 
       text-align: center; 
-      font-size: 18px; 
+      font-size: 22px; 
       font-weight: 900;
       margin: 0 0 4px; 
       color: #000 !important;
     }
     table { 
       width: 100%;
-      max-width: auto;
+      min-width: auto;
       border: solid 1px black; 
-      font-size:20px; 
+      font-size: 20px; 
       table-layout: auto;
       margin-top: 6px;
+      border-collapse: collapse;
     }
     th, td { 
       border: 1px solid #000; 
       padding: 2px 4px !important;
       text-align: center; 
       vertical-align: middle;
-      font-size: 18px;
+      font-size: 20px;
       word-wrap: break-word;
       overflow-wrap: break-word;
       font-weight: 700 !important;

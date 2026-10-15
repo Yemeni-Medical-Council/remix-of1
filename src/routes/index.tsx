@@ -250,7 +250,7 @@ function Index() {
   return (
     // الحاوية الرئيسية بهوية "صقيع قطبي" الفاتحة
     <div
-      className="apk-tabs-ui w-full min-h-screen bg-[#e8f0f8] selection:bg-[#6ba3c8]/30 text-base"
+      className="apk-tabs-ui w-full min-h-screen bg-[#e8f0ff] selection:bg-[#6ba3c8]/30 text-base"
       dir="rtl"
     >
       {/* قسم الهيدر العلوي — أزرق ثلجي عصري */}
@@ -265,7 +265,7 @@ function Index() {
           </div>
           <div className="flex flex-col gap-0.5 min-w-0">
             <h1 className="text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
-              مِيزان
+              المجلس اليمني للاختصاصات الطبية
             </h1>
             <p className="text-[clamp(0.75rem,2.4vw,0.875rem)] text-[#e8f0f8] font-medium flex items-center gap-1.5 leading-snug min-w-0">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#b8d4e8] shrink-0"></span>
@@ -317,7 +317,7 @@ function Index() {
 
       {/* شريط التبويبات السفلي — عائم زجاجي فاتح */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
+        className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-teal/75 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
         dir="rtl"
         aria-label="التنقل الرئيسي"
       >
@@ -337,7 +337,7 @@ function Index() {
                 }`}
               >
                 <span className={isActive ? "scale-105" : "scale-100"}>{tab.icon}</span>
-                <span className="text-[11.5px] font-bold leading-tight whitespace-nowrap sm:hidden">
+                <span className="text-[14.5px] font-bold leading-tight whitespace-nowrap sm:hidden">
                   {tab.shortLabel}
                 </span>
                 <span className="hidden text-[13px] font-bold leading-tight whitespace-nowrap sm:inline">

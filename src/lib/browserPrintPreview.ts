@@ -215,7 +215,7 @@ export function openBrowserPrintPreview({
       margin: 0 auto;
       color: #000;
       word-break: keep-all;
-    white-space: normal !important;
+    white-space: nowrap !important;
 
     }
 
@@ -289,7 +289,7 @@ color: #000;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-      max-width: auto !important;
+      min-width: auto !important;
     min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;

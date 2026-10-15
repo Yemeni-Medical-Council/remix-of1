@@ -72,7 +72,7 @@ export const tablePrintStyles = `
     direction: rtl;
     width: 100%;
     font-weight: 700;
-    font-size: 24.5px;
+    font-size: 20.5px;
     background: #fff;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -82,7 +82,7 @@ export const tablePrintStyles = `
     text-align: center;
     color: #000 !important;
     margin: 0 0 3px;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 900;
   }
 
@@ -90,7 +90,7 @@ export const tablePrintStyles = `
     text-align: center;
     color: #000 !important;
     margin-bottom: 6px;
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 700;
     border-bottom: 1px solid #b8860b;
     padding-bottom: 4px;
@@ -99,6 +99,7 @@ export const tablePrintStyles = `
   /* احتواء تلقائي كامل للجدول وتكيّف العرض حسب المحتوى */
   table {
     width: 100% !important;
+    min-width: auto;
     border-collapse: collapse !important;
     table-layout: auto !important;
     font-size: 19px;
@@ -111,7 +112,7 @@ export const tablePrintStyles = `
     text-align: center !important;
     vertical-align: middle !important;
     color: #000 !important;
-    width:100٪ !important;
+    width: 100٪ !important;
     min-width: auto !important;
   }
 
@@ -119,9 +120,9 @@ export const tablePrintStyles = `
   thead th,
   th {
     background: #f5deb3 !important;
-    color:#fff !important;
+    color:#ffffff !important;
     font-weight: 900 !important;
-    font-size: 19px !important;
+    font-size: 20px !important;
     line-height: 1.5 !important;
     white-space: normal !important;
     word-break: normal !important;
@@ -134,7 +135,7 @@ font-family: AlQabas-Bold;
   tfoot td,
   .text-cell,
   .long-text-cell {
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: anywhere !important;
     hyphens: auto !important;
@@ -147,15 +148,16 @@ font-family: AlQabas-Bold;
   }
 
   .pdf-cell-text {
-    display: block !important;
     text-align: center !important;
     width: 100% !important;
-  font-size: 24px; 
-  font-family: cairo;
+  min-width: auto !important;
+  font-size: 24px !important; 
+  font-family: Cairo !important;
     font-weight: 900; 
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+
   }
 
   .num,
