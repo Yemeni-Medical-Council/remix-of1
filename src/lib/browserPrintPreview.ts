@@ -208,14 +208,14 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: auto;
+      max-width: 100%;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 18px;
       margin: 0 auto;
       color: #000;
       word-break: keep-all;
-    white-space: nowrap !important;
+    white-space: normal !important;
 
     }
 
@@ -289,7 +289,7 @@ color: #000;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-      min-width: auto !important;
+      max-width: auto !important;
     min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;

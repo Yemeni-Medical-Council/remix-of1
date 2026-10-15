@@ -6,16 +6,16 @@ export type ReportOrientation = 'portrait' | 'landscape';
 
 export const reportDocumentCss = `
   :root { --report-paper:#ffffff; --report-ink:#172b35; --report-muted:#526773;
-    --report-rule:#718994; --report-header:#dceef2; --report-stripe:#f0f7f8;
+    --report-rule:#718994; --report-header:gold; --report-stripe:#f0f7f8;
     --report-total:#e4f1de; --report-accent:#176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
     color:#000; font-family:'Cairo'; font-size:20px; line-height:1.6; }
   h1,h2 { text-align:center; color:#000; font-size:22px; margin:0 0 6px; }
   .sub,.meta { text-align:center; color:#000; font-size:20px; margin-bottom:10px; }
-  table { width:100%; border-collapse:collapse; table-layout:auto; }
+  table { width:100%; border-collapse:collapse; table-layout:auto; text-align:center; }
   th,td { border:1px solid var(--report-rule); padding:5px 6px; text-align:center; vertical-align:middle; }
-  thead th { background:var(--report-header); color:#fff; font-weight:800; }
+  thead th { background:var(--report-header); color:#000; font-weight:800; }
   tbody tr:nth-child(even) td { background:var(--report-stripe); }
   .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent); }
   .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
@@ -25,7 +25,11 @@ export const reportDocumentCss = `
 `;
 
 export const reportContainmentCss = `
-  .report-page-content { width:100%; max-width: 100%; 
+  .report-page-content { 
+  width:100%; 
+  max-width: auto; 
+text-align:center;
+font-size: 20.5px !important;
 
   }
   .report-page-content table { width:100% !important; max-width:auto !important; table-layout:auto !important; }
