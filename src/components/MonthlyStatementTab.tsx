@@ -270,16 +270,39 @@ export default function MonthlyStatementTab() {
     };
   }, [journal, year, startMonth, endMonth]);
 
+  // احتساب الإجماليات العامة وتجميع الأرصدة بدون مقاصة (مجموع أرصدة الحسابات)
   const totals = useMemo(() => {
-    return Object.values(data).reduce(
-      (a, r) => ({
-        prevDebit: a.prevDebit + r.prevDebit,
-        prevCredit: a.prevCredit + r.prevCredit,
-        curDebit: a.curDebit + r.curDebit,
-        curCredit: a.curCredit + r.curCredit,
-      }),
-      { prevDebit: 0, prevCredit: 0, curDebit: 0, curCredit: 0 }
-    );
+    let prevDebit = 0;
+    let prevCredit = 0;
+    let curDebit = 0;
+    let curCredit = 0;
+    let balDebit = 0;
+    let balCredit = 0;
+
+    ALL_ACCOUNTS.forEach((acc) => {
+      const row = data[normName(acc)];
+      if (!row) return;
+      prevDebit += row.prevDebit;
+      prevCredit += row.prevCredit;
+      curDebit += row.curDebit;
+      curCredit += row.curCredit;
+
+      const totD = row.prevDebit + row.curDebit;
+      const totC = row.prevCredit + row.curCredit;
+      const balD = Math.max(0, totD - totC);
+      const balC = Math.max(0, totC - totD);
+      balDebit += balD;
+      balCredit += balC;
+    });
+
+    return {
+      prevDebit,
+      prevCredit,
+      curDebit,
+      curCredit,
+      balDebit,
+      balCredit,
+    };
   }, [data]);
 
   const movementLabel = getReportMovementLabel({ mode, year, month, quarter, halfYear });
@@ -581,7 +604,7 @@ export default function MonthlyStatementTab() {
 
           <tbody className="divide-y divide-slate-100 font-bold">
             {GROUPS.map((group, gIdx) => {
-              let gPrevD = 0, gPrevC = 0, gCurD = 0, gCurC = 0;
+              let gPrevD = 0, gPrevC = 0, gCurD = 0, gCurC = 0, gBalD = 0, gBalC = 0;
               return (
                 <React.Fragment key={gIdx}>
                   {/* عنوان المجموعة الرئيسي */}
@@ -611,6 +634,8 @@ export default function MonthlyStatementTab() {
                     gPrevC += rowData.prevCredit;
                     gCurD += rowData.curDebit;
                     gCurC += rowData.curCredit;
+                    gBalD += balD;
+                    gBalC += balC;
 
                     const isHighlight = acc === "الاستخدامات" || acc === "الموارد";
 
@@ -665,34 +690,34 @@ export default function MonthlyStatementTab() {
                     );
                   })}
 
-                  {/* جملة المجموعة */}
+                  {/* جملة المجموعة (تجميع الأرصدة بدون مقاصة تصفيرية) */}
                   <tr className="bg-slate-100/90 font-bold text-slate-800 border-b border-slate-200 text-xl">
                     <td className="px-3 py-2 text-center pr-4 border-l border-black text-black">
                       جملة {group.title}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-slate-700">
-                      {gPrevD.toLocaleString()}
+                      {gPrevD ? gPrevD.toLocaleString() : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-slate-700">
-                      {gPrevC.toLocaleString()}
+                      {gPrevC ? gPrevC.toLocaleString() : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-sky-800 font-black">
-                      {gCurD.toLocaleString()}
+                      {gCurD ? gCurD.toLocaleString() : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-amber-800 font-black">
-                      {gCurC.toLocaleString()}
+                      {gCurC ? gCurC.toLocaleString() : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-indigo-800">
-                      {(gPrevD + gCurD).toLocaleString()}
+                      {(gPrevD + gCurD) ? (gPrevD + gCurD).toLocaleString() : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-indigo-800">
-                      {(gPrevC + gCurC).toLocaleString()}
+                      {(gPrevC + gCurC) ? (gPrevC + gCurC).toLocaleString() : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-emerald-800 font-bold">
-                      {Math.max(0, gPrevD + gCurD - (gPrevC + gCurC)).toLocaleString()}
+                      {gBalD ? gBalD.toLocaleString() : "-"}
                     </td>
                     <td className="px-2 py-2 font-mono text-emerald-800 font-bold">
-                      {Math.max(0, gPrevC + gCurC - (gPrevD + gCurD)).toLocaleString()}
+                      {gBalC ? gBalC.toLocaleString() : "-"}
                     </td>
                   </tr>
                 </React.Fragment>
@@ -700,7 +725,7 @@ export default function MonthlyStatementTab() {
             })}
           </tbody>
 
-          {/* الإجمالي العام */}
+          {/* الإجمالي العام لكافة الحسابات (مجموع الأرصدة المتوازنة) */}
           <tfoot>
             <tr className="bg-gradient-to-r from-sky-900 via-blue-900 to-indigo-800 font-black text-white text-xs sm:text-sm border-t-2 border-sky-500 shadow-md">
               <td className="px-3 py-3.5 text-right pr-4 border-l border-white/10">
@@ -725,16 +750,10 @@ export default function MonthlyStatementTab() {
                 {(totals.prevCredit + totals.curCredit).toLocaleString()}
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-emerald-300 font-black">
-                {Math.max(
-                  0,
-                  totals.prevDebit + totals.curDebit - (totals.prevCredit + totals.curCredit)
-                ).toLocaleString()}
+                {totals.balDebit.toLocaleString()}
               </td>
               <td className="px-2 py-3.5 font-mono text-emerald-300 font-black">
-                {Math.max(
-                  0,
-                  totals.prevCredit + totals.curCredit - (totals.prevDebit + totals.curDebit)
-                ).toLocaleString()}
+                {totals.balCredit.toLocaleString()}
               </td>
             </tr>
           </tfoot>
