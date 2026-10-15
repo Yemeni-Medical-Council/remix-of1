@@ -200,7 +200,7 @@ export function openBrowserPrintPreview({
 
     .report-letterhead-image {
       width: 100%;
-      max-width: 100%;
+      max-width: auto;
       height: 100%;
       object-fit: fill;
       object-position: top;
@@ -208,10 +208,10 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      min-width: auto;
+      max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 24px;
+      font-size: 18px;
       margin: 0 auto;
       color: #000;
       word-break: keep-all;
@@ -227,15 +227,15 @@ export function openBrowserPrintPreview({
       vertical-align: middle;
       padding: 4px 5px;
       color: #000;
-      font-size: 24px;
+      font-size: 18px;
       box-sizing: border-box;
     }
 
     .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"] {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
       font-family: cairo !important;
-      font-size: 24px;
+      font-size: 18px;
       color: #000;
       direction: ltr !important;
       font-weight: 800 !important;
@@ -272,7 +272,7 @@ color: #000;
         padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        font-size: 24px;
+        font-size: 18px;
       color: #000;
       }
       .sheet-viewport {
@@ -281,7 +281,7 @@ color: #000;
         overflow: visible !important;
       }
       .sheet-paper {
-      font-size: 24px;
+      font-size: 18px;
       color: #000;
         border: none !important;
         box-shadow: none !important;

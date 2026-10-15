@@ -10,9 +10,9 @@ export const reportDocumentCss = `
     --report-total:#e4f1de; --report-accent:#176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
-    color:#000; font-family:'Cairo'; font-size:24px; line-height:1.6; }
+    color:#000; font-family:'Cairo'; font-size:20px; line-height:1.6; }
   h1,h2 { text-align:center; color:#000; font-size:22px; margin:0 0 6px; }
-  .sub,.meta { text-align:center; color:#000; font-size:24px; margin-bottom:10px; }
+  .sub,.meta { text-align:center; color:#000; font-size:20px; margin-bottom:10px; }
   table { width:100%; border-collapse:collapse; table-layout:auto; }
   th,td { border:1px solid var(--report-rule); padding:5px 6px; text-align:center; vertical-align:middle; }
   thead th { background:var(--report-header); color:#fff; font-weight:800; }
@@ -25,18 +25,18 @@ export const reportDocumentCss = `
 `;
 
 export const reportContainmentCss = `
-  .report-page-content { width:100%; max-width: 100%; 
+  .report-page-content { width:100%; max-width: auto; 
 
   }
   .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
   .report-page-content th,.report-page-content td { min-width:auto !important; padding:4px 6px !important;
     margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:normal !important;
     overflow-wrap:anywhere !important; word-break:break-word !important; font-family:'Cairo';
-    font-size:24px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
+    font-size:20px !important; font-weight:700 !important; color:#fff !important; line-height:1.4 !important; }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
   .report-page-content .idx,.report-page-content .cell-number { direction:ltr !important; unicode-bidi:isolate;
     white-space:nowrap !important; overflow-wrap:normal !important; word-break:keep-all !important; }
-  .report-page-content .pdf-cell-text { white-space:normal !important; font-size:24px; }
+  .report-page-content .pdf-cell-text { white-space:nowrap !important; font-size:18px; }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
   .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:0 !important; }
