@@ -123,7 +123,7 @@ export const tablePrintStyles = `
     font-weight: 800 !important;
     font-size: 14.5px !important;
     line-height: 1.3 !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: keep-all !important;
     border: 1px solid #000000 !important;
     -webkit-print-color-adjust: exact !important;
@@ -141,7 +141,7 @@ export const tablePrintStyles = `
   tbody td.desc-cell,
   tbody td.details-cell,
   .long-text-cell {
-    white-space: normal !important;
+    white-space: nowrap !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     text-align: right !important;
@@ -154,7 +154,7 @@ export const tablePrintStyles = `
   tbody td.details-cell .pdf-cell-text {
     white-space: normal !important;
     word-break: break-word !important;
-    text-align: right !important;
+    text-align: center !important;
     display: inline-block;
     width: 100%;
   }

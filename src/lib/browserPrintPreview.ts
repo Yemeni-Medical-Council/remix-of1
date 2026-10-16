@@ -257,10 +257,10 @@ export function openBrowserPrintPreview({
     td.text-cell,
     td[data-col="statement"],
     td[data-col="desc"] {
-      white-space: normal !important;
+      white-space: nowrap !important;
       word-break: break-word !important;
       overflow-wrap: break-word !important;
-      text-align: right !important;
+      text-align: center !important;
       min-width: 140px;
       line-height: 1.4 !important;
     }
@@ -272,7 +272,7 @@ export function openBrowserPrintPreview({
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: break-word !important;
-      text-align: right !important;
+      text-align: center !important;
       display: inline-block;
       width: 100%;
     }
