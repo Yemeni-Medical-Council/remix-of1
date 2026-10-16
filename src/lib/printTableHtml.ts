@@ -175,10 +175,10 @@ word-break: break-word !important;
   td.description-cell.pdf-cell-text {
     white-space: normal !important;
     word-break: break-word !important;
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important;
     text-align: center !important;
     direction: rtl !important;
-    padding: 4px 6px !important;
+    padding: 2px 2px !important;
     line-height: 1.4 !important;
     min-width: 330px;
   }
@@ -188,11 +188,11 @@ word-break: break-word !important;
   tbody td[data-col-key="name"],
   tbody td.name-cell .pdf-cell-text,
   tbody td[data-col-key="name"] .pdf-cell-text {
-    white-space: nowrap !important;
+    white-space: normal !important;
  word-break: break-word !important;
     text-align: center !important;
     padding: 3px 6px !important;
-    max-width: auto !important;
+    min-width: 150px !important;
   }
 
   /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
@@ -200,10 +200,10 @@ word-break: break-word !important;
   tbody td.batch-cell,
   tbody td[data-col-key="specialty"],
   tbody td[data-col-key="batch"] {
-    white-space: nowrap !important;
+    white-space: normal !important;
       word-break: break-word !important;.
     text-align: center !important;
-    max-width: auto !important;
+    min-width: 150px !important;
   }
 
   /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */

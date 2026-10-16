@@ -208,14 +208,13 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: 100%;
+      max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 11.5px;
       margin: 0 auto;
       color: #000;
   text-align: center !important;
-  word-break: keep-all; 
 
     }
 
@@ -232,25 +231,27 @@ export function openBrowserPrintPreview({
       color: #000;
       font-size: 12px;
       box-sizing: border-box;
-      white-space: nowrap !important;
-      word-break: keep-all !important;
+word-break: break-word !important;
+
     }
 
     /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
     thead th {
+          min-width: auto;
       background: gold !important;
       color: #000 !important;
       font-weight: 800 !important;
       font-size: 14.5px !important;
       padding: 6px 4px !important;
       white-space: normal !important;
-      word-break: keep-all !important;
+      word-break: break-word !important;
       border: 1px solid #000000 !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
+        min-width: auto;
     background: gold !important;
 color: #000 !important;
       font-weight: 800 !important;
@@ -273,7 +274,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
     text-align: center !important;
-      width: 150px;
+      min-width: 140px;
       line-height: 1.4 !important;
     }
 
@@ -284,7 +285,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-      width: 150px;
+      min-width: 250px;
   line-height: 1.4 !important;
 
     }
