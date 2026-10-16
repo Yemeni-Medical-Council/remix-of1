@@ -51,7 +51,8 @@ export const escapeHtml = (s: any) =>
 
 /**
  * أنماط موحّدة للطباعة ومعاينة PDF وواجهة الجداول
- * تضمن الاحتواء التلقائي وعدم التفاف الأرقام والتواريخ مع التفاف النص فقط لعمود البيان.
+ * تعتمد الاحتواء التلقائي الدقيق لأسماء أعمدة حوافظ التوريد والحساب الجاري:
+ * رؤوس داكنة بخط أبيض، والتفاف النص فقط لعمود "البيان"، وثبات سطر الأسماء والتواريخ والأرقام.
  */
 export const tablePrintStyles = `
   @page {
@@ -66,65 +67,66 @@ export const tablePrintStyles = `
   }
 
   body {
-    font-family: 'Cairo', -apple-system, sans-serif;
+    font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     padding: 3mm 4mm;
-    color: #000 !important;
+    color: #000000 !important;
     direction: rtl;
     width: 100%;
     font-weight: 700;
-    font-size: 14.5px;
-    background: #fff;
+    font-size: 13px;
+    background: #ffffff;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   h1 {
     text-align: center;
-    color: #000 !important;
-    margin: 0 0 3px;
-    font-size: 20px;
+    color: #000000 !important;
+    margin: 0 0 4px;
+    font-size: 19px;
     font-weight: 900;
   }
 
   .sub {
     text-align: center;
-    color: #000 !important;
+    color: #000000 !important;
     margin-bottom: 6px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    border-bottom: 1px solid #1f5f7a;
+    border-bottom: 1.5px solid #0f283a;
     padding-bottom: 4px;
   }
   
-  /* احتواء تلقائي كامل للجدول وتكيّف العرض حسب المحتوى */
+  /* جدول باحتواء تلقائي متكيف مع أبعاد A4 */
   table {
     width: 100% !important;
-    min-width: 50%;
+    max-width: 100% !important;
     border-collapse: collapse !important;
     table-layout: auto !important;
     font-size: 11px;
-    margin: auto;
-  text-align: center !important;
-
+    margin: 0 auto;
+    text-align: center !important;
+    color: #000000 !important;
   }
   
   th, td {
-    border: 1px solid #000 !important;
+    border: 1px solid #000000 !important;
     padding: 4px 5px !important;
     text-align: center !important;
     vertical-align: middle !important;
-    color: #000 !important;
+    color: #000000 !important;
     box-sizing: border-box;
   }
 
-  /* 1. رؤوس الأعمدة: خلفية غامقة وخط أبيض عريض */
+  /* 1. رؤوس الأعمدة: خلفية كحلية غامقة وخط أبيض عريض */
   thead th,
   th {
-    background: gold !important;
-    color: #000 !important;
+    background: #0f283a !important;
+    color: #ffffff !important;
     font-weight: 800 !important;
-    font-size: 14.5px !important;
-    white-space: normal !important;
+    font-size: 12.5px !important;
+    padding: 6px 4px !important;
+    white-space: nowrap !important;
     word-break: keep-all !important;
     border: 1px solid #000000 !important;
     -webkit-print-color-adjust: exact !important;
@@ -133,103 +135,121 @@ export const tablePrintStyles = `
 
   thead th .pdf-cell-text,
   th .pdf-cell-text {
-    background: gold !important;
-    color: #000 !important;
+    background: transparent !important;
+    color: #ffffff !important;
     font-weight: 800 !important;
+    white-space: nowrap !important;
+  }
+
+  /* الرأس الخاص بعمود البيان يسمح بالمرونة */
+  thead th.desc-cell,
+  thead th[data-col-key="description"] {
     white-space: normal !important;
-    max-width: 100px;
-
   }
 
-  /* 2. عمود البيان فقط يلتف تلقائياً */
-  tbody td.text-cell,
-  tbody td.desc-cell,
-  tbody td.description-cell,
-  .long-text-cell {
-white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: normal !important;
-    text-align: center !important;
-   max-width: 200px;
-    font-size: 11px;
-    line-height: 1.4 !important;
-  }
-
-  tbody td.text-cell .pdf-cell-text,
-  tbody td.desc-cell .pdf-cell-text,
-  tbody td.description-cell .pdf-cell-text {
-    white-space: normal !important;
-    word-break: break-word !important;
-    text-align: center !important;
-    max-width: 200px;
-    line-height: 1.5 !important;
-    font-size: 12px;
-
-  }
-
+  /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */
   tbody td {
-    white-space: normal !important;
-word-break: break-word !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
     font-weight: 700 !important;
-    font-size: 12px !important;
+    font-size: 11.5px !important;
     padding: 3px 4px !important;
     text-align: center !important;
-      line-height: 1.4 !important;
-    max-width: 200px;
+    line-height: 1.3 !important;
   }
-  
 
   .pdf-cell-text {
     text-align: center !important;
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700;
-    line-height: 1.5 !important;
-  white-space: normal !important;
-    max-width: 200px;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
   }
 
-  /* الأرقام والتواريخ والأكواد تبقى في سطر واحد دون التفاف */
+  /* 3. استثناء خاص وحصري: عمود "البيان" يلتف تلقائياً دون كسر الكلمات الحسابية */
+  tbody td.desc-cell,
+  tbody td[data-col-key="description"],
+  tbody td.desc-cell .pdf-cell-text,
+  tbody td[data-col-key="description"] .pdf-cell-text {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    text-align: right !important;
+    direction: rtl !important;
+    padding: 4px 6px !important;
+    line-height: 1.4 !important;
+    min-width: 140px;
+    max-width: 320px;
+  }
+
+  /* 4. أعمدة الأسماء (الاسم / اسم المتدرب): تتسع لاحتواء الاسم كاملاً دون التفاف */
+  tbody td.name-cell,
+  tbody td[data-col-key="name"],
+  tbody td.name-cell .pdf-cell-text,
+  tbody td[data-col-key="name"] .pdf-cell-text {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    text-align: right !important;
+    padding: 3px 6px !important;
+    min-width: 130px;
+  }
+
+  /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
+  tbody td.specialty-cell,
+  tbody td.batch-cell,
+  tbody td[data-col-key="specialty"],
+  tbody td[data-col-key="batch"] {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    text-align: center !important;
+    min-width: 80px;
+  }
+
+  /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */
   .num,
   .numeric-cell,
   .date-cell,
   .compact-cell,
+  .ref-cell,
   .idx {
     font-family: 'Cairo', monospace !important;
     direction: ltr !important;
     font-weight: 800 !important;
-    font-size: 12px !important;
+    font-size: 11.5px !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
-    hyphens: none !important;
+    text-align: center !important;
   }
 
   .num .pdf-cell-text,
   .numeric-cell .pdf-cell-text,
   .date-cell .pdf-cell-text,
   .compact-cell .pdf-cell-text,
+  .ref-cell .pdf-cell-text,
   .idx .pdf-cell-text {
     white-space: nowrap !important;
-    line-height: 1.5 !important;
     word-break: keep-all !important;
- text-align: center !important;
- max-width: 100px;
-
+    text-align: center !important;
   }
 
+  /* تلوين الصفوف الفردية والزوجية لسهولة القراءة */
   tbody tr:nth-child(even) td {
     background: #f8fafc !important;
   }
 
+  /* صف الإجمالي النهائي */
   .total-row td {
     background: #fef3c7 !important;
+    color: #000000 !important;
     font-weight: 900 !important;
-    font-size: 15px !important;
-    border-top: 2px solid #000 !important;
+    font-size: 13px !important;
+    border-top: 2px solid #000000 !important;
     white-space: nowrap !important;
+    padding: 5px 4px !important;
   }
-  
-  /* ترويسة التقرير المنفصلة والمضمنة */
+
+  /* ترويسة التقرير */
   .report-letterhead-block {
     display: flex;
     position: relative;
@@ -252,7 +272,6 @@ word-break: break-word !important;
     width: 100%;
     max-width: 100%;
     height: 100%;
-    max-height: auto;
     object-fit: fill;
     object-position: top;
     margin: 0;
@@ -274,8 +293,8 @@ word-break: break-word !important;
 
   .doc-title-row td.doc-title-cell {
     border: none !important;
-    background: #fff !important;
-    padding: 2px 0 2px !important;
+    background: #ffffff !important;
+    padding: 2px 0 4px !important;
   }
 
   .report-letterhead-row .report-letterhead-cell {
@@ -283,7 +302,7 @@ word-break: break-word !important;
     min-height: 26mm !important;
     padding: 0 !important;
     border: 0 !important;
-    background: #fff !important;
+    background: #ffffff !important;
   }
 
   .report-letterhead-row .report-letterhead-image {
@@ -309,29 +328,53 @@ export function buildTableHtml(opts: {
   reportDate?: string;
 }) {
   const { title, columns, rows, numericKeys = [], subtitle, reportDate } = opts;
-  
-  const isDateColumn = (c: TableCol) =>
-    /date|تاريخ|اليوم|الشهر|السنة|year|month|day/i.test(`${c.key} ${c.label}`);
 
-  const isCompactColumn = (c: TableCol) =>
-    /(^|[-_ ])(no|number|code|key|id)([-_ ]|$)|رقم|رمز|كود|الباب|الفصل|البند|النوع|الشهر|السنة/i.test(`${c.key} ${c.label}`);
-
+  // فحص نوع العمود بدقة بالاعتماد على أسماء رؤوس الأعمدة المعتمدة ومفاتيحها
   const isDescriptionColumn = (c: TableCol) =>
-    /بيان|تفاصيل|وصف|desc|statement|details|notes/i.test(`${c.key} ${c.label}`);
+    c.key === "description" || /^(البيان|بيان|تفاصيل|وصف|الشرح)$/i.test(c.label.trim());
+
+  const isNameColumn = (c: TableCol) =>
+    c.key === "name" || /^(الاسم|اسم المتدرب|اسم العميل)$/i.test(c.label.trim());
+
+  const isDateColumn = (c: TableCol) =>
+    /date|تاريخ/i.test(c.key) || /تاريخ/i.test(c.label);
+
+  const isRefOrCodeColumn = (c: TableCol) =>
+    /(no|num|code|key|id|check|notify|hafiza)/i.test(c.key) ||
+    /^(رقم|رمز|كود|شيك|إشعار|اشعار|حافظة|دفعة|الدفعة)/i.test(c.label.trim());
+
+  const isSpecialtyColumn = (c: TableCol) =>
+    c.key === "specialty" || /^(التخصص|المساق)$/i.test(c.label.trim());
+
+  const isBatchColumn = (c: TableCol) =>
+    c.key === "batch" || /^(الدفعة)$/i.test(c.label.trim());
 
   const getCellClass = (c: TableCol, val?: any) => {
+    if (isDescriptionColumn(c)) {
+      return "desc-cell";
+    }
+    if (isNameColumn(c)) {
+      return "name-cell text-cell";
+    }
+    if (isSpecialtyColumn(c)) {
+      return "specialty-cell text-cell";
+    }
+    if (isBatchColumn(c)) {
+      return "batch-cell text-cell";
+    }
+
     const isNumeric = numericKeys.includes(c.key) || typeof val === "number";
     const isDate = isDateColumn(c);
-    const isCompact = isCompactColumn(c);
-    const isDesc = isDescriptionColumn(c);
-
-    if (isDesc) return "text-cell desc-cell";
+    const isRef = isRefOrCodeColumn(c);
 
     return [
-      (isNumeric || isDate || isCompact) ? "num numeric-cell" : "text-cell",
-      isDate ? "date-cell" : "",
-      isCompact ? "compact-cell" : "",
-    ].filter(Boolean).join(" ");
+      isNumeric ? "num numeric-cell amount-cell" : "",
+      isDate ? "num date-cell" : "",
+      isRef ? "num compact-cell ref-cell" : "",
+      !isNumeric && !isDate && !isRef ? "text-cell" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
   };
 
   const reportDateLabel =
@@ -346,10 +389,17 @@ export function buildTableHtml(opts: {
     <div class="sub">${escapeHtml(sub)}</div>
   </td></tr>`;
 
-  const head = `${titleRow}<tr><th class="idx numeric-cell">م</th>${columns
-    .map((c) => `<th class="${getCellClass(c)}"><span class="pdf-cell-text">${escapeHtml(c.label)}</span></th>`)
+  // بناء صف الرؤوس مع تضمين أسماء ومفاتيح الأعمدة
+  const head = `${titleRow}<tr><th class="idx numeric-cell" data-col-key="idx" data-col-name="م">م</th>${columns
+    .map(
+      (c) =>
+        `<th class="${getCellClass(c)}" data-col-key="${escapeHtml(c.key)}" data-col-name="${escapeHtml(
+          c.label
+        )}"><span class="pdf-cell-text">${escapeHtml(c.label)}</span></th>`
+    )
     .join("")}</tr>`;
 
+  // احتساب الإجماليات للأعمدة المالية
   const totals: Record<string, number> = {};
   columns.forEach((c) => {
     if (numericKeys.includes(c.key)) {
@@ -360,21 +410,28 @@ export function buildTableHtml(opts: {
   const totalRow = `<tr class="total-row"><td class="idx numeric-cell">الإجمالي</td>${columns
     .map((c) =>
       numericKeys.includes(c.key)
-        ? `<td class="num numeric-cell"><span class="pdf-cell-text">${escapeHtml(fmt(totals[c.key] || 0))}</span></td>`
-        : `<td class="${isDateColumn(c) ? "date-cell" : ""}"><span class="pdf-cell-text"></span></td>`
+        ? `<td class="num numeric-cell amount-cell" data-col-key="${escapeHtml(c.key)}"><span class="pdf-cell-text">${escapeHtml(
+            fmt(totals[c.key] || 0)
+          )}</span></td>`
+        : `<td class="${isDateColumn(c) ? "date-cell" : ""}" data-col-key="${escapeHtml(c.key)}"><span class="pdf-cell-text"></span></td>`
     )
     .join("")}</tr>`;
 
+  // بناء صفوف البيانات
   const body = rows
     .map(
       (r, i) =>
-        `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell"><span class="pdf-cell-text">${i + 1}</span></td>${columns
+        `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
+          i + 1
+        }</span></td>${columns
           .map((c) => {
             const v = r[c.key];
             const isNum = numericKeys.includes(c.key) || typeof v === "number";
             const classes = getCellClass(c, v);
-            
-            return `<td class="${classes}"><span class="pdf-cell-text">${
+
+            return `<td class="${classes}" data-col-key="${escapeHtml(c.key)}" data-col-name="${escapeHtml(
+              c.label
+            )}"><span class="pdf-cell-text">${
               isNum ? escapeHtml(fmt(Number(v) || 0)) : escapeHtml(v)
             }</span></td>`;
           })
