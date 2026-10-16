@@ -99,7 +99,7 @@ export const tablePrintStyles = `
   /* احتواء تلقائي كامل للجدول وتكيّف العرض حسب المحتوى */
   table {
     width: 100% !important;
-    min-width: auto;
+    min-width: 100%;
     border-collapse: collapse !important;
     table-layout: auto !important;
     font-size: 16px;
@@ -143,7 +143,7 @@ export const tablePrintStyles = `
   tbody td.desc-cell,
   tbody td.details-cell,
   .long-text-cell {
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     text-align: center !important;
@@ -157,7 +157,6 @@ export const tablePrintStyles = `
     white-space: normal !important;
     word-break: break-word !important;
     text-align: center !important;
-    display: inline-block;
     width: 100%;
   }
 
@@ -165,6 +164,8 @@ export const tablePrintStyles = `
     font-weight: 700 !important;
     font-size: 14px !important;
     padding: 3px 4px !important;
+    text-align: center !important;
+
   }
 
   .pdf-cell-text {
@@ -198,9 +199,11 @@ export const tablePrintStyles = `
   .date-cell .pdf-cell-text,
   .compact-cell .pdf-cell-text,
   .idx .pdf-cell-text {
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: keep-all !important;
-    width: auto;
+   min-width: auto;
+ text-align: center !important;
+
   }
 
   tbody tr:nth-child(even) td {

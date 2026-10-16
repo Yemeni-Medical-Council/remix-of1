@@ -352,7 +352,7 @@ export function openBrowserPrintPreview({
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-     max-width: auto !important;
+     max-width: 100% !important;
      height: 100% !important;
     min-height: auto !important;
         padding: 0 !important;
