@@ -174,12 +174,12 @@ export const tablePrintStyles = `
     white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
-    text-align: right !important;
+    text-align: center !important;
     direction: rtl !important;
     padding: 4px 6px !important;
     line-height: 1.4 !important;
-    min-width: 140px;
-    max-width: 320px;
+    min-width: 320px;
+    max-width: 340px;
   }
 
   /* 4. أعمدة الأسماء (الاسم / اسم المتدرب): تتسع لاحتواء الاسم كاملاً دون التفاف */
@@ -187,11 +187,11 @@ export const tablePrintStyles = `
   tbody td[data-col-key="name"],
   tbody td.name-cell .pdf-cell-text,
   tbody td[data-col-key="name"] .pdf-cell-text {
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: keep-all !important;
     text-align: right !important;
     padding: 3px 6px !important;
-    min-width: 130px;
+    min-width: 330px;
   }
 
   /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
@@ -202,7 +202,7 @@ export const tablePrintStyles = `
     white-space: nowrap !important;
     word-break: keep-all !important;
     text-align: center !important;
-    min-width: 80px;
+    min-width: 100px;
   }
 
   /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */
