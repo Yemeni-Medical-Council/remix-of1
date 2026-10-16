@@ -100,7 +100,7 @@ export const tablePrintStyles = `
   /* جدول باحتواء تلقائي متكيف مع أبعاد A4 */
   table {
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: auto !important;
     border-collapse: collapse !important;
     table-layout: auto !important;
     font-size: 11px;
@@ -126,7 +126,7 @@ export const tablePrintStyles = `
     font-weight: 800 !important;
     font-size: 12.5px !important;
     padding: 6px 4px !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: keep-all !important;
     border: 1px solid #000000 !important;
     -webkit-print-color-adjust: exact !important;
@@ -138,18 +138,18 @@ export const tablePrintStyles = `
     background: transparent !important;
     color: #ffffff !important;
     font-weight: 800 !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
   }
 
   /* الرأس الخاص بعمود البيان يسمح بالمرونة */
   thead th.desc-cell,
   thead th[data-col-key="description"] {
-    white-space: normal !important;
+    white-space: nowrap !important;
   }
 
   /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */
   tbody td {
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: keep-all !important;
     font-weight: 700 !important;
     font-size: 11.5px !important;
@@ -163,7 +163,7 @@ export const tablePrintStyles = `
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700;
     line-height: 1.3 !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
   }
 
   /* 3. استثناء خاص وحصري: عمود "البيان" يلتف تلقائياً دون كسر الكلمات الحسابية */
@@ -171,7 +171,7 @@ export const tablePrintStyles = `
   tbody td[data-col-key="description"],
   tbody td.desc-cell .pdf-cell-text,
   tbody td[data-col-key="description"] .pdf-cell-text {
-    white-space: normal !important;
+    white-space: nowrap !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     text-align: center !important;
@@ -189,9 +189,9 @@ export const tablePrintStyles = `
   tbody td[data-col-key="name"] .pdf-cell-text {
     white-space: normal !important;
     word-break: keep-all !important;
-    text-align: right !important;
+    text-align: center !important;
     padding: 3px 6px !important;
-    min-width: 330px;
+    min-width: auto;
   }
 
   /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
@@ -199,10 +199,10 @@ export const tablePrintStyles = `
   tbody td.batch-cell,
   tbody td[data-col-key="specialty"],
   tbody td[data-col-key="batch"] {
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: keep-all !important;
     text-align: center !important;
-    min-width: 100px;
+    min-width: auto;
   }
 
   /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */
