@@ -73,7 +73,6 @@ export const tablePrintStyles = `
     direction: rtl;
     width: 100%;
     font-weight: 700;
-    font-size: 13px;
     background: #ffffff;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -83,7 +82,7 @@ export const tablePrintStyles = `
     text-align: center;
     color: #000000 !important;
     margin: 0 0 4px;
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 900;
   }
 
@@ -91,7 +90,7 @@ export const tablePrintStyles = `
     text-align: center;
     color: #000000 !important;
     margin-bottom: 6px;
-    font-size: 13px;
+    font-size: 20px;
     font-weight: 700;
     border-bottom: 1.5px solid #0f283a;
     padding-bottom: 4px;
@@ -145,6 +144,8 @@ export const tablePrintStyles = `
   thead th.desc-cell,
   thead th[data-col-key="description"] {
     white-space: normal !important;
+min-width: auto;
+
   }
 
   /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */

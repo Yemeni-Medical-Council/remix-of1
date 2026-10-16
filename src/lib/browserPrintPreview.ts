@@ -237,7 +237,7 @@ export function openBrowserPrintPreview({
     }
 
     /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
-    thead th, th {
+    thead th {
       background: gold !important;
       color: #000 !important;
       font-weight: 800 !important;
@@ -256,7 +256,7 @@ color: #000 !important;
       font-weight: 800 !important;
       font-size: 14.5px !important;
       padding: 6px 4px !important;
-      white-space: nowrap !important;
+      white-space: normal !important;
   word-break: break-word !important;
       border: 1px solid # 000000!important; -
 webkit - print - color - adjust: exact!important;
@@ -265,16 +265,15 @@ print - color - adjust: exact!important;
     }
 
     /* عمود البيان فقط: التفاف تلقائي للنص ومحاذاة لليمين */
-    td.desc-cell,
-    td.details-cell,
-    td.description-cell,
-    td[data-col="description"],
-    td[data-col="desc"] {
+      tbody td.specialty-cell,
+    tbody td.batch-cell,
+    tbody td[data-col-key = "specialty"],
+    tbody td[data-col-key = "batch"] {
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: nowrap !important;
     text-align: center !important;
-      width: auto;
+      width: 300px;
       line-height: 1.4 !important;
     }
 
@@ -366,7 +365,6 @@ text-align: center !important;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-          max-width: auto;
     min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
