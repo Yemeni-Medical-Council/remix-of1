@@ -99,11 +99,13 @@ export const tablePrintStyles = `
   /* احتواء تلقائي كامل للجدول وتكيّف العرض حسب المحتوى */
   table {
     width: 100% !important;
-    min-width: 100%;
+    min-width: auto;
     border-collapse: collapse !important;
     table-layout: auto !important;
     font-size: 16px;
     margin: auto;
+  text-align: center !important;
+
   }
   
   th, td {
@@ -145,7 +147,7 @@ export const tablePrintStyles = `
   .long-text-cell {
     white-space: normal !important;
     word-break: break-word !important;
-    overflow-wrap: break-word !important;
+    overflow-wrap: normal !important;
     text-align: center !important;
     min-width: auto;
     line-height: 1.4 !important;
@@ -157,7 +159,7 @@ export const tablePrintStyles = `
     white-space: normal !important;
     word-break: break-word !important;
     text-align: center !important;
-    width: 100%;
+    width: auto;
   }
 
   tbody td {
@@ -169,7 +171,6 @@ export const tablePrintStyles = `
   }
 
   .pdf-cell-text {
-    width: 100%;
   min-width: auto;
     text-align: center !important;
     font-family: 'Cairo', sans-serif !important;
@@ -199,7 +200,7 @@ export const tablePrintStyles = `
   .date-cell .pdf-cell-text,
   .compact-cell .pdf-cell-text,
   .idx .pdf-cell-text {
-    white-space: normal !important;
+    white-space: nowrap !important;
     word-break: keep-all !important;
    min-width: auto;
  text-align: center !important;

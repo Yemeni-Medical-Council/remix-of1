@@ -208,12 +208,14 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: 100%;
+      max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 16.5px;
       margin: 0 auto;
       color: #000;
+  text-align: center !important;
+
     }
 
     thead { display: table-header-group; }
@@ -229,8 +231,10 @@ export function openBrowserPrintPreview({
       color: #000;
       font-size: 14px;
       box-sizing: border-box;
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
+     width: 100%;
+
     }
 
     /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
@@ -252,6 +256,8 @@ export function openBrowserPrintPreview({
       color: #000 !important;
       font-weight: 800 !important;
       white-space: normal !important;
+      word-break: keep-all !important;
+
     }
 
     /* عمود البيان فقط: التفاف تلقائي للنص ومحاذاة لليمين */
@@ -260,10 +266,10 @@ export function openBrowserPrintPreview({
     td.statement-cell,
     td[data-col="statement"],
     td[data-col="desc"] {
-      white-space: normal !important;
+      white-space: nowrap !important;
       word-break: break-word !important;
-      overflow-wrap: break-word !important;
-      text-align: center !important;
+      overflow-wrap: normal !important;
+    text-align: center !important;
       min-width: auto;
       line-height: 1.4 !important;
     }
@@ -273,16 +279,15 @@ export function openBrowserPrintPreview({
     td.statement-cell .pdf-cell-text {
       white-space: normal !important;
       word-break: break-word !important;
-      overflow-wrap: break-word !important;
+      overflow-wrap: normal !important;
       text-align: center !important;
-      display: flex;
-      width: 100%;
     }
 
     /* الأرقام والتواريخ والمعرفات: تظل في سطر واحد دون التفاف */
     .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"],
     td.compact-cell, td.text-cell {
-      white-space: nowrap !important;
+  text-align: center !important;
+ white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
       font-family: 'Cairo', monospace !important;
@@ -303,6 +308,8 @@ export function openBrowserPrintPreview({
       word-break: keep-all !important;
       font-weight: 800 !important;
         width: auto;
+text-align: center !important;
+
     }
 
     /* صف الإجمالي */
@@ -338,7 +345,7 @@ export function openBrowserPrintPreview({
         color: #000;
       }
       thead th, th {
-        background: gold !important;
+  background: gold !important;
         color: #000 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -352,8 +359,8 @@ export function openBrowserPrintPreview({
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-     max-width: 100% !important;
-     height: 100% !important;
+     max-width: auto !important;
+     height: auto !important;
     min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
