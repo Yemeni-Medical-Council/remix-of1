@@ -211,7 +211,7 @@ export function openBrowserPrintPreview({
       min-width: auto;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 13.5px;
+      font-size: 11.5px;
       margin: 0 auto;
       color: #000;
   text-align: center !important;
@@ -229,9 +229,9 @@ export function openBrowserPrintPreview({
       vertical-align: middle;
       padding: 4px 5px;
       color: #000;
-      font-size: 14px;
+      font-size: 12px;
       box-sizing: border-box;
-      white-space: normal !important;
+      white-space: nowrap !important;
       word-break: keep-all !important;
     }
 
@@ -250,11 +250,16 @@ export function openBrowserPrintPreview({
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
-    background: gold !important;
-      color: #000 !important;
+    background: gold!important;
+color: #000 !important;
       font-weight: 800 !important;
+      font-size: 14.5px !important;
+      padding: 6px 4px !important;
       white-space: normal !important;
       word-break: keep-all !important;
+      border: 1px solid # 000000!important; -
+webkit - print - color - adjust: exact!important;
+print - color - adjust: exact!important;
 
     }
 
@@ -262,9 +267,9 @@ export function openBrowserPrintPreview({
     td.desc-cell,
     td.details-cell,
     td.statement-cell,
-    td[data-col="statement"],
+    td[data-col="description"],
     td[data-col="desc"] {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
     text-align: center !important;
@@ -279,6 +284,9 @@ export function openBrowserPrintPreview({
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
+      min-width: auto;
+  line-height: 1.4 !important;
+
     }
 
     /* الأرقام والتواريخ والمعرفات: تظل في سطر واحد دون التفاف */
@@ -291,9 +299,10 @@ export function openBrowserPrintPreview({
       font-family: 'Cairo', monospace !important;
       direction: ltr !important;
       font-weight: 800 !important;
-      font-size: 14px;
+      font-size: 12px;
       color: #000;
       padding: 3px 5px !important;
+      min-width: auto;
     }
 
     .num .pdf-cell-text,
@@ -302,18 +311,18 @@ export function openBrowserPrintPreview({
     .idx .pdf-cell-text,
     .compact-cell .pdf-cell-text,
     td.text-cell .pdf-cell-text {
-      white-space: normal !important;
+      white-space: nowrap !important;
       word-break: keep-all !important;
       font-weight: 800 !important;
 text-align: center !important;
-
+      min-width: auto;
     }
 
     /* صف الإجمالي */
     .total-row td {
       background: #fef3c7 !important;
       font-weight: 900 !important;
-      font-size: 15px !important;
+      font-size: 12px !important;
       border-top: 2px solid #000 !important;
       color: #000 !important;
       white-space: nowrap !important;
