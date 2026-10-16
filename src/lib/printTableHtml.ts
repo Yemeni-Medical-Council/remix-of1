@@ -137,43 +137,47 @@ export const tablePrintStyles = `
     color: #000 !important;
     font-weight: 800 !important;
     white-space: normal !important;
+    max-width: 100px;
+
   }
 
   /* 2. عمود البيان فقط يلتف تلقائياً */
   tbody td.text-cell,
   tbody td.desc-cell,
-  tbody td.details-cell,
+  tbody td.description-cell,
   .long-text-cell {
-    white-space: normal !important;
+white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: normal !important;
     text-align: center !important;
-   min-width: 50%;
-      word-break: keep-all !important;
-
+   max-width: 200px;
     font-size: 11px;
     line-height: 1.4 !important;
   }
 
   tbody td.text-cell .pdf-cell-text,
   tbody td.desc-cell .pdf-cell-text,
-  tbody td.details-cell .pdf-cell-text {
+  tbody td.description-cell .pdf-cell-text {
     white-space: normal !important;
     word-break: break-word !important;
     text-align: center !important;
-    min-width: 50%;
+    max-width: 200px;
     line-height: 1.5 !important;
     font-size: 12px;
 
   }
 
   tbody td {
+    white-space: normal !important;
+word-break: break-word !important;
     font-weight: 700 !important;
     font-size: 12px !important;
     padding: 3px 4px !important;
     text-align: center !important;
       line-height: 1.4 !important;
+    max-width: 200px;
   }
+  
 
   .pdf-cell-text {
     text-align: center !important;
@@ -181,7 +185,7 @@ export const tablePrintStyles = `
     font-weight: 700;
     line-height: 1.5 !important;
   white-space: normal !important;
-    min-width: 50%;
+    max-width: 200px;
   }
 
   /* الأرقام والتواريخ والأكواد تبقى في سطر واحد دون التفاف */
@@ -209,7 +213,7 @@ export const tablePrintStyles = `
     line-height: 1.5 !important;
     word-break: keep-all !important;
  text-align: center !important;
- min-width: 50%;
+ max-width: 100px;
 
   }
 

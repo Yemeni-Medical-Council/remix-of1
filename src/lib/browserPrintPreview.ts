@@ -162,14 +162,14 @@ export function openBrowserPrintPreview({
     .sheet-viewport {
       display: flex;
       justify-content: center;
-      padding: 20px 10px 40px;
+      padding: 10px 10px 20px;
       overflow-x: auto;
     }
 
     .sheet-paper {
       background: #ffffff;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      border: 1px solid #cbd5e1;
+      border: 1px solid #000;
       border-radius: 2px;
       box-sizing: border-box;
       transition: all 0.2s ease;
@@ -179,13 +179,13 @@ export function openBrowserPrintPreview({
     .sheet-paper.portrait {
       width: 210mm;
       min-height: 297mm;
-      padding: 6mm;
+      padding: 3mm;
     }
 
     .sheet-paper.landscape {
       width: 297mm;
       min-height: 210mm;
-      padding: 6mm;
+      padding: 3mm;
     }
 
     .report-letterhead-block {
@@ -208,7 +208,7 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      min-width: auto;
+      max-width: 100%;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 11.5px;
@@ -224,6 +224,7 @@ export function openBrowserPrintPreview({
 
     /* تنسيق الخلايا العام: منع الالتفاف كقاعدة عامة */
     th, td {
+          min-width: auto;
       border: 1px solid #000000;
       text-align: center;
       vertical-align: middle;
@@ -250,13 +251,13 @@ export function openBrowserPrintPreview({
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
-    background: gold!important;
+    background: gold !important;
 color: #000 !important;
       font-weight: 800 !important;
       font-size: 14.5px !important;
       padding: 6px 4px !important;
       white-space: normal !important;
-      word-break: keep-all !important;
+  word-break: break-word !important;
       border: 1px solid # 000000!important; -
 webkit - print - color - adjust: exact!important;
 print - color - adjust: exact!important;
@@ -266,25 +267,25 @@ print - color - adjust: exact!important;
     /* عمود البيان فقط: التفاف تلقائي للنص ومحاذاة لليمين */
     td.desc-cell,
     td.details-cell,
-    td.statement-cell,
+    td.description-cell,
     td[data-col="description"],
     td[data-col="desc"] {
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
     text-align: center !important;
-      min-width: auto;
+      max-width: 50%;
       line-height: 1.4 !important;
     }
 
     td.desc-cell .pdf-cell-text,
     td.details-cell .pdf-cell-text,
-    td.statement-cell .pdf-cell-text {
+    td.description-cell .pdf-cell-text {
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-      min-width: auto;
+      max-width: 50%;
   line-height: 1.4 !important;
 
     }
