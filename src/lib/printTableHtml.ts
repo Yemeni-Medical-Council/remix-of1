@@ -144,18 +144,19 @@ export const tablePrintStyles = `
   /* الرأس الخاص بعمود البيان يسمح بالمرونة */
   thead th.desc-cell,
   thead th[data-col-key="description"] {
-    white-space: nowrap !important;
+    white-space: normal !important;
   }
 
   /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */
   tbody td {
-    white-space: normal !important;
-    word-break: keep-all !important;
+    white-space: nowrap !important;
     font-weight: 700 !important;
     font-size: 11.5px !important;
     padding: 3px 4px !important;
     text-align: center !important;
     line-height: 1.3 !important;
+word-break: break-word !important;
+
   }
 
   .pdf-cell-text {
@@ -163,7 +164,7 @@ export const tablePrintStyles = `
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700;
     line-height: 1.3 !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
   }
 
   /* 3. استثناء خاص وحصري: عمود "البيان" يلتف تلقائياً دون كسر الكلمات الحسابية */
@@ -178,8 +179,7 @@ export const tablePrintStyles = `
     direction: rtl !important;
     padding: 4px 6px !important;
     line-height: 1.4 !important;
-    min-width: 320px;
-    max-width: 340px;
+    max-width: auto;
   }
 
   /* 4. أعمدة الأسماء (الاسم / اسم المتدرب): تتسع لاحتواء الاسم كاملاً دون التفاف */
@@ -187,11 +187,11 @@ export const tablePrintStyles = `
   tbody td[data-col-key="name"],
   tbody td.name-cell .pdf-cell-text,
   tbody td[data-col-key="name"] .pdf-cell-text {
-    white-space: normal !important;
-    word-break: keep-all !important;
+    white-space: nowrap !important;
+ word-break: break-word !important;
     text-align: center !important;
     padding: 3px 6px !important;
-    min-width: auto;
+    max-width: auto !important;
   }
 
   /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
@@ -199,10 +199,10 @@ export const tablePrintStyles = `
   tbody td.batch-cell,
   tbody td[data-col-key="specialty"],
   tbody td[data-col-key="batch"] {
-    white-space: normal !important;
-    word-break: keep-all !important;
+    white-space: nowrap !important;
+      word-break: break-word !important;.
     text-align: center !important;
-    min-width: auto;
+    max-width: auto !important;
   }
 
   /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */
