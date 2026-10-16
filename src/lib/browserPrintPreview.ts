@@ -44,6 +44,7 @@ export function openBrowserPrintPreview({
       font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #0f172a;
       direction: rtl;
+        width: 100%;
     }
 
     .preview-toolbar {
@@ -208,7 +209,7 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: 100%;
+      max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       font-size: 14.5px;
@@ -240,7 +241,7 @@ export function openBrowserPrintPreview({
       font-weight: 800 !important;
       font-size: 14.5px !important;
       padding: 6px 4px !important;
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
       border: 1px solid #000000 !important;
       -webkit-print-color-adjust: exact !important;
@@ -248,6 +249,7 @@ export function openBrowserPrintPreview({
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
+    background: gold !important;
       color: #000 !important;
       font-weight: 800 !important;
       white-space: normal !important;
@@ -263,7 +265,7 @@ export function openBrowserPrintPreview({
       word-break: break-word !important;
       overflow-wrap: break-word !important;
       text-align: center !important;
-      min-width: auto;
+      min-width: 250px;
       line-height: 1.4 !important;
     }
 
@@ -275,7 +277,7 @@ export function openBrowserPrintPreview({
       overflow-wrap: break-word !important;
       text-align: center !important;
       display: flex;
-      width: 100%;
+      width: 250px;
     }
 
     /* الأرقام والتواريخ والمعرفات: تظل في سطر واحد دون التفاف */
@@ -298,7 +300,7 @@ export function openBrowserPrintPreview({
     .idx .pdf-cell-text,
     .compact-cell .pdf-cell-text,
     td.text-cell .pdf-cell-text {
-      white-space: normal !important;
+      white-space: nowrap !important;
       word-break: keep-all !important;
       font-weight: 800 !important;
     }

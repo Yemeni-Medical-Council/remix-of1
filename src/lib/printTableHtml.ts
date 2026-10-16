@@ -118,8 +118,8 @@ export const tablePrintStyles = `
   /* 1. رؤوس الأعمدة: خلفية غامقة وخط أبيض عريض */
   thead th,
   th {
-    background: #0f283a !important;
-    color: #ffffff !important;
+    background: gold !important;
+    color: #000 !important;
     font-weight: 800 !important;
     font-size: 14.5px !important;
     line-height: 1.3 !important;
@@ -132,7 +132,8 @@ export const tablePrintStyles = `
 
   thead th .pdf-cell-text,
   th .pdf-cell-text {
-    color: #ffffff !important;
+    background: gold !important;
+    color: #000 !important;
     font-weight: 800 !important;
   }
 
@@ -144,8 +145,8 @@ export const tablePrintStyles = `
     white-space: nowrap !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
-    text-align: right !important;
-    min-width: 140px;
+    text-align: center !important;
+    min-width: auto;
     line-height: 1.4 !important;
   }
 
@@ -155,7 +156,7 @@ export const tablePrintStyles = `
     white-space: normal !important;
     word-break: break-word !important;
     text-align: center !important;
-    display: inline-block;
+    display: flex;
     width: 100%;
   }
 
@@ -166,9 +167,12 @@ export const tablePrintStyles = `
   }
 
   .pdf-cell-text {
+    width: 100%;
     text-align: center !important;
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700;
+  white-space: normal !important;
+
   }
 
   /* الأرقام والتواريخ والأكواد تبقى في سطر واحد دون التفاف */
@@ -194,6 +198,7 @@ export const tablePrintStyles = `
   .idx .pdf-cell-text {
     white-space: nowrap !important;
     word-break: keep-all !important;
+    width: auto;
   }
 
   tbody tr:nth-child(even) td {
