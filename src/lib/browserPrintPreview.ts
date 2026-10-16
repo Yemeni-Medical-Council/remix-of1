@@ -44,7 +44,6 @@ export function openBrowserPrintPreview({
       font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #0f172a;
       direction: rtl;
-        width: 100%;
     }
 
     .preview-toolbar {
@@ -209,10 +208,10 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: auto;
+      max-width: 100%;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 14.5px;
+      font-size: 16.5px;
       margin: 0 auto;
       color: #000;
     }
@@ -237,7 +236,7 @@ export function openBrowserPrintPreview({
     /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
     thead th, th {
       background: gold !important;
-      color: #ffffff !important;
+      color: #000 !important;
       font-weight: 800 !important;
       font-size: 14.5px !important;
       padding: 6px 4px !important;
@@ -265,7 +264,7 @@ export function openBrowserPrintPreview({
       word-break: break-word !important;
       overflow-wrap: break-word !important;
       text-align: center !important;
-      min-width: 250px;
+      min-width: auto;
       line-height: 1.4 !important;
     }
 
@@ -277,7 +276,7 @@ export function openBrowserPrintPreview({
       overflow-wrap: break-word !important;
       text-align: center !important;
       display: flex;
-      width: 250px;
+      width: 100%;
     }
 
     /* الأرقام والتواريخ والمعرفات: تظل في سطر واحد دون التفاف */
@@ -303,6 +302,7 @@ export function openBrowserPrintPreview({
       white-space: nowrap !important;
       word-break: keep-all !important;
       font-weight: 800 !important;
+        width: auto;
     }
 
     /* صف الإجمالي */
@@ -338,7 +338,7 @@ export function openBrowserPrintPreview({
         color: #000;
       }
       thead th, th {
-        background: #0f283a !important;
+        background: gold !important;
         color: #000 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -352,8 +352,9 @@ export function openBrowserPrintPreview({
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-        max-width: 100% !important;
-        min-height: auto !important;
+     max-width: auto !important;
+     height: 100% !important;
+    min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
         transform: none !important;

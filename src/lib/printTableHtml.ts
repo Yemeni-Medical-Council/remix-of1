@@ -102,7 +102,7 @@ export const tablePrintStyles = `
     min-width: auto;
     border-collapse: collapse !important;
     table-layout: auto !important;
-    font-size: 14px;
+    font-size: 16px;
     margin: auto;
   }
   
@@ -147,7 +147,7 @@ export const tablePrintStyles = `
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     text-align: center !important;
-    min-width: 250px;
+    min-width: auto;
     line-height: 1.4 !important;
   }
 
@@ -157,7 +157,7 @@ export const tablePrintStyles = `
     white-space: normal !important;
     word-break: break-word !important;
     text-align: center !important;
-    display: flex;
+    display: inline-block;
     width: 100%;
   }
 
@@ -169,6 +169,7 @@ export const tablePrintStyles = `
 
   .pdf-cell-text {
     width: 100%;
+  min-width: auto;
     text-align: center !important;
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700;
