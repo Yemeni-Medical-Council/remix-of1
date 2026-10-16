@@ -99,10 +99,10 @@ export const tablePrintStyles = `
   /* احتواء تلقائي كامل للجدول وتكيّف العرض حسب المحتوى */
   table {
     width: 100% !important;
-    min-width: auto;
+    min-width: 50%;
     border-collapse: collapse !important;
     table-layout: auto !important;
-    font-size: 13px;
+    font-size: 11px;
     margin: auto;
   text-align: center !important;
 
@@ -148,7 +148,10 @@ export const tablePrintStyles = `
     word-break: break-word !important;
     overflow-wrap: normal !important;
     text-align: center !important;
-    min-width: auto;
+   min-width: 50%;
+      word-break: keep-all !important;
+
+    font-size: 11px;
     line-height: 1.4 !important;
   }
 
@@ -158,22 +161,27 @@ export const tablePrintStyles = `
     white-space: normal !important;
     word-break: break-word !important;
     text-align: center !important;
+    min-width: 50%;
+    line-height: 1.5 !important;
+    font-size: 12px;
+
   }
 
   tbody td {
     font-weight: 700 !important;
-    font-size: 14px !important;
+    font-size: 12px !important;
     padding: 3px 4px !important;
     text-align: center !important;
-
+      line-height: 1.4 !important;
   }
 
   .pdf-cell-text {
     text-align: center !important;
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700;
+    line-height: 1.5 !important;
   white-space: normal !important;
-
+    min-width: 50%;
   }
 
   /* الأرقام والتواريخ والأكواد تبقى في سطر واحد دون التفاف */
@@ -185,7 +193,7 @@ export const tablePrintStyles = `
     font-family: 'Cairo', monospace !important;
     direction: ltr !important;
     font-weight: 800 !important;
-    font-size: 14px !important;
+    font-size: 12px !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
@@ -198,8 +206,10 @@ export const tablePrintStyles = `
   .compact-cell .pdf-cell-text,
   .idx .pdf-cell-text {
     white-space: nowrap !important;
+    line-height: 1.5 !important;
     word-break: keep-all !important;
  text-align: center !important;
+ min-width: 50%;
 
   }
 
