@@ -220,7 +220,7 @@ export function openBrowserPrintPreview({
     tfoot { display: table-footer-group; }
     tr { page-break-inside: avoid; break-inside: avoid; }
 
-    /* تنسيق الخلايا العام */
+    /* تنسيق الخلايا العام: منع الالتفاف كقاعدة عامة */
     th, td {
       border: 1px solid #000000;
       text-align: center;
@@ -229,11 +229,13 @@ export function openBrowserPrintPreview({
       color: #000;
       font-size: 14px;
       box-sizing: border-box;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
     }
 
     /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
     thead th, th {
-      background: #0f283a !important;
+      background: gold !important;
       color: #ffffff !important;
       font-weight: 800 !important;
       font-size: 14.5px !important;
@@ -248,27 +250,26 @@ export function openBrowserPrintPreview({
     thead th .pdf-cell-text, th .pdf-cell-text {
       color: #ffffff !important;
       font-weight: 800 !important;
+      white-space: normal !important;
     }
 
     /* عمود البيان فقط: التفاف تلقائي للنص ومحاذاة لليمين */
     td.desc-cell,
     td.details-cell,
     td.statement-cell,
-    td.text-cell,
     td[data-col="statement"],
     td[data-col="desc"] {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: break-word !important;
       text-align: center !important;
-      min-width: 140px;
+      min-width: auto;
       line-height: 1.4 !important;
     }
 
     td.desc-cell .pdf-cell-text,
     td.details-cell .pdf-cell-text,
-    td.statement-cell .pdf-cell-text,
-    td.text-cell .pdf-cell-text {
+    td.statement-cell .pdf-cell-text {
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: break-word !important;
@@ -279,7 +280,7 @@ export function openBrowserPrintPreview({
 
     /* الأرقام والتواريخ والمعرفات: تظل في سطر واحد دون التفاف */
     .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"],
-    td.compact-cell {
+    td.compact-cell, td.text-cell {
       white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
@@ -295,7 +296,8 @@ export function openBrowserPrintPreview({
     .numeric-cell .pdf-cell-text,
     .date-cell .pdf-cell-text,
     .idx .pdf-cell-text,
-    .compact-cell .pdf-cell-text {
+    .compact-cell .pdf-cell-text,
+    td.text-cell .pdf-cell-text {
       white-space: nowrap !important;
       word-break: keep-all !important;
       font-weight: 800 !important;
@@ -466,13 +468,28 @@ export function openBrowserPrintPreview({
 
       let printInProgress = false;
 
-      function parseRowDate(text) {
-        if (!text) return null;
-        text = text.trim();
+      function toLatinDigits(str) {
+        if (!str) return '';
+        const arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+        return String(str).replace(/[٠-٩]/g, function(d) {
+          return arabic.indexOf(d);
+        });
+      }
+
+      function parseRowDate(raw) {
+        if (!raw) return null;
+        const text = toLatinDigits(raw.trim());
+        
         let m = text.match(/(\\d{4})[-\\/](\\d{1,2})[-\\/](\\d{1,2})/);
-        if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        if (m) {
+          return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        }
+
         m = text.match(/(\\d{1,2})[-\\/](\\d{1,2})[-\\/](\\d{4})/);
-        if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+        if (m) {
+          return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+        }
+
         const d = new Date(text);
         return isNaN(d.getTime()) ? null : d;
       }
@@ -482,23 +499,27 @@ export function openBrowserPrintPreview({
       }
 
       function applyDateFilter() {
-        const fromVal = dateFrom.value ? new Date(dateFrom.value + 'T00:00:00') : null;
-        const toVal = dateTo.value ? new Date(dateTo.value + 'T23:59:59') : null;
+        const fromStr = dateFrom.value;
+        const toStr = dateTo.value;
+        const fromVal = fromStr ? new Date(fromStr + 'T00:00:00') : null;
+        const toVal = toStr ? new Date(toStr + 'T23:59:59') : null;
 
         const table = document.querySelector('.sheet-paper table');
         if (!table) return;
 
         const ths = Array.from(table.querySelectorAll('thead th'));
         let dateColIdx = -1;
-        ths.forEach((th, idx) => {
+        ths.forEach(function(th, idx) {
           const t = th.textContent.trim();
-          if (/تاريخ|التاريخ|date/i.test(t)) dateColIdx = idx;
+          if (/تاريخ|التاريخ|date/i.test(t)) {
+            dateColIdx = idx;
+          }
         });
 
         const numericColIndices = [];
         const totalRow = table.querySelector('.total-row');
         if (totalRow) {
-          Array.from(totalRow.cells).forEach((cell, idx) => {
+          Array.from(totalRow.cells).forEach(function(cell, idx) {
             if (cell.classList.contains('numeric-cell') || cell.classList.contains('num')) {
               if (idx > 0) numericColIndices.push(idx);
             }
@@ -506,26 +527,34 @@ export function openBrowserPrintPreview({
         }
 
         const colTotals = {};
-        numericColIndices.forEach(idx => colTotals[idx] = 0);
+        numericColIndices.forEach(function(idx) { colTotals[idx] = 0; });
 
-        const rows = Array.from(table.querySelectorAll('tbody tr')).filter(r => !r.classList.contains('total-row'));
+        const rows = Array.from(table.querySelectorAll('tbody tr')).filter(function(r) {
+          return !r.classList.contains('total-row');
+        });
+        
         let visibleCount = 0;
 
-        rows.forEach(row => {
+        rows.forEach(function(row) {
           let rowDate = null;
           if (dateColIdx >= 0 && row.cells[dateColIdx]) {
             rowDate = parseRowDate(row.cells[dateColIdx].textContent);
           } else {
-            for (let c of row.cells) {
-              rowDate = parseRowDate(c.textContent);
+            for (let i = 0; i < row.cells.length; i++) {
+              rowDate = parseRowDate(row.cells[i].textContent);
               if (rowDate) break;
             }
           }
 
           let show = true;
-          if (rowDate) {
-            if (fromVal && rowDate < fromVal) show = false;
-            if (toVal && rowDate > toVal) show = false;
+          if (fromVal || toVal) {
+            if (rowDate) {
+              if (fromVal && rowDate < fromVal) show = false;
+              if (toVal && rowDate > toVal) show = false;
+            } else {
+              // إذا طُلب نطاق زمني والصف لا يحتوي على تاريخ نعتبره خارج النطاق
+              show = false;
+            }
           }
 
           row.style.display = show ? '' : 'none';
@@ -536,9 +565,9 @@ export function openBrowserPrintPreview({
               idxSpan.textContent = visibleCount;
             }
 
-            numericColIndices.forEach(colIdx => {
+            numericColIndices.forEach(function(colIdx) {
               if (row.cells[colIdx]) {
-                const rawVal = row.cells[colIdx].textContent.replace(/[^0-9.-]/g, '');
+                const rawVal = toLatinDigits(row.cells[colIdx].textContent).replace(/[^0-9.-]/g, '');
                 const num = parseFloat(rawVal) || 0;
                 colTotals[colIdx] += num;
               }
@@ -547,7 +576,7 @@ export function openBrowserPrintPreview({
         });
 
         if (totalRow) {
-          numericColIndices.forEach(colIdx => {
+          numericColIndices.forEach(function(colIdx) {
             if (totalRow.cells[colIdx]) {
               const span = totalRow.cells[colIdx].querySelector('.pdf-cell-text') || totalRow.cells[colIdx];
               span.textContent = formatNum(colTotals[colIdx]);
@@ -557,7 +586,7 @@ export function openBrowserPrintPreview({
 
         if (subTitleEl) {
           if (fromVal || toVal) {
-            const rangeStr = (fromVal ? 'من ' + dateFrom.value : '') + (toVal ? ' إلى ' + dateTo.value : '');
+            const rangeStr = (fromVal ? 'من ' + fromStr : '') + (toVal ? ' إلى ' + toStr : '');
             subTitleEl.textContent = originalSubText + ' • الفترة المحددة: ' + rangeStr + ' (السجلات: ' + visibleCount + ')';
           } else {
             subTitleEl.textContent = originalSubText;
@@ -597,7 +626,7 @@ export function openBrowserPrintPreview({
         }
 
         paperContainer.style.padding = margin;
-        const heights = pageSize === 'A3' ? [420,297] : pageSize === 'Letter' ? [279.4,215.9] : [297,210];
+        const heights = pageSize === 'A3' ? [420, 297] : pageSize === 'Letter' ? [279.4, 215.9] : [297, 210];
         paperContainer.style.minHeight = heights[orientation === 'portrait' ? 0 : 1] + 'mm';
         paperContainer.style.transform = 'none';
         document.getElementById('tableContainer').style.zoom = String(scale);
