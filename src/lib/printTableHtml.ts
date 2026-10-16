@@ -135,6 +135,7 @@ export const tablePrintStyles = `
     background: gold !important;
     color: #000 !important;
     font-weight: 800 !important;
+    white-space: normal !important;
   }
 
   /* 2. عمود البيان فقط يلتف تلقائياً */
@@ -146,7 +147,7 @@ export const tablePrintStyles = `
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     text-align: center !important;
-    min-width: auto;
+    min-width: 250px;
     line-height: 1.4 !important;
   }
 
