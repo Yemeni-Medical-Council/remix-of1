@@ -429,7 +429,7 @@ className="mt-0 px-1.5 py-0.5 rounded-md text-[10px] w-4 text-center bg-white bo
 <TableBody>
  {filtered.length === 0 ? (
                   <TableRow>
-<TableCell colSpan={COLS.length + 2} className="text-center py-8 text-slate-400 text-xs sm:text-sm w-auto max-w-auto">
+<TableCell colSpan={COLS.length + 2} className="text-center py-8 text-slate-400 text-xs sm:text-sm w-auto min-w-auto">
                       لا توجد بيانات حوافظ مطابقة
                     </TableCell>
                   </TableRow>

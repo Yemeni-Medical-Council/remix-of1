@@ -1173,7 +1173,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
  <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+<td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.description || "—"}
                       </td>
  <td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
@@ -1182,7 +1182,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
 <td className="w-auto min-w-0 border border-black font-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.name || "—"}
                       </td>
-<td className="w-auto border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+<td className="w-auto border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {Number(acc.hafizaAmount) > 0 ? fmt(Number(acc.hafizaAmount)) : "—"}
                       </td>
                       <td className="border border-black font-mono tabular-nums numeric-cell font-black text-center bg-[#1E8E5A]/[0.09] px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
@@ -1312,7 +1312,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                 <input
                   value={editingRow.description}
                   onChange={(e) => setEditingRow({ ...editingRow, description: e.target.value })}
-                  className="w-full p-2 text-[15px] border rounded-xl outline-none bg-white text-[#0f2f44] font-bold focus:border-[#0f2f44]"
+                  className="w-auto p-2 text-[15px] border rounded-xl outline-none bg-white text-[#0f2f44] font-bold focus:border-[#0f2f44]"
                 />
               </div>
               <div>

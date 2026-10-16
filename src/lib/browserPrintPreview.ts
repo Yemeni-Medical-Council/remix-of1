@@ -215,6 +215,7 @@ export function openBrowserPrintPreview({
       margin: 0 auto;
       color: #000;
   text-align: center !important;
+  word-break: keep-all; 
 
     }
 
@@ -273,7 +274,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: nowrap !important;
     text-align: center !important;
-      min-width: auto;
+      width: auto;
       line-height: 1.4 !important;
     }
 
@@ -284,7 +285,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-      min-width: auto;
+      width: auto;
   line-height: 1.4 !important;
 
     }

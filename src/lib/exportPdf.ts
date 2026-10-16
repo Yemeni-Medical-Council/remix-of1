@@ -514,8 +514,10 @@ text-align:center;
       font-weight: 700 !important;
     }
     h1 { text-align: center; 
-  font-size: 22px; font-weight: 900; margin: 0 0 4px; }
-    .meta { text-align: center; font-size: 20px; font-weight: 900; margin: 2px 0; }
+  font-size: 22px;
+  font-weight: 900; margin: 0 0 4px; }
+    .meta { text-align: center; font-size: 20px; 
+    font-weight: 900; margin: 2px 0; }
     table { 
 width: 100%; 
 max-width: auto;
