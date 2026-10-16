@@ -248,7 +248,7 @@ export function openBrowserPrintPreview({
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
-      color: #ffffff !important;
+      color: #000 !important;
       font-weight: 800 !important;
       white-space: normal !important;
     }
@@ -274,7 +274,7 @@ export function openBrowserPrintPreview({
       word-break: break-word !important;
       overflow-wrap: break-word !important;
       text-align: center !important;
-      display: inline-block;
+      display: flex;
       width: 100%;
     }
 
@@ -298,7 +298,7 @@ export function openBrowserPrintPreview({
     .idx .pdf-cell-text,
     .compact-cell .pdf-cell-text,
     td.text-cell .pdf-cell-text {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
       font-weight: 800 !important;
     }
@@ -337,7 +337,7 @@ export function openBrowserPrintPreview({
       }
       thead th, th {
         background: #0f283a !important;
-        color: #ffffff !important;
+        color: #000 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
@@ -350,7 +350,7 @@ export function openBrowserPrintPreview({
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-        max-width: auto !important;
+        max-width: 100% !important;
         min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;

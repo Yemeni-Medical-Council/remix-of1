@@ -152,7 +152,7 @@ export const tablePrintStyles = `
   tbody td.text-cell .pdf-cell-text,
   tbody td.desc-cell .pdf-cell-text,
   tbody td.details-cell .pdf-cell-text {
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: break-word !important;
     text-align: center !important;
     display: inline-block;
