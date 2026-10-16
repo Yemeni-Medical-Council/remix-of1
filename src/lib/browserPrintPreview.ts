@@ -208,10 +208,10 @@ export function openBrowserPrintPreview({
 
     table {
       width: 100%;
-      max-width: auto;
+      min-width: auto;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 16.5px;
+      font-size: 13.5px;
       margin: 0 auto;
       color: #000;
   text-align: center !important;
@@ -233,8 +233,6 @@ export function openBrowserPrintPreview({
       box-sizing: border-box;
       white-space: normal !important;
       word-break: keep-all !important;
-     width: 100%;
-
     }
 
     /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
@@ -304,10 +302,9 @@ export function openBrowserPrintPreview({
     .idx .pdf-cell-text,
     .compact-cell .pdf-cell-text,
     td.text-cell .pdf-cell-text {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
       font-weight: 800 !important;
-        width: auto;
 text-align: center !important;
 
     }
@@ -359,8 +356,7 @@ text-align: center !important;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-     max-width: auto !important;
-     height: auto !important;
+     min-width: auto !important;
     min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
