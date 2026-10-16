@@ -51,7 +51,7 @@ export const escapeHtml = (s: any) =>
 
 /**
  * أنماط موحّدة للطباعة ومعاينة PDF وواجهة الجداول
- * تضمن الاحتواء التلقائي وعدم التفاف النصوص داخل الخلايا مع السماح بالتفاف رؤوس الأعمدة.
+ * تضمن الاحتواء التلقائي وعدم التفاف الأرقام والتواريخ مع التفاف النص فقط لعمود البيان.
  */
 export const tablePrintStyles = `
   @page {
@@ -66,13 +66,13 @@ export const tablePrintStyles = `
   }
 
   body {
-    font-family: Cairo;
+    font-family: 'Cairo', -apple-system, sans-serif;
     padding: 3mm 4mm;
     color: #000 !important;
     direction: rtl;
     width: 100%;
     font-weight: 700;
-    font-size: 20.5px;
+    font-size: 14.5px;
     background: #fff;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -82,7 +82,7 @@ export const tablePrintStyles = `
     text-align: center;
     color: #000 !important;
     margin: 0 0 3px;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 900;
   }
 
@@ -90,9 +90,9 @@ export const tablePrintStyles = `
     text-align: center;
     color: #000 !important;
     margin-bottom: 6px;
-    font-size: 20px;
+    font-size: 14px;
     font-weight: 700;
-    border-bottom: 1px solid #b8860b;
+    border-bottom: 1px solid #1f5f7a;
     padding-bottom: 4px;
   }
   
@@ -102,86 +102,98 @@ export const tablePrintStyles = `
     min-width: auto;
     border-collapse: collapse !important;
     table-layout: auto !important;
-    font-size: 19px;
+    font-size: 14px;
     margin: auto;
   }
   
   th, td {
     border: 1px solid #000 !important;
-    padding: 2px 2px !important;
+    padding: 4px 5px !important;
     text-align: center !important;
     vertical-align: middle !important;
     color: #000 !important;
-    width: 100٪ !important;
-    min-width: auto !important;
+    box-sizing: border-box;
   }
 
-  /* 1. رؤوس الأعمدة: التفاف النص التلقائي لاحتواء العناوين الطويلة */
+  /* 1. رؤوس الأعمدة: خلفية غامقة وخط أبيض عريض */
   thead th,
   th {
-    background: #f5deb3 !important;
-    color:#ffffff !important;
-    font-weight: 900 !important;
-    font-size: 20px !important;
-    line-height: 1.5 !important;
-    white-space: normal !important;
-    word-break: normal !important;
-    overflow-wrap: break-word !important;
-font-family: AlQabas-Bold;
+    background: #0f283a !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 14.5px !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    border: 1px solid #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* 2. الخلايا النصية تلتف تلقائياً، بينما الأرقام والتواريخ تبقى في سطر واحد */
-  tbody td,
-  tfoot td,
-  .text-cell,
+  thead th .pdf-cell-text,
+  th .pdf-cell-text {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+  }
+
+  /* 2. عمود البيان فقط يلتف تلقائياً */
+  tbody td.text-cell,
+  tbody td.desc-cell,
+  tbody td.details-cell,
   .long-text-cell {
     white-space: normal !important;
     word-break: break-word !important;
-    overflow-wrap: anywhere !important;
-    hyphens: auto !important;
+    overflow-wrap: break-word !important;
+    text-align: right !important;
+    min-width: 140px;
+    line-height: 1.4 !important;
+  }
+
+  tbody td.text-cell .pdf-cell-text,
+  tbody td.desc-cell .pdf-cell-text,
+  tbody td.details-cell .pdf-cell-text {
+    white-space: normal !important;
+    word-break: break-word !important;
+    text-align: right !important;
+    display: inline-block;
+    width: 100%;
   }
 
   tbody td {
     font-weight: 700 !important;
-    font-size: 19.5px !important;
-    padding: 2px 2px !important;
+    font-size: 14px !important;
+    padding: 3px 4px !important;
   }
 
   .pdf-cell-text {
     text-align: center !important;
-    width: 100% !important;
-  min-width: auto !important;
-  font-size: 24px !important; 
-  font-family: Cairo !important;
-    font-weight: 900; 
-    white-space: nowrap !important;
-    overflow-wrap: normal !important;
-    word-break: keep-all !important;
-
+    font-family: 'Cairo', sans-serif !important;
+    font-weight: 700;
   }
 
+  /* الأرقام والتواريخ والأكواد تبقى في سطر واحد دون التفاف */
   .num,
   .numeric-cell,
   .date-cell,
   .compact-cell,
   .idx {
-    font-family: 'Times New Roman', Times, serif !important;
+    font-family: 'Cairo', monospace !important;
     direction: ltr !important;
-    font-weight: 900 !important;
-    font-size: 24px !important;
-    white-space: nowrap !important;
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
-  }
-
-  .num,
-  .numeric-cell,
-  .date-cell,
-  .compact-cell {
+    font-weight: 800 !important;
+    font-size: 14px !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
     hyphens: none !important;
+  }
+
+  .num .pdf-cell-text,
+  .numeric-cell .pdf-cell-text,
+  .date-cell .pdf-cell-text,
+  .compact-cell .pdf-cell-text,
+  .idx .pdf-cell-text {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
   }
 
   tbody tr:nth-child(even) td {
@@ -191,8 +203,9 @@ font-family: AlQabas-Bold;
   .total-row td {
     background: #fef3c7 !important;
     font-weight: 900 !important;
-    font-size: 16.5px !important;
-    border-top: 1.5pt solid #000 !important;
+    font-size: 15px !important;
+    border-top: 2px solid #000 !important;
+    white-space: nowrap !important;
   }
   
   /* ترويسة التقرير المنفصلة والمضمنة */
@@ -201,12 +214,12 @@ font-family: AlQabas-Bold;
     position: relative;
     top: 0;
     width: 100%;
-    height: 32mm;
-    min-height: 32mm;
-    max-height: 32mm;
+    height: 26mm;
+    min-height: 26mm;
+    max-height: 26mm;
     align-items: stretch;
     justify-content: center;
-    margin: 0 auto 4mm;
+    margin: 0 auto 3mm;
     page-break-before: avoid;
     page-break-after: avoid;
     break-before: avoid;
@@ -225,11 +238,11 @@ font-family: AlQabas-Bold;
   }
 
   @media print and (orientation: portrait) {
-    .report-letterhead-block { height: 28mm; min-height: 28mm; max-height: 28mm; }
+    .report-letterhead-block { height: 26mm; min-height: 26mm; max-height: 26mm; }
   }
 
   @media print and (orientation: landscape) {
-    .report-letterhead-block { height: 34mm; min-height: 34mm; max-height: 34mm; }
+    .report-letterhead-block { height: 30mm; min-height: 30mm; max-height: 30mm; }
   }
 
   .report-letterhead-row,
@@ -245,16 +258,16 @@ font-family: AlQabas-Bold;
   }
 
   .report-letterhead-row .report-letterhead-cell {
-    height: 30mm !important;
-    min-height: 30mm !important;
+    height: 26mm !important;
+    min-height: 26mm !important;
     padding: 0 !important;
     border: 0 !important;
     background: #fff !important;
   }
 
   .report-letterhead-row .report-letterhead-image {
-    height: 30mm !important;
-    max-height: 30mm !important;
+    height: 26mm !important;
+    max-height: 26mm !important;
   }
 
   thead { display: table-header-group; }
@@ -282,14 +295,19 @@ export function buildTableHtml(opts: {
   const isCompactColumn = (c: TableCol) =>
     /(^|[-_ ])(no|number|code|key|id)([-_ ]|$)|رقم|رمز|كود|الباب|الفصل|البند|النوع|الشهر|السنة/i.test(`${c.key} ${c.label}`);
 
+  const isDescriptionColumn = (c: TableCol) =>
+    /بيان|تفاصيل|وصف|desc|statement|details|notes/i.test(`${c.key} ${c.label}`);
+
   const getCellClass = (c: TableCol, val?: any) => {
     const isNumeric = numericKeys.includes(c.key) || typeof val === "number";
     const isDate = isDateColumn(c);
     const isCompact = isCompactColumn(c);
-    const isNoWrap = isNumeric || isDate || isCompact;
+    const isDesc = isDescriptionColumn(c);
+
+    if (isDesc) return "text-cell desc-cell";
 
     return [
-      isNoWrap ? "num numeric-cell" : "text-cell",
+      (isNumeric || isDate || isCompact) ? "num numeric-cell" : "text-cell",
       isDate ? "date-cell" : "",
       isCompact ? "compact-cell" : "",
     ].filter(Boolean).join(" ");

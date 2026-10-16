@@ -144,7 +144,7 @@ export function openBrowserPrintPreview({
       border-color: #38bdf8;
       padding: 6px 12px;
       font-size: 13px;
-      color: #000;
+      color: #ffffff;
       box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
     }
     .preview-toolbar button.btn-download-pdf:hover {
@@ -200,7 +200,7 @@ export function openBrowserPrintPreview({
 
     .report-letterhead-image {
       width: 100%;
-      max-width: auto;
+      max-width: 100%;
       height: 100%;
       object-fit: fill;
       object-position: top;
@@ -211,47 +211,104 @@ export function openBrowserPrintPreview({
       max-width: 100%;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 18px;
+      font-size: 14.5px;
       margin: 0 auto;
       color: #000;
-      word-break: keep-all;
-    white-space: normal !important;
-
     }
 
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
     tr { page-break-inside: avoid; break-inside: avoid; }
 
+    /* تنسيق الخلايا العام */
     th, td {
       border: 1px solid #000000;
       text-align: center;
       vertical-align: middle;
       padding: 4px 5px;
       color: #000;
-      font-size: 18px;
+      font-size: 14px;
       box-sizing: border-box;
     }
 
-    .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"] {
+    /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
+    thead th, th {
+      background: #0f283a !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      font-size: 14.5px !important;
+      padding: 6px 4px !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
-  font-family: Cairo !important;
-      font-size: 18px;
-      color: #000;
-      direction: ltr !important;
-      font-weight: 800 !important;
-      padding: 3px 4px !important;
-      width: auto;
-
+      border: 1px solid #000000 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
+    thead th .pdf-cell-text, th .pdf-cell-text {
+      color: #ffffff !important;
+      font-weight: 800 !important;
+    }
+
+    /* عمود البيان فقط: التفاف تلقائي للنص ومحاذاة لليمين */
+    td.desc-cell,
+    td.details-cell,
+    td.statement-cell,
+    td.text-cell,
+    td[data-col="statement"],
+    td[data-col="desc"] {
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      text-align: right !important;
+      min-width: 140px;
+      line-height: 1.4 !important;
+    }
+
+    td.desc-cell .pdf-cell-text,
+    td.details-cell .pdf-cell-text,
+    td.statement-cell .pdf-cell-text,
+    td.text-cell .pdf-cell-text {
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      text-align: right !important;
+      display: inline-block;
+      width: 100%;
+    }
+
+    /* الأرقام والتواريخ والمعرفات: تظل في سطر واحد دون التفاف */
+    .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"],
+    td.compact-cell {
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+      font-family: 'Cairo', monospace !important;
+      direction: ltr !important;
+      font-weight: 800 !important;
+      font-size: 14px;
+      color: #000;
+      padding: 3px 5px !important;
+    }
+
+    .num .pdf-cell-text,
+    .numeric-cell .pdf-cell-text,
+    .date-cell .pdf-cell-text,
+    .idx .pdf-cell-text,
+    .compact-cell .pdf-cell-text {
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      font-weight: 800 !important;
+    }
+
+    /* صف الإجمالي */
     .total-row td {
       background: #fef3c7 !important;
       font-weight: 900 !important;
-      font-size: 20px !important;
+      font-size: 15px !important;
       border-top: 2px solid #000 !important;
-color: #000;
+      color: #000 !important;
+      white-space: nowrap !important;
     }
 
     ${contentCss}
@@ -262,7 +319,6 @@ color: #000;
     }
     .sheet-paper table {
       width: 100% !important;
-
     }
 
     @media print {
@@ -275,8 +331,13 @@ color: #000;
         padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        font-size: 18px;
-      color: #000;
+        color: #000;
+      }
+      thead th, th {
+        background: #0f283a !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       .sheet-viewport {
         padding: 0 !important;
@@ -284,13 +345,11 @@ color: #000;
         overflow: visible !important;
       }
       .sheet-paper {
-      font-size: 18px;
-      color: #000;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-      max-width: auto !important;
-    min-height: auto !important;
+        max-width: auto !important;
+        min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
         transform: none !important;
@@ -436,7 +495,6 @@ color: #000;
           if (/تاريخ|التاريخ|date/i.test(t)) dateColIdx = idx;
         });
 
-        // تحديد الأعمدة الرقمية لجمعها
         const numericColIndices = [];
         const totalRow = table.querySelector('.total-row');
         if (totalRow) {
@@ -478,7 +536,6 @@ color: #000;
               idxSpan.textContent = visibleCount;
             }
 
-            // تجميع المبالغ للأعمدة الرقمية
             numericColIndices.forEach(colIdx => {
               if (row.cells[colIdx]) {
                 const rawVal = row.cells[colIdx].textContent.replace(/[^0-9.-]/g, '');
@@ -489,7 +546,6 @@ color: #000;
           }
         });
 
-        // تحديث سطر الإجمالي فورياً
         if (totalRow) {
           numericColIndices.forEach(colIdx => {
             if (totalRow.cells[colIdx]) {
