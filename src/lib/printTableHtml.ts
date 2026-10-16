@@ -150,7 +150,8 @@ min-width: auto;
 
   /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */
   tbody td {
-    white-space: nowrap !important;
+        min-width: auto;
+    white-space: normal !important;
     font-weight: 700 !important;
     font-size: 11.5px !important;
     padding: 3px 4px !important;
@@ -162,25 +163,24 @@ word-break: break-word !important;
 
   .pdf-cell-text {
     text-align: center !important;
-    font-family: 'Cairo', sans-serif !important;
+    font-family: 'Cairo' !important;
     font-weight: 700;
     line-height: 1.3 !important;
     white-space: nowrap !important;
   }
 
   /* 3. استثناء خاص وحصري: عمود "البيان" يلتف تلقائياً دون كسر الكلمات الحسابية */
-  tbody td.desc-cell,
-  tbody td[data-col-key="description"],
-  tbody td.desc-cell .pdf-cell-text,
-  tbody td[data-col-key="description"] .pdf-cell-text {
-    white-space: nowrap !important;
+  td.desc-cell.pdf-cell-text,
+  td.details-cell.pdf-cell-text,
+  td.description-cell.pdf-cell-text {
+    white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     text-align: center !important;
     direction: rtl !important;
     padding: 4px 6px !important;
     line-height: 1.4 !important;
-    max-width: auto;
+    min-width: 330px;
   }
 
   /* 4. أعمدة الأسماء (الاسم / اسم المتدرب): تتسع لاحتواء الاسم كاملاً دون التفاف */
@@ -213,7 +213,8 @@ word-break: break-word !important;
   .compact-cell,
   .ref-cell,
   .idx {
-    font-family: 'Cairo', monospace !important;
+        min-width: auto;
+    font-family: 'Cairo' !important;
     direction: ltr !important;
     font-weight: 800 !important;
     font-size: 11.5px !important;
@@ -229,6 +230,7 @@ word-break: break-word !important;
   .compact-cell .pdf-cell-text,
   .ref-cell .pdf-cell-text,
   .idx .pdf-cell-text {
+      min-width: auto;
     white-space: nowrap !important;
     word-break: keep-all !important;
     text-align: center !important;

@@ -271,20 +271,20 @@ print - color - adjust: exact!important;
     tbody td[data-col-key = "batch"] {
       white-space: normal !important;
       word-break: break-word !important;
-      overflow-wrap: nowrap !important;
+      overflow-wrap: normal !important;
     text-align: center !important;
-      width: 300px;
+      width: 150px;
       line-height: 1.4 !important;
     }
 
     td.desc-cell .pdf-cell-text,
     td.details-cell .pdf-cell-text,
     td.description-cell .pdf-cell-text {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-      width: auto;
+      width: 150px;
   line-height: 1.4 !important;
 
     }
