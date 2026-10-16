@@ -224,7 +224,7 @@ export function openBrowserPrintPreview({
 
     /* تنسيق الخلايا العام: منع الالتفاف كقاعدة عامة */
     th, td {
-          min-width: auto;
+    min-width: 300px;
       border: 1px solid #000000;
       text-align: center;
       vertical-align: middle;
@@ -232,7 +232,7 @@ export function openBrowserPrintPreview({
       color: #000;
       font-size: 12px;
       box-sizing: border-box;
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
     }
 
@@ -274,7 +274,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
     text-align: center !important;
-      max-width: 50%;
+      max-width: 320px;
       line-height: 1.4 !important;
     }
 
@@ -285,7 +285,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-      max-width: 50%;
+      max-width: 300px;
   line-height: 1.4 !important;
 
     }
@@ -366,7 +366,6 @@ text-align: center !important;
         border: none !important;
         box-shadow: none !important;
         width: 100% !important;
-     min-width: auto !important;
     min-height: auto !important;
         padding: 0 !important;
         margin: 0 !important;
