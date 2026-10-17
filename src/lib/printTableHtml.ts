@@ -317,6 +317,50 @@ word-break: break-word !important;
   tfoot { display: table-footer-group; }
   tr { page-break-inside: avoid; }
 
+  /* ملاءمة أعمدة تقارير الحوافظ والحساب الجاري: عمود البيان وحده يلتف */
+  table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+  tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    min-width: 0 !important;
+  }
+  tbody td.desc-cell,
+  tbody td.details-cell,
+  tbody td.description-cell,
+  tbody td[data-col-key="description"] {
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    min-width: 0 !important;
+    text-align: right !important;
+  }
+  tbody td.desc-cell .pdf-cell-text,
+  tbody td.details-cell .pdf-cell-text,
+  tbody td.description-cell .pdf-cell-text,
+  tbody td[data-col-key="description"] .pdf-cell-text {
+    display: block;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    min-width: 0 !important;
+    text-align: right !important;
+  }
+  tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+  }
+  thead th {
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
   ${noteRowCss}
   ${runningLetterheadCss}
 `;

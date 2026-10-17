@@ -332,6 +332,26 @@ text-align: center !important;
     ${contentCss}
     ${reportContainmentCss}
 
+    /* قواعد نهائية موحدة في المعاينة والطباعة: التفاف البيان دون سواه */
+    .sheet-paper table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
+    .sheet-paper tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
+    .sheet-paper tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
+      white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important;
+      min-width:0 !important;
+    }
+    .sheet-paper tbody td.desc-cell,
+    .sheet-paper tbody td.details-cell,
+    .sheet-paper tbody td.description-cell,
+    .sheet-paper tbody td[data-col-key="description"],
+    .sheet-paper tbody td.desc-cell .pdf-cell-text,
+    .sheet-paper tbody td.details-cell .pdf-cell-text,
+    .sheet-paper tbody td.description-cell .pdf-cell-text,
+    .sheet-paper tbody td[data-col-key="description"] .pdf-cell-text {
+      white-space:normal !important; word-break:normal !important; overflow-wrap:anywhere !important;
+      min-width:0 !important; text-align:right !important;
+    }
+    .sheet-paper thead th { white-space:normal !important; overflow-wrap:anywhere !important; }
+
     .sheet-paper, .sheet-paper * {
       max-width: 100%;
     }
@@ -644,8 +664,20 @@ text-align: center !important;
         const heights = pageSize === 'A3' ? [420, 297] : pageSize === 'Letter' ? [279.4, 215.9] : [297, 210];
         paperContainer.style.minHeight = heights[orientation === 'portrait' ? 0 : 1] + 'mm';
         paperContainer.style.transform = 'none';
-        document.getElementById('tableContainer').style.zoom = String(scale);
+        const tableContainer = document.getElementById('tableContainer');
+        tableContainer.style.zoom = String(scale);
         dynamicRule.innerHTML = '@page { size: ' + pageSize + ' ' + orientation + '; margin: ' + margin + '; }';
+        window.requestAnimationFrame(function() {
+          const table = tableContainer.querySelector('table');
+          if (!table) return;
+          tableContainer.style.zoom = '1';
+          const availableWidth = Math.max(1, paperContainer.clientWidth -
+            parseFloat(getComputedStyle(paperContainer).paddingLeft) -
+            parseFloat(getComputedStyle(paperContainer).paddingRight));
+          const naturalWidth = Math.max(table.scrollWidth, table.getBoundingClientRect().width);
+          const fitScale = Math.min(1, availableWidth / Math.max(1, naturalWidth));
+          tableContainer.style.zoom = String(scale * fitScale);
+        });
       }
 
       async function downloadDirectPdf() {

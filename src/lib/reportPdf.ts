@@ -37,6 +37,22 @@ font-size: 14.5px !important;
     margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:nowrap !important;
     overflow-wrap:normal !important; word-break:break-word !important; font-family:'Cairo';
     font-size:13px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
+  .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
+  .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
+  .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
+    white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important;
+  }
+  .report-page-content tbody td.desc-cell,
+  .report-page-content tbody td.details-cell,
+  .report-page-content tbody td.description-cell,
+  .report-page-content tbody td[data-col-key="description"],
+  .report-page-content tbody td.desc-cell .pdf-cell-text,
+  .report-page-content tbody td.details-cell .pdf-cell-text,
+  .report-page-content tbody td.description-cell .pdf-cell-text,
+  .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
+    white-space:normal !important; word-break:normal !important; overflow-wrap:anywhere !important;
+    min-width:0 !important; text-align:right !important;
+  }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
   .report-page-content .idx,.report-page-content .cell-number { direction:ltr !important; unicode-bidi:isolate;
     white-space:nowrap !important; overflow-wrap:normal !important; word-break:keep-all !important; }
