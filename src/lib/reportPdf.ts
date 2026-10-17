@@ -10,7 +10,7 @@ export const reportDocumentCss = `
     --report-total:#e4f1de; --report-accent:#176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
-    color:#000; font-family:'Cairo'; font-size:20px; line-height:1.6; }
+    color:#000; font-family:'Cairo'; font-size:16px; line-height:1.5; }
   h1,h2 { text-align:center; color:#000; font-size:22px; margin:0 0 6px; }
   .sub,.meta { text-align:center; color:#000; font-size:20px; margin-bottom:10px; }
   table { width:100%; border-collapse:collapse; table-layout:auto; text-align:center; }
@@ -34,8 +34,8 @@ font-size: 14.5px !important;
   }
   .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
   .report-page-content th,.report-page-content td { min-width:auto !important; padding:5px 6px !important;
-    margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:nowrap !important;
-    overflow-wrap:normal !important; word-break:break-word !important; font-family:'Cairo',sans-serif !important;
+    margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:normal !important;
+    overflow-wrap:normal !important; word-break:break-word !important; font-family: Cairo !important;
     font-size:14px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
   .report-page-content thead th { font-size:15px !important; padding:6px 5px !important; font-weight:800 !important; }
   .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
@@ -52,12 +52,12 @@ font-size: 14.5px !important;
   .report-page-content tbody td.description-cell .pdf-cell-text,
   .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
     white-space:normal !important; word-break:normal !important; overflow-wrap:anywhere !important;
-    min-width:0 !important; text-align:right !important;
+    min-width:0 !important; text-align:center !important;
   }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
   .report-page-content .idx,.report-page-content .cell-number { direction:ltr !important; unicode-bidi:isolate;
     white-space:nowrap !important; overflow-wrap:normal !important; word-break:keep-all !important; }
-  .report-page-content .pdf-cell-text { white-space:nowrap !important; font-family:'Cairo',sans-serif !important;
+  .report-page-content .pdf-cell-text { white-space:nowrap !important; font-family:Cairo !important;
     font-size:14px !important; text-align:center !important; vertical-align:middle !important; }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }

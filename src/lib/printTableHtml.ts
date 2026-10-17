@@ -102,7 +102,6 @@ export const tablePrintStyles = `
     max-width: auto !important;
     border-collapse: collapse !important;
     table-layout: auto !important;
-    font-size: 11px;
     margin: 0 auto;
     text-align: center !important;
     color: #000000 !important;
@@ -118,8 +117,7 @@ export const tablePrintStyles = `
   }
 
   /* 1. رؤوس الأعمدة: خلفية كحلية غامقة وخط أبيض عريض */
-  thead th,
-  th {
+  thead th {
     background: #0f283a !important;
     color: #ffffff !important;
     font-weight: 800 !important;
@@ -144,13 +142,12 @@ export const tablePrintStyles = `
   thead th.desc-cell,
   thead th[data-col-key="description"] {
     white-space: normal !important;
-min-width: auto;
+min-width: 200px;
 
   }
 
   /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */
   tbody td {
-        min-width: auto;
     white-space: normal !important;
     font-weight: 700 !important;
     font-size: 11.5px !important;
@@ -163,10 +160,10 @@ word-break: break-word !important;
 
   .pdf-cell-text {
     text-align: center !important;
-    font-family: 'Cairo' !important;
+    font-family: Cairo !important;
     font-weight: 700;
     line-height: 1.3 !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
   }
 
   /* 3. استثناء خاص وحصري: عمود "البيان" يلتف تلقائياً دون كسر الكلمات الحسابية */
@@ -187,12 +184,12 @@ word-break: break-word !important;
   tbody td.name-cell,
   tbody td[data-col-key="name"],
   tbody td.name-cell .pdf-cell-text,
-  tbody td[data-col-key="name"] .pdf-cell-text {
+  tbody td[data-col-key="date"] .pdf-cell-text {
     white-space: normal !important;
  word-break: break-word !important;
     text-align: center !important;
     padding: 3px 6px !important;
-    min-width: 150px !important;
+    min-width: 100px !important;
   }
 
   /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
@@ -203,7 +200,7 @@ word-break: break-word !important;
     white-space: normal !important;
       word-break: break-word !important;.
     text-align: center !important;
-    min-width: 150px !important;
+    min-width: 100px !important;
   }
 
   /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */
@@ -213,11 +210,10 @@ word-break: break-word !important;
   .compact-cell,
   .ref-cell,
   .idx {
-        min-width: auto;
-    font-family: 'Cairo' !important;
+    font-family: Cairo !important;
     direction: ltr !important;
     font-weight: 800 !important;
-    font-size: 11.5px !important;
+    font-size: 13.5px !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
@@ -230,7 +226,6 @@ word-break: break-word !important;
   .compact-cell .pdf-cell-text,
   .ref-cell .pdf-cell-text,
   .idx .pdf-cell-text {
-      min-width: auto;
     white-space: nowrap !important;
     word-break: keep-all !important;
     text-align: center !important;
@@ -327,7 +322,7 @@ word-break: break-word !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
-    min-width: 0 !important;
+    min-width: auto !important;
   }
   tbody td.desc-cell,
   tbody td.details-cell,
@@ -336,8 +331,8 @@ word-break: break-word !important;
     white-space: normal !important;
     word-break: normal !important;
     overflow-wrap: anywhere !important;
-    min-width: 0 !important;
-    text-align: right !important;
+    min-width: auto !important;
+    text-align: center !important;
   }
   tbody td.desc-cell .pdf-cell-text,
   tbody td.details-cell .pdf-cell-text,
@@ -348,7 +343,7 @@ word-break: break-word !important;
     word-break: normal !important;
     overflow-wrap: anywhere !important;
     min-width: 0 !important;
-    text-align: right !important;
+    text-align: center !important;
   }
   tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
     white-space: nowrap !important;

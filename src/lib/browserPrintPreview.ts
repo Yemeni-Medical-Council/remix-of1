@@ -211,7 +211,6 @@ export function openBrowserPrintPreview({
       max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
-      font-size: 11.5px;
       margin: 0 auto;
       color: #000;
   text-align: center !important;
@@ -229,7 +228,6 @@ export function openBrowserPrintPreview({
       vertical-align: middle;
       padding: 4px 5px;
       color: #000;
-      font-size: 12px;
       box-sizing: border-box;
 word-break: break-word !important;
 
@@ -274,7 +272,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
     text-align: center !important;
-      min-width: 140px;
+      min-width: 80px;
       line-height: 1.4 !important;
     }
 
@@ -285,7 +283,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-      min-width: 250px;
+      min-width: 350px;
   line-height: 1.4 !important;
 
     }
@@ -296,14 +294,13 @@ print - color - adjust: exact!important;
   text-align: center !important;
  white-space: nowrap !important;
       word-break: keep-all !important;
-      overflow-wrap: normal !important;
-      font-family: 'Cairo', monospace !important;
+      overflow-wrap: nowrap !important;
+      font-family: Cairo !important;
       direction: ltr !important;
       font-weight: 800 !important;
       font-size: 12px;
       color: #000;
       padding: 3px 5px !important;
-      min-width: auto;
     }
 
     .num .pdf-cell-text,
@@ -316,7 +313,6 @@ print - color - adjust: exact!important;
       word-break: keep-all !important;
       font-weight: 800 !important;
 text-align: center !important;
-      min-width: auto;
     }
 
     /* صف الإجمالي */
