@@ -351,6 +351,35 @@ text-align: center !important;
       min-width:0 !important; text-align:right !important;
     }
     .sheet-paper thead th { white-space:normal !important; overflow-wrap:anywhere !important; }
+    /* تحسين وضوح النسخة المطبوعة مع الحفاظ على المساحة المتاحة للجدول */
+    .sheet-paper .report-page-content table {
+      width:100% !important;
+      max-width:100% !important;
+      table-layout:auto !important;
+      font-family:'Cairo',sans-serif !important;
+    }
+    .sheet-paper .report-page-content th,
+    .sheet-paper .report-page-content td,
+    .sheet-paper .report-page-content .pdf-cell-text {
+      font-family:'Cairo',sans-serif !important;
+      text-align:center !important;
+      vertical-align:middle !important;
+      font-size:var(--print-cell-font-size,14px) !important;
+      line-height:1.4 !important;
+    }
+    .sheet-paper .report-page-content th,
+    .sheet-paper .report-page-content td {
+      padding:var(--print-cell-padding,5px 6px) !important;
+    }
+    .sheet-paper .report-page-content thead th {
+      font-size:var(--print-header-font-size,15px) !important;
+      font-weight:800 !important;
+      padding:6px 5px !important;
+    }
+    .sheet-paper .report-page-content tbody td[data-col-key="description"],
+    .sheet-paper .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
+      text-align:center !important;
+    }
 
     .sheet-paper, .sheet-paper * {
       max-width: 100%;
@@ -664,6 +693,20 @@ text-align: center !important;
         const heights = pageSize === 'A3' ? [420, 297] : pageSize === 'Letter' ? [279.4, 215.9] : [297, 210];
         paperContainer.style.minHeight = heights[orientation === 'portrait' ? 0 : 1] + 'mm';
         paperContainer.style.transform = 'none';
+        const pageWidthMm = pageSize === 'A3'
+          ? (orientation === 'portrait' ? 297 : 420)
+          : pageSize === 'Letter'
+            ? (orientation === 'portrait' ? 215.9 : 279.4)
+            : (orientation === 'portrait' ? 210 : 297);
+        const table = paperContainer.querySelector('table');
+        const headerRow = table && table.tHead && table.tHead.rows[table.tHead.rows.length - 1];
+        const columnCount = headerRow ? headerRow.cells.length : 1;
+        const pageFactor = pageWidthMm >= 290 ? 1 : 0;
+        const fontSize = Math.max(12, 15 + pageFactor - Math.max(0, columnCount - 8) * 0.28);
+        const horizontalPadding = columnCount > 12 ? 4 : 6;
+        paperContainer.style.setProperty('--print-cell-font-size', fontSize.toFixed(1) + 'px');
+        paperContainer.style.setProperty('--print-header-font-size', (fontSize + 1).toFixed(1) + 'px');
+        paperContainer.style.setProperty('--print-cell-padding', '5px ' + horizontalPadding + 'px');
         const tableContainer = document.getElementById('tableContainer');
         tableContainer.style.zoom = String(scale);
         dynamicRule.innerHTML = '@page { size: ' + pageSize + ' ' + orientation + '; margin: ' + margin + '; }';
@@ -675,7 +718,7 @@ text-align: center !important;
             parseFloat(getComputedStyle(paperContainer).paddingLeft) -
             parseFloat(getComputedStyle(paperContainer).paddingRight));
           const naturalWidth = Math.max(table.scrollWidth, table.getBoundingClientRect().width);
-          const fitScale = Math.min(1, availableWidth / Math.max(1, naturalWidth));
+          const fitScale = Math.max(0.9, Math.min(1, availableWidth / Math.max(1, naturalWidth)));
           tableContainer.style.zoom = String(scale * fitScale);
         });
       }

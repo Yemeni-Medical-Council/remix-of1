@@ -33,10 +33,11 @@ font-size: 14.5px !important;
 
   }
   .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
-  .report-page-content th,.report-page-content td { min-width:auto !important; padding:4px 6px !important;
+  .report-page-content th,.report-page-content td { min-width:auto !important; padding:5px 6px !important;
     margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:nowrap !important;
-    overflow-wrap:normal !important; word-break:break-word !important; font-family:'Cairo';
-    font-size:13px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
+    overflow-wrap:normal !important; word-break:break-word !important; font-family:'Cairo',sans-serif !important;
+    font-size:14px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
+  .report-page-content thead th { font-size:15px !important; padding:6px 5px !important; font-weight:800 !important; }
   .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
@@ -56,7 +57,8 @@ font-size: 14.5px !important;
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
   .report-page-content .idx,.report-page-content .cell-number { direction:ltr !important; unicode-bidi:isolate;
     white-space:nowrap !important; overflow-wrap:normal !important; word-break:keep-all !important; }
-  .report-page-content .pdf-cell-text { white-space:nowrap !important; font-size:13px; }
+  .report-page-content .pdf-cell-text { white-space:nowrap !important; font-family:'Cairo',sans-serif !important;
+    font-size:14px !important; text-align:center !important; vertical-align:middle !important; }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
   .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px black !important; }
@@ -118,7 +120,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       content.style.zoom = '1';
       const available = (widthMm - marginMm * 2) * pxPerMm;
       if (content.scrollWidth > available + 1) {
-        content.style.zoom = String(Math.max(0.5, available / content.scrollWidth));
+        content.style.zoom = String(Math.max(0.88, available / content.scrollWidth));
       }
     };
 
