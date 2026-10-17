@@ -5,7 +5,6 @@ export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
 export type ReportOrientation = 'portrait' | 'landscape';
 
 export const reportDocumentCss = `
-  @font-face { font-family:'Cairo'; src:url('/Cairo-Regular-normal.ttf') format('truetype'); font-style:normal; font-weight:400 900; }
   :root { --report-paper:#ffffff; --report-ink:#172b35; --report-muted:#526773;
     --report-rule:#718994; --report-header:gold; --report-stripe:#f0f7f8;
     --report-total:#e4f1de; --report-accent:#176b74; }
@@ -26,11 +25,6 @@ export const reportDocumentCss = `
 `;
 
 export const reportContainmentCss = `
-  .report-page-content {
-    --report-cell-font-size:14px;
-    --report-header-font-size:15px;
-    --report-cell-padding:4px 5px;
-  }
   .report-page-content { 
   width:100%; 
   max-width: auto; 
@@ -41,12 +35,8 @@ font-size: 14.5px !important;
   .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
   .report-page-content th,.report-page-content td { min-width:auto !important; padding:4px 6px !important;
     margin:0 !important; text-align:center !important; vertical-align:middle !important; white-space:nowrap !important;
-    overflow-wrap:normal !important; word-break:break-word !important; font-family:'Cairo',sans-serif !important;
-    font-size:var(--report-cell-font-size,14px) !important; font-weight:700 !important; color:#000 !important; line-height:1.35 !important;
-    padding:var(--report-cell-padding,4px 5px) !important; }
-  .report-page-content thead th { font-size:var(--report-header-font-size,15px) !important; }
-  .report-page-content .pdf-cell-text { font-family:'Cairo',sans-serif !important; font-size:var(--report-cell-font-size,14px) !important;
-    text-align:center !important; vertical-align:middle !important; }
+    overflow-wrap:normal !important; word-break:break-word !important; font-family:'Cairo';
+    font-size:13px !important; font-weight:700 !important; color:#000 !important; line-height:1.4 !important; }
   .report-page-content table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
@@ -61,12 +51,12 @@ font-size: 14.5px !important;
   .report-page-content tbody td.description-cell .pdf-cell-text,
   .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
     white-space:normal !important; word-break:normal !important; overflow-wrap:anywhere !important;
-    min-width:0 !important; text-align:center !important;
+    min-width:0 !important; text-align:right !important;
   }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
   .report-page-content .idx,.report-page-content .cell-number { direction:ltr !important; unicode-bidi:isolate;
     white-space:nowrap !important; overflow-wrap:normal !important; word-break:keep-all !important; }
-  .report-page-content .pdf-cell-text { white-space:nowrap !important; }
+  .report-page-content .pdf-cell-text { white-space:nowrap !important; font-size:13px; }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
   .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px black !important; }
@@ -105,14 +95,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   paper.style.cssText = `width:${widthMm}mm;min-height:${heightMm}mm;padding:${marginMm}mm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
   const content = source.cloneNode(true) as HTMLElement;
   content.classList.add('report-page-content');
-  content.style.width = '100%';
-  content.style.minHeight = 'auto';
-  content.style.height = 'auto';
-  content.style.padding = '0';
-  content.style.margin = '0';
-  content.style.border = '0';
-  content.style.boxShadow = 'none';
-  content.style.transform = 'none';
+  content.style.cssText = 'width:100%;min-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
   footer.style.cssText = 'margin-top:auto;padding-top:2mm;text-align:center;font-size:22px;color:#000;direction:rtl;';
   paper.append(content, footer);

@@ -337,7 +337,7 @@ word-break: break-word !important;
     word-break: normal !important;
     overflow-wrap: anywhere !important;
     min-width: 0 !important;
-    text-align: center !important;
+    text-align: right !important;
   }
   tbody td.desc-cell .pdf-cell-text,
   tbody td.details-cell .pdf-cell-text,
@@ -348,7 +348,7 @@ word-break: break-word !important;
     word-break: normal !important;
     overflow-wrap: anywhere !important;
     min-width: 0 !important;
-    text-align: center !important;
+    text-align: right !important;
   }
   tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
     white-space: nowrap !important;
