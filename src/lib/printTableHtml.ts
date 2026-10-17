@@ -118,10 +118,8 @@ export const tablePrintStyles = `
 
   /* 1. رؤوس الأعمدة: خلفية كحلية غامقة وخط أبيض عريض */
   thead th {
-    background: #0f283a !important;
-    color: #ffffff !important;
     font-weight: 800 !important;
-    font-size: 12.5px !important;
+    font-size: 14.5px !important;
     padding: 6px 4px !important;
     white-space: normal !important;
     word-break: keep-all !important;
@@ -132,17 +130,19 @@ export const tablePrintStyles = `
 
   thead th .pdf-cell-text,
   th .pdf-cell-text {
-    background: transparent !important;
+    background: gold !important;
     color: #ffffff !important;
     font-weight: 800 !important;
     white-space: normal !important;
+    min-width: auto;
+
   }
 
   /* الرأس الخاص بعمود البيان يسمح بالمرونة */
   thead th.desc-cell,
   thead th[data-col-key="description"] {
     white-space: normal !important;
-min-width: 200px;
+min-width: auto;
 
   }
 
@@ -150,20 +150,22 @@ min-width: 200px;
   tbody td {
     white-space: normal !important;
     font-weight: 700 !important;
-    font-size: 11.5px !important;
+    font-size: 13.5px !important;
     padding: 3px 4px !important;
     text-align: center !important;
     line-height: 1.3 !important;
 word-break: break-word !important;
-
+    min-width: auto;
   }
 
   .pdf-cell-text {
-    text-align: center !important;
-    font-family: Cairo !important;
+text-align: center !important;
+  font-family: Cairo !important;
     font-weight: 700;
-    line-height: 1.3 !important;
-    white-space: normal !important;
+    line-height: 1.5 !important;
+white-space: nowrap !important;
+font-size: 13.5px !important;
+
   }
 
   /* 3. استثناء خاص وحصري: عمود "البيان" يلتف تلقائياً دون كسر الكلمات الحسابية */
@@ -185,7 +187,7 @@ word-break: break-word !important;
   tbody td[data-col-key="name"],
   tbody td.name-cell .pdf-cell-text,
   tbody td[data-col-key="date"] .pdf-cell-text {
-    white-space: normal !important;
+    white-space: nowrap !important;
  word-break: break-word !important;
     text-align: center !important;
     padding: 3px 6px !important;
@@ -197,7 +199,7 @@ word-break: break-word !important;
   tbody td.batch-cell,
   tbody td[data-col-key="specialty"],
   tbody td[data-col-key="batch"] {
-    white-space: normal !important;
+    white-space: nowrap !important;
       word-break: break-word !important;.
     text-align: center !important;
     min-width: 100px !important;
@@ -322,7 +324,7 @@ word-break: break-word !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
-    min-width: auto !important;
+    min-width: 0 !important;
   }
   tbody td.desc-cell,
   tbody td.details-cell,
@@ -331,7 +333,7 @@ word-break: break-word !important;
     white-space: normal !important;
     word-break: normal !important;
     overflow-wrap: anywhere !important;
-    min-width: auto !important;
+    min-width: 200px !important;
     text-align: center !important;
   }
   tbody td.desc-cell .pdf-cell-text,
