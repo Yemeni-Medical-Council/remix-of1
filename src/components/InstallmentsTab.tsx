@@ -1246,8 +1246,7 @@ export default function InstallmentsTab() {
           due: "#ffffff",
           accent: "#000000",
         };
-      
-      const reportCss = `
+const reportCss = `
       html, body { 
       margin: 0 !important;
      padding: 0!important; 
@@ -2192,19 +2191,17 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       * { box-sizing: border-box; }
       html, body { width: 100%;  margin: 0; padding: 0; }
       body {
-        font-family: "Cairo", Tahoma, sans-serif;
+        font-family: Cairo; 
         color: #000;
-        font-size: 20px;
-        font-weight: 900;
         line-height: 1.5;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
       .container {
         width: 100%;
-        max-width: none;
+        max-width: auto;
         margin: 0;
-        min-height: 268mm;
+        min-height: auto;
         height: 268mm;
         display: flex;
         flex-direction: column;
@@ -2212,7 +2209,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
 
  .page-frame {
 width: 100%;
- min-height: 0;
+ min-height: auto;
 height: 100%;
 flex: 1 1 auto;
  display: flex;
@@ -2279,24 +2276,35 @@ width: 100٪;
     .info-box {
       border: 1px solid #000;
       background: #CDD5AE;
-      padding: 2mm 1.5mm;
+      padding: 2px 2px;
       min-height: auto;
-      border-radius: 1.5mm;
+      border-radius: 5px;
       text-align: center;
       box-sizing: border-box;
     }
-    .info-lbl { font-size: 20px; line-height: 1.15; font-weight: 800; color:black; text-align: center; }
-    .info-val { font-size: 18px; line-height: 1.15; font-weight: 1000; margin-top: 2px; overflow-wrap: anywhere; }
+    .info-lbl {
+    font-size: 20px; 
+    line-height: 1.5; 
+  font-weight: 800;
+color: #000; 
+text-align: center; 
+      
+    }
+    .info-val { 
+font-size: 18px; 
+line-height: 1.5; 
+font-weight: 1000; 
+margin-top: 2px; 
+overflow-wrap: anywhere; 
+    }
 
     table {
-      table-layout: fixed;
-      width: 100%;
-        min-width: auto;
-      height: 100%;
+  table-layout: auto;
+  width: 100%;
+  min-width: auto;
+height: 100%;
       min-height: auto;
-      flex: 1 1 auto;
-      border-collapse: collapse;
-      margin-top: 6px;
+border-collapse: collapse; margin-top: 6px;
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -2306,11 +2314,11 @@ width: 100٪;
       vertical-align: middle;
  padding: 0 2px;
 font-size: 24px;
-line-height: 1.25;
+line-height: 1.5;
 white-space: normal;
 overflow: hidden;
 text-overflow: clip;
-      overflow-wrap: anywhere;
+      overflow-wrap: normal;
       word-break: break-word;
       hyphens: auto;
     }
@@ -2322,40 +2330,74 @@ text-align: center;
 font-size: 24px;
     }
     td { color: #000 !important;
-font-weight: 900; }
+font-weight: 900;
+font-family: Cairo;
+font-size: 20px;
+    }
     .lbl { 
 text-align: center;
-font-weight: 800; }
+font-weight: 800;
+}
 .num {
 font-family: Cairo;
 font-weight: 900;
 font-size: 24px;
-font-variant-numeric: tabular-nums; direction: ltr; }
-    .row-fees td { background: #eff6ff; }
-    .row-due-old td { background: #fef3c7; color: #000 !important; }
-    .row-total-due td { background: #fee2e2; color: #000 !important; font-weight: 800; }
-    .row-paid td { color: #000 !important; }
-    .row-total-paid td { background: #d1fae5; color: #000 !important; font-weight: 800; }
-    .row-final td { background: #fee2e2; font-size: 24px; font-weight: 800; color: #000 !important; border-top: 1pt solid #000; }
+font-variant-numeric: tabular-nums; direction: ltr;
+}
+ .row-fees td {
+background: #eff6ff; 
+ }
+.row-due-old td {
+background: #fef3c7; 
+color: #000 !important; }
+.row-total-due td { 
+background: #fee2e2; 
+color: #000 !important;
+font-weight: 800; 
+}
+    .row-paid td { 
+color: #000 !important; 
+font-size: 20px;
+font-weight: 1000; 
+font-family: Cairo;
+    }
+.row-total-paid td { background: #d1fae5;
+color: #000 !important; 
+font-weight: 800;
+}
+.row-final td { 
+background: #fee2e2; 
+font-size: 24px; 
+font-weight: 800;
+color: #000 !important; 
+border-top: 1pt solid #000; }
     .foot {
-      margin-top: 3mm;
+margin-top: 8px;
       flex: 0 0 auto;
       display: flex;
-      justify-content: space-between;
-      gap: 8mm;
-      font-size: 16px;
-      line-height: 1.3;
+justify-content: space-between;
+gap: 10px;
+font-size: 10px;
+ line-height: 1.5;
       font-weight: 900;
-      page-break-inside: avoid;
+  page-break-inside: avoid;
       break-inside: avoid;
     }
     .header, .info-grid { page-break-inside: avoid; break-inside: avoid; }
     @media print {
-      html, body { width: auto; }
+      html, body {
+  width: 100%; }
       body { margin: 0; padding: 0; }
-      .container { min-height: 250mm !important; height: 250mm !important; }
-      .page-frame { min-height: 0; height: 100%; border-radius: 0; box-shadow: none; padding: 4mm; }
-      .print-toolbar { display: none !important; }
+      .container { 
+  min-height: auto !important; height: 100% !important; }
+      .page-frame { 
+min-height: 0; 
+height: 100%; 
+border-radius: 0;
+box-shadow: none; 
+padding: 4px; }
+.print-toolbar { 
+display: none !important; }
       .header, .info-box, th, td {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
