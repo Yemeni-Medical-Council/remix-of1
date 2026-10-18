@@ -2131,7 +2131,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       bg: "bg-rose-50" };
   
   // تم تعديل هذه الدالة لتتوافق بشكل أفضل مع صيغة حفظ PDF واللغة العربية
-    const generateAccountStatement = (row: any, year: number) => {
+      const generateAccountStatement = (row: any, year: number) => {
     // 1. تحديد قائمة الأشهر بناءً على السنة المختارة
     const monthsList = year === 2025 ? MONTHS_2025 : MONTHS_2026;
 
@@ -2185,230 +2185,196 @@ td.t-fees { background: ${colorTokens.fees} !important; }
           ? "الرصيد الإضافي (له)"
           : "الحالة: تم السداد بالكامل";
 
-    // تنسيقات CSS المطابقة للصورة ولورقة A4 طولي بنسبة 100%
+    // تنسيقات CSS لملء ورقة A4 بالكامل وتوحيد خط Cairo
     const statementCss = `
-@page { size: A4 portrait; margin: 10mm; }
-      * { box-sizing: border-box; }
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+      @page { 
+        size: A4 portrait; 
+        margin: 8mm; 
+      }
+      * { 
+        box-sizing: border-box; 
+        font-family: 'Cairo', sans-serif !important; 
+      }
       html, body { 
-  margin: 0;
-padding: 0; }
-      body {
-        font-family: Cairo; 
+        margin: 0; 
+        padding: 0; 
+        width: 100%;
+        height: 100%;
+        background: #fff;
         color: #000;
+        direction: rtl;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
       .container {
-  max-width: 760px;
- margin: 0 auto;
-overflow: hidden; 
-      }
-
- .page-frame {
- border: 1px solid #000;
- border-radius: 14px;
-background: #fff;
-box-shadow: 0 2mm 8mm rgba(15, 118, 110, 0.08);
-      }
-      .print-toolbar {
+        width: 100%;
+        height: 100%;
+        min-height: 275mm;
+        margin: 0;
+        padding: 0;
         display: flex;
-        justify-content: flex-end;
-        margin: 0 0 4mm;
+        flex-direction: column;
+        justify-content: space-between;
       }
-      .print-toolbar button {
-        border: 0.6pt solid #0f766e;
-        border-radius: 1.5mm;
-        background: #0f766e;
-        color: #fff;
-        cursor: pointer;
- font-family: Cairo;
-font-size: 18px;
- font-weight: 800;
-        padding: 2mm 4mm;
+      .page-frame {
+        width: 100%;
+        height: 100%;
+        min-height: 275mm;
+        border: 2px solid #0f766e;
+        border-radius: 12px;
+        background: #fff;
+        padding: 14px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
       }
-      .print-toolbar button:hover { background: #115e59; }
-
-      .header {
-        background: #0f766e;
-        color: #000;
-        padding: 4px 3px; 
-        border-radius: 2px;
-        margin-bottom: 5px;
+      .statement-title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 900;
+        color: #0f766e;
+        margin: 0 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #0f766e;
       }
-      .header h1 {
-margin: 0; 
-font-size: 20px; 
-font-weight: 800; 
-color: #000; 
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+        page-break-inside: avoid;
+        break-inside: avoid;
       }
-.header p { 
-margin: 2px 0 0; 
-font-size: 14px; 
-font-weight: 800; 
-color: #000; }
-
- .statement-title {
-  text-align: center;
-  font-size: 16px;
-  font-weight: 900;
-  color: #0f766e;
-  margin: 0 0 6px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid #0f766e;
- }
-.info-grid {
- display: grid; 
- grid-template-columns: 1fr 1fr; 
- gap: 10px; 
- margin-bottom: 15px; 
-}
- 
-
-     /* كروت المعلومات مصغّرة لتناسب ورقة A4 عند الطباعة */
-
-    .info-lbl {
-    font-size: 20px; 
-    line-height: 1.5; 
-  font-weight: 800;
-color: #000; 
-text-align: center; 
-      
-    }
-    .info-val { 
-font-size: 20px; 
-line-height: 1.5; 
-font-weight: 1000; 
-margin-top: 2px; 
-overflow-wrap: anywhere; 
-    }
-
-    table {
-  width: 100%;
-border-collapse: separate; 
- margin-top: 6px;
-overflow: hidden; 
-font-family: Cairo;
-
-    }
-    th, td {
-      border: px solid #000;
-      text-align: center;
-      vertical-align: middle;
- padding: 0 2px;
-font-size: 24px;
-white-space: normal;
-      hyphens: auto;
-    }
-    th {
-background: #0f766e;
-color:white !important;
-font-weight:900;
-text-align: center;
-font-size: 24px;
-    }
-    td {
-color: #000 !important;
-font-weight: 900;
-font-family: Cairo;
-font-size: 20px;
-    }
-    .lbl { 
-text-align: center;
-font-weight: 800;
-font-family: Cairo;
-font-size: 20px;
-
-}
-.num {
-font-family: Cairo;
-font-weight: 900;
-font-size: 24px;
-width: 38%;
-font-variant-numeric: 
-tabular-nums; direction: ltr;
-}
- .row-fees td {
-background: #eff6ff; 
- }
-.row-due-old td {
-background: #fef3c7; 
-color: #000 !important; }
-.row-total-due td { 
-background: #fee2e2; 
-color: #000 !important;
-font-weight: 800; 
-}
-    .row-paid td { 
-color: #000 !important; 
-font-size: 20px;
-font-weight: 1000; 
-font-family: Cairo;
-    }
-.row-total-paid td { background: #d1fae5;
-color: #000 !important; 
-font-weight: 800;
-}
-.row-final td { 
-background: #fee2e2; 
-font-size: 24px; 
-font-weight: 800;
-color: #000 !important; 
-border-top: 1px solid #000; }
-    .foot {
-margin-top: 8px;
-      flex: 0 0 auto;
-      display: flex;
-justify-content: space-between;
-gap: 10px;
-font-size: 10px;
- line-height: 1.5;
-      font-weight: 900;
-  page-break-inside: avoid;
-      break-inside: avoid;
-    }
-    .header, .info-grid { page-break-inside: avoid; break-inside: avoid; }
-    @media print {
-      html, body {
-  width: 100%; }
-      body { margin: 0; padding: 0; }
-.print-toolbar { 
-display: none !important; }
-      .header, .info-box, th, td {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+      .info-box {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-top: 3px solid #0f766e;
+        border-radius: 6px;
+        padding: 6px 4px;
+        text-align: center;
       }
-    }
+      .info-lbl {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f766e;
+        margin-bottom: 2px;
+      }
+      .info-val {
+        font-size: 15px;
+        font-weight: 900;
+        color: #000000 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .table-wrapper {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 4px;
+      }
+      th, td {
+        border: 1.5px solid #0f766e;
+        text-align: center;
+        vertical-align: middle;
+        padding: 8px 12px;
+      }
+      th {
+        background: #0f766e !important;
+        color: #ffffff !important;
+        font-weight: 900;
+        font-size: 17px;
+      }
+      td {
+        color: #000000 !important;
+        font-size: 16px;
+      }
+      .lbl {
+        font-weight: 800;
+        text-align: right;
+        padding-right: 16px;
+      }
+      .num {
+        font-weight: 900;
+        font-size: 18px;
+        direction: ltr;
+        text-align: left;
+        padding-left: 16px;
+        font-variant-numeric: tabular-nums;
+      }
+      .row-fees td { background: #eff6ff !important; }
+      .row-due-old td { background: #fef3c7 !important; }
+      .row-total-due td { background: #fee2e2 !important; font-weight: 900; }
+      .row-paid td { background: #f0fdf4 !important; font-weight: 800; }
+      .row-total-paid td { background: #d1fae5 !important; font-weight: 900; }
+      .row-final td {
+        background: #f1f5f9 !important;
+        font-size: 20px;
+        font-weight: 900;
+        border-top: 2.5px solid #0f766e !important;
+      }
+      .foot {
+        margin-top: auto;
+        padding-top: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 800;
+        color: #000000;
+        border-top: 1.5px dashed #0f766e;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      @media print {
+        @page { size: A4 portrait; margin: 8mm; }
+        body { margin: 0; padding: 0; }
+        .print-toolbar { display: none !important; }
+        .page-frame { min-height: calc(297mm - 16mm); }
+        .info-box, th, td, .statement-title {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
     `;
 
-        const body = `
+    const body = `
       <div class="container">
         <div class="page-frame">
-   <h2 class="statement-title">كشف حساب متدرب — للعام ${year}م</h2>
+          <h2 class="statement-title">كشف حساب متدرب — للعام ${year}م</h2>
           <div class="info-grid">
             ${infoCard("اسم المتدرب", row.name)}
             ${infoCard("الدفعة", row.batch)}
             ${infoCard("المساق", row.specialty)}
             ${infoCard("رقم الهاتف", row.phone)}
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 60%">البيان</th>
-                <th style="width: 40%">المبلغ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="row-fees"><td class="lbl">إجمالي الرسوم المستحقة</td><td class="num">${escapeHtml(fmt(fees))}</td></tr>
-              ${prevRow}
-              <tr class="row-total-due"><td class="lbl">إجمالي المبلغ المطلوب</td><td class="num">${escapeHtml(fmt(dueTotal))}</td></tr>
-              ${paidRows}
-              <tr class="row-total-paid"><td class="lbl">إجمالي المسدد (له)</td><td class="num">${escapeHtml(fmt(totalPaid))}</td></tr>
-              <tr class="row-final"><td class="lbl">${escapeHtml(remainingLabel)}</td><td class="num">${escapeHtml(fmt(Math.abs(remaining)))}</td></tr>
-            </tbody>
-          </table>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 65%">البيان</th>
+                  <th style="width: 35%">المبلغ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-fees"><td class="lbl">إجمالي الرسوم المستحقة</td><td class="num">${escapeHtml(fmt(fees))}</td></tr>
+                ${prevRow}
+                <tr class="row-total-due"><td class="lbl">إجمالي المبلغ المطلوب</td><td class="num">${escapeHtml(fmt(dueTotal))}</td></tr>
+                ${paidRows}
+                <tr class="row-total-paid"><td class="lbl">إجمالي المسدد (له)</td><td class="num">${escapeHtml(fmt(totalPaid))}</td></tr>
+                <tr class="row-final"><td class="lbl">${escapeHtml(remainingLabel)}</td><td class="num">${escapeHtml(fmt(Math.abs(remaining)))}</td></tr>
+              </tbody>
+            </table>
+          </div>
           <div class="foot">
             <span>تاريخ التقرير: ${escapeHtml(reportDateLabel)}</span>
-            <span>التوقيع: ________________</span>
+            <span>التوقيع والختم: ________________</span>
           </div>
         </div>
       </div>
