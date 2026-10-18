@@ -47,6 +47,8 @@ export function openBrowserPrintPreview({
     }
 
     .preview-toolbar {
+width: 100%;
+max-width: auto;
       position: sticky;
       top: 0;
       z-index: 9999;
@@ -107,6 +109,8 @@ export function openBrowserPrintPreview({
     }
 
     .filter-box {
+    width:100%;
+   max-width: auto;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -235,7 +239,7 @@ word-break: break-word !important;
 
     /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
     thead th {
-          min-width: auto;
+  min-width: auto;
       background: gold !important;
       color: #000 !important;
       font-weight: 800 !important;
@@ -250,7 +254,6 @@ word-break: break-word !important;
 
     thead th .pdf-cell-text, th .pdf-cell-text {
         min-width: auto;
-    background: gold !important;
 color: #000 !important;
       font-weight: 800 !important;
       font-size: 14.5px !important;
@@ -272,8 +275,8 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
     text-align: center !important;
-      min-width: 80px;
-      line-height: 1.4 !important;
+    width: 100px !important;
+
     }
 
     td.desc-cell .pdf-cell-text,
@@ -283,8 +286,7 @@ print - color - adjust: exact!important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-      min-width: 350px;
-  line-height: 1.4 !important;
+    width: 500px !important;
 
     }
 
@@ -329,11 +331,11 @@ text-align: center !important;
     ${reportContainmentCss}
 
     /* قواعد نهائية موحدة في المعاينة والطباعة: التفاف البيان دون سواه */
-    .sheet-paper table { width:100% !important; max-width:100% !important; table-layout:auto !important; }
+    .sheet-paper table { width:100% !important; max-width:auto !important; table-layout:auto !important; }
     .sheet-paper tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
     .sheet-paper tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
       white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important;
-      min-width:0 !important;
+      min-width: auto !important;
     }
     .sheet-paper tbody td.desc-cell,
     .sheet-paper tbody td.details-cell,
@@ -343,16 +345,18 @@ text-align: center !important;
     .sheet-paper tbody td.details-cell .pdf-cell-text,
     .sheet-paper tbody td.description-cell .pdf-cell-text,
     .sheet-paper tbody td[data-col-key="description"] .pdf-cell-text {
-      white-space:normal !important; word-break:normal !important; overflow-wrap:anywhere !important;
-      min-width:0 !important; text-align:right !important;
+      white-space: normal !important; word-break:normal !important; overflow-wrap: normal !important;
+      min-width:0 !important; text-align: center !important;
     }
-    .sheet-paper thead th { white-space:normal !important; overflow-wrap:anywhere !important; }
+    .sheet-paper thead th {
+white-space: normal !important;
+    overflow-wrap: anywhere !important; }
     /* تحسين وضوح النسخة المطبوعة مع الحفاظ على المساحة المتاحة للجدول */
     .sheet-paper .report-page-content table {
       width:100% !important;
       max-width:100% !important;
       table-layout:auto !important;
-      font-family:'Cairo',sans-serif !important;
+  font-family: Cairo !important;
     }
     .sheet-paper .report-page-content th,
     .sheet-paper .report-page-content td,
@@ -389,6 +393,7 @@ text-align: center !important;
         display: none !important;
       }
       body {
+font-family: Cairo !important;
         background: #ffffff !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -397,7 +402,6 @@ text-align: center !important;
         color: #000;
       }
       thead th, th {
-  background: gold !important;
         color: #000 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;

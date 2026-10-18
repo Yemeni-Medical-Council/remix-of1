@@ -130,7 +130,6 @@ export const tablePrintStyles = `
 
   thead th .pdf-cell-text,
   th .pdf-cell-text {
-    background: gold !important;
     color: #ffffff !important;
     font-weight: 800 !important;
     white-space: normal !important;
@@ -179,7 +178,7 @@ font-size: 13.5px !important;
     direction: rtl !important;
     padding: 2px 2px !important;
     line-height: 1.4 !important;
-    min-width: 330px;
+    width: 330px;
   }
 
   /* 4. أعمدة الأسماء (الاسم / اسم المتدرب): تتسع لاحتواء الاسم كاملاً دون التفاف */
