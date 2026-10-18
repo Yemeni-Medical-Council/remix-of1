@@ -2200,7 +2200,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         margin: 0; 
         padding: 0; 
         width: 100%;
-        height: 100%;
+        height: auto;
         background: #fff;
         color: #000;
         direction: rtl;
@@ -2209,8 +2209,8 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .container {
         width: 100%;
-        height: 100%;
-        min-height: 275mm;
+        height: auto;
+        min-height: 200mm;
         margin: 0;
         padding: 0;
         display: flex;
@@ -2220,7 +2220,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       .page-frame {
         width: 100%;
         height: 100%;
-        min-height: 275mm;
+        min-height: 200mm;
         border: 2px solid #0f766e;
         border-radius: 12px;
         background: #fff;
@@ -2241,19 +2241,20 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .info-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+     grid-template-columns: 1fr 1fr;
         gap: 8px;
         margin-bottom: 14px;
         page-break-inside: avoid;
         break-inside: avoid;
       }
       .info-box {
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-top: 3px solid #0f766e;
-        border-radius: 6px;
-        padding: 6px 4px;
-        text-align: center;
+    border: 1px solid #000;
+      background: #CDD5AE;
+      padding: 2mm 1.5mm;
+      min-height: 12mm;
+      border-radius: 1.5mm;
+      text-align: center;
+      box-sizing: border-box;
       }
       .info-lbl {
         font-size: 13px;
@@ -2275,6 +2276,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         flex-direction: column;
       }
       table {
+      table-layout: auto;
         width: 100%;
         border-collapse: collapse;
         margin-top: 4px;
@@ -2297,14 +2299,15 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .lbl {
         font-weight: 800;
-        text-align: right;
+        text-align: center;
         padding-right: 16px;
+        font-weight: 900;
       }
       .num {
         font-weight: 900;
         font-size: 18px;
         direction: ltr;
-        text-align: left;
+        text-align: center;
         padding-left: 16px;
         font-variant-numeric: tabular-nums;
       }
@@ -2320,8 +2323,8 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         border-top: 2.5px solid #0f766e !important;
       }
       .foot {
-        margin-top: auto;
-        padding-top: 14px;
+        margin-top: 10px;
+        padding-top: 10px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -2336,7 +2339,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         @page { size: A4 portrait; margin: 8mm; }
         body { margin: 0; padding: 0; }
         .print-toolbar { display: none !important; }
-        .page-frame { min-height: calc(297mm - 16mm); }
+        .page-frame { min-height: auto }
         .info-box, th, td, .statement-title {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -2354,8 +2357,8 @@ td.t-fees { background: ${colorTokens.fees} !important; }
             ${infoCard("المساق", row.specialty)}
             ${infoCard("رقم الهاتف", row.phone)}
           </div>
-          <div class="table-wrapper">
-            <table>
+<div class="table-wrapper">
+<table>
               <thead>
                 <tr>
                   <th style="width: 65%">البيان</th>
