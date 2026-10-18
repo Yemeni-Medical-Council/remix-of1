@@ -2187,38 +2187,28 @@ td.t-fees { background: ${colorTokens.fees} !important; }
 
     // تنسيقات CSS المطابقة للصورة ولورقة A4 طولي بنسبة 100%
     const statementCss = `
-@page { size: A4 portrait; margin: 0; }
+@page { size: A4 portrait; margin: 10mm; }
       * { box-sizing: border-box; }
-      html, body { width: 100%;  margin: 0; padding: 0; }
+      html, body { 
+  margin: 0;
+padding: 0; }
       body {
         font-family: Cairo; 
         color: #000;
-        line-height: 1.5;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
       .container {
-        width: 100%;
-        max-width: auto;
-        margin: 0;
-        min-height: auto;
-        height: 268mm;
-        display: flex;
-        flex-direction: column;
+  max-width: 760px;
+ margin: 0 auto;
+overflow: hidden; 
       }
 
  .page-frame {
-width: 100%;
- min-height: auto;
-height: 100%;
-flex: 1 1 auto;
- display: flex;
- flex-direction: column;
- padding: 4mm;
  border: 1px solid #000;
-        border-radius: 3mm;
-        background: #fff;
-        box-shadow: 0 2mm 8mm rgba(15, 118, 110, 0.08);
+ border-radius: 14px;
+background: #fff;
+box-shadow: 0 2mm 8mm rgba(15, 118, 110, 0.08);
       }
       .print-toolbar {
         display: flex;
@@ -2240,48 +2230,42 @@ font-size: 18px;
 
       .header {
         background: #0f766e;
-        color: #fff;
-        padding: 4mm 3mm;
-        border-radius: 2mm;
-        margin-bottom: 5mm;
+        color: #000;
+        padding: 4px 3px; 
+        border-radius: 2px;
+        margin-bottom: 5px;
       }
       .header h1 {
 margin: 0; 
-font-size: 16px; 
-line-height: 1.25; 
-font-weight: 800; color: #000; }
-      .header p { margin: 2mm 0 0; font-size: 10.5pt; line-height: 1.25; font-weight: 700; color: #000; }
+font-size: 20px; 
+font-weight: 800; 
+color: #000; 
+      }
+.header p { 
+margin: 2px 0 0; 
+font-size: 14px; 
+font-weight: 800; 
+color: #000; }
 
  .statement-title {
   text-align: center;
-  font-size: 18pt;
+  font-size: 16px;
   font-weight: 900;
   color: #0f766e;
   margin: 0 0 6px;
   padding-bottom: 6px;
   border-bottom: 2px solid #0f766e;
  }
-      .info-grid {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 6px;
- margin-bottom: 10px;
-        margin-top:6px;
-        flex: 0 0 auto;
-width: 100٪;
-        min-width: auto;
- }
+.info-grid {
+ display: grid; 
+ grid-template-columns: 1fr 1fr; 
+ gap: 10px; 
+ margin-bottom: 15px; 
+}
+ 
 
      /* كروت المعلومات مصغّرة لتناسب ورقة A4 عند الطباعة */
-    .info-box {
-      border: 1px solid #000;
-      background: #CDD5AE;
-      padding: 2px 2px;
-      min-height: auto;
-      border-radius: 5px;
-      text-align: center;
-      box-sizing: border-box;
-    }
+
     .info-lbl {
     font-size: 20px; 
     line-height: 1.5; 
@@ -2291,7 +2275,7 @@ text-align: center;
       
     }
     .info-val { 
-font-size: 18px; 
+font-size: 20px; 
 line-height: 1.5; 
 font-weight: 1000; 
 margin-top: 2px; 
@@ -2299,27 +2283,20 @@ overflow-wrap: anywhere;
     }
 
     table {
-  table-layout: auto;
   width: 100%;
-  min-width: auto;
-height: 100%;
-      min-height: auto;
-border-collapse: collapse; margin-top: 6px;
-      page-break-inside: avoid;
-      break-inside: avoid;
+border-collapse: separate; 
+ margin-top: 6px;
+overflow: hidden; 
+font-family: Cairo;
+
     }
     th, td {
-      border: 0.75pt solid #000;
+      border: px solid #000;
       text-align: center;
       vertical-align: middle;
  padding: 0 2px;
 font-size: 24px;
-line-height: 1.5;
 white-space: normal;
-overflow: hidden;
-text-overflow: clip;
-      overflow-wrap: normal;
-      word-break: break-word;
       hyphens: auto;
     }
     th {
@@ -2329,7 +2306,8 @@ font-weight:900;
 text-align: center;
 font-size: 24px;
     }
-    td { color: #000 !important;
+    td {
+color: #000 !important;
 font-weight: 900;
 font-family: Cairo;
 font-size: 20px;
@@ -2337,12 +2315,17 @@ font-size: 20px;
     .lbl { 
 text-align: center;
 font-weight: 800;
+font-family: Cairo;
+font-size: 20px;
+
 }
 .num {
 font-family: Cairo;
 font-weight: 900;
 font-size: 24px;
-font-variant-numeric: tabular-nums; direction: ltr;
+width: 38%;
+font-variant-numeric: 
+tabular-nums; direction: ltr;
 }
  .row-fees td {
 background: #eff6ff; 
@@ -2370,7 +2353,7 @@ background: #fee2e2;
 font-size: 24px; 
 font-weight: 800;
 color: #000 !important; 
-border-top: 1pt solid #000; }
+border-top: 1px solid #000; }
     .foot {
 margin-top: 8px;
       flex: 0 0 auto;
@@ -2388,14 +2371,6 @@ font-size: 10px;
       html, body {
   width: 100%; }
       body { margin: 0; padding: 0; }
-      .container { 
-  min-height: auto !important; height: 100% !important; }
-      .page-frame { 
-min-height: 0; 
-height: 100%; 
-border-radius: 0;
-box-shadow: none; 
-padding: 4px; }
 .print-toolbar { 
 display: none !important; }
       .header, .info-box, th, td {
