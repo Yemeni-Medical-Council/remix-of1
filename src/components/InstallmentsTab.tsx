@@ -2200,7 +2200,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         margin: 0; 
         padding: 0; 
         width: 100%;
-        height: auto;
+  min-height: auto;
         background: #fff;
         color: #000;
         direction: rtl;
@@ -2209,8 +2209,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .container {
         width: 100%;
-        height: auto;
-        min-height: 200mm;
+        min-height: auto;
         margin: 0;
         padding: 0;
         display: flex;
@@ -2219,8 +2218,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .page-frame {
         width: 100%;
-        height: 100%;
-        min-height: 200mm;
+        min-height: auto;
         border: 2px solid #0f766e;
         border-radius: 12px;
         background: #fff;
@@ -2232,7 +2230,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .statement-title {
         text-align: center;
-        font-size: 20px;
+        font-size: 16px;
         font-weight: 900;
         color: #0f766e;
         margin: 0 0 12px;
@@ -2336,10 +2334,14 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         break-inside: avoid;
       }
       @media print {
-        @page { size: A4 portrait; margin: 8mm; }
+        @page { size: A4 portrait; margin: 8mm;
+   min-height: auto;
+
+          
+        }
         body { margin: 0; padding: 0; }
         .print-toolbar { display: none !important; }
-        .page-frame { min-height: auto }
+        .page-frame { min-height: 200mm }
         .info-box, th, td, .statement-title {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
