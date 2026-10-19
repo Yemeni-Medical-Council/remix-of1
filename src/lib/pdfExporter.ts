@@ -20,22 +20,22 @@ font-family: Cairo;
     font-weight: 900; 
     margin: 0;
     padding: 0;
-width: 100%;
-height: 100%;
+width: auto;
+height: auto;
 min-height: auto;
 box-sizing: border-box;
   }
 
 table {
 width: 100% !important;
-max-width:auto !important;
+min-width: auto !important;
 font-size: 20px !important;
 table-layout: auto 
 !important; 
  font-weight: 900 !important;; 
 height:100% !important;
-min-height:auto !important;
-font-family: cairo;
+min-height: auto !important;
+font-family: Cairo;
 
   }
     th { 
@@ -150,7 +150,7 @@ export function printHtmlContent(htmlContent: string): void {
       <title>طباعة</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-@page { size: A4; margin: 3mm; }
+@page { size: A4 portrait; margin: 3mm; }
         body {
 font-family: Cairo;
           direction: rtl;
@@ -225,9 +225,9 @@ font-family: AlQabas-Bold;
 body {
 background: white; color: #000 !important;
     font-weight: 900 !important; 
-        width: 100%; 
+        width: auto; 
       margin: 0; padding: 0;
-          height: 100%; 
+          height: auto; 
             
           }
 table { 

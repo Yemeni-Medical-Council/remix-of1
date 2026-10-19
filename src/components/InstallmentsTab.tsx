@@ -2217,7 +2217,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         justify-content: space-between;
       }
       .page-frame {
-        width: 100%;
+        width: auto;
         min-height: auto;
         border: 2px solid #0f766e;
         border-radius: 12px;
@@ -2379,7 +2379,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
           </div>
           <div class="foot">
             <span>تاريخ التقرير: ${escapeHtml(reportDateLabel)}</span>
-            <span>التوقيع والختم: ________________</span>
+   <span>التوقيع: ________________</span>
           </div>
         </div>
       </div>
@@ -2847,7 +2847,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
       <h2 className="text-xl font-extrabold text-white">
         📊 سجل أقساط العام الحالي 2026
       </h2>
-      <p className="text-xs sm:text-sm font-bold text-white/90 mt-1">
+      <p className="text-lg sm:text-sm font-bold text-white/90 mt-1">
         بيانات المسدد والرصيد المدور لعام 2026
       </p>
     </div>
@@ -2857,7 +2857,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
 
       {/* السطر 1: البحث + التنسيق الشرطي */}
       <div className="relative w-full">
-        <Search className="w-5 h-5 absolute right-2.5 top-2 text-yellow-700 pointer-events-none" />
+    <Search className="w-15 h-5 absolute right-2.5 top-2 text-yellow-700 pointer-events-none" />
         <input
           type="text"
           placeholder="بحث (الاسم، الدفعة، المساق)..."
@@ -2871,8 +2871,8 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
         onClick={() => setCondFormatModal(true)}
         className={`apk-only-actions w-full px-2 py-1.5 rounded-md text-sm font-extrabold shadow transition-colors flex items-center justify-center gap-1 ${
           condFormatRules.length
-            ? "bg-yellow-400 text-yellow-900 animate-pulse"
-            : "bg-white/20 text-white hover:bg-white/30"
+            ? "bg-yellow-900 text-yellow-900 animate-pulse"
+            : "bg-white/20 text-black hover:bg-white/30"
         }`}
         title="تلوين الصفوف حسب نص معين"
       >
@@ -2887,7 +2887,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
       {/* السطر 2: إضافة طالب جديد + إضافة عمود جديد */}
       <button
         onClick={() => setNewRowModal2026(true)}
-        className="apk-only-actions w-full px-2 py-1.5 bg-blue-900 text-white rounded-md text-xs sm:text-sm font-bold shadow hover:bg-blue-800 transition-colors flex items-center justify-center gap-1"
+        className="apk-only-actions w-full px-2 py-1.5 bg-blue-900 text-white rounded-md text-sm sm:text-sm font-bold shadow hover:bg-blue-800 transition-colors flex items-center justify-center gap-1"
       >
         <Plus className={ICON_MOBILE} />
         <span>طالب جديد</span>
@@ -2922,7 +2922,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
       {/* السطر 4: تصدير إلى Excel + طباعة تفصيلية */}
       <button
         onClick={() => exportToExcel(2026)}
-        className={`w-full ${BTN_COMPACT} bg-green-100 text-green-700 rounded-md font-bold shadow hover:bg-green-200 transition-colors flex items-center justify-center gap-1 text-sm`}
+        className={`w-full ${BTN_COMPACT} bg-green-100 text-green-900 rounded-md font-bold shadow hover:bg-green-200 transition-colors flex items-center justify-center gap-1 text-sm`}
       >
         <FileSpreadsheet className={ICON_MOBILE} />
         <span>تصدير Excel</span>
@@ -2967,7 +2967,11 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
         pdfMarginMm={1}
         pdfCss={INSTALLMENTS_SUMMARY_REPORT_CSS}
         additionalWebActions={installments2026WebActions}
-        className="col-span-2 w-full !grid !grid-cols-2 gap-2 [&>button]:w-full [&>button]:min-w-0 [&>button]:justify-center [&>button]:px-2 [&>button]:py-1.5 [&>button]:text-sm [&>button]:font-bold [&>button]:rounded-md [&>button]:shadow"
+  className="w-full grid grid-cols-2 gap-2 
+        [&>button]:w-auto 
+        [&>button]:min-w-0 
+   [&>button]:justify-center [&>button]:px-2 
+   [&>button]:py-1.5 [&>button]:text-sm [&>button]:font-bold [&>button]:rounded-md [&>button]:shadow"
       />
 
       {/* السطر 6: زر تنزيل PDF تفصيلي (يمتد عبر العرض الكامل لختام المجموعة) */}
@@ -3341,7 +3345,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
         isOpen={condFormatModal}
         onClose={() => setCondFormatModal(false)}
       >
-        <div className="space-y-3">
+        <div className="space-y-20">
           <p className="text-xs text-slate-500">
             سيتم تلوين الصف بالكامل إذا كان يحتوي على النص الذي تدخله أدناه في أي عمود.
           </p>
