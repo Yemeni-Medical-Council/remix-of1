@@ -2620,7 +2620,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-teal-400 text-black-700 rounde
               </button>
               <button
                 onClick={() => setPrintSettingsYear(2025)}
-className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-black rounded-md font-bold shadow hover:bg-white transition-colors flex items-center justify-center gap-1`} >طباعة تفصيلية
+className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-md font-bold shadow hover:bg-white transition-colors flex items-center justify-center gap-1`} >طباعة تفصيلية
  <Printer className={ICON_MOBILE} /> <span className="hidden sm:inline">طباعة تفصيلية</span>
               </button>
             </div>
@@ -2641,7 +2641,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-black rounded-m
               onClear={() => clearInstallments("2025")}
               printLabel="الأقساط/إجمالي"
               pdfLayout="wide-centered"
-              pdfOrientation="landscape"
+              pdfOrientation="portrait"
               pdfMarginMm={1}
               pdfCss={INSTALLMENTS_SUMMARY_REPORT_CSS}
               additionalWebActions={installments2025WebActions}
@@ -2963,7 +2963,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-black rounded-m
         onClear={() => clearInstallments()}
         printLabel="الأقساط/إجمالي"
         pdfLayout="wide-centered"
-        pdfOrientation="landscape"
+        pdfOrientation="portrait"
         pdfMarginMm={1}
         pdfCss={INSTALLMENTS_SUMMARY_REPORT_CSS}
         additionalWebActions={installments2026WebActions}
