@@ -67,7 +67,7 @@ export const tablePrintStyles = `
   }
 
   body {
-    font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+font-family: Cairo !important;
     padding: 3mm 4mm;
     color: #000000 !important;
     direction: rtl;
@@ -190,7 +190,7 @@ font-size: 13.5px !important;
  word-break: break-word !important;
     text-align: center !important;
     padding: 3px 6px !important;
-    min-width: 100px !important;
+    min-width: 50px !important;
   }
 
   /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
@@ -198,10 +198,10 @@ font-size: 13.5px !important;
   tbody td.batch-cell,
   tbody td[data-col-key="specialty"],
   tbody td[data-col-key="batch"] {
-    white-space: nowrap !important;
+    white-space: normal !important;
       word-break: break-word !important;.
     text-align: center !important;
-    min-width: 100px !important;
+    min-width: 50px !important;
   }
 
   /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */
@@ -214,7 +214,7 @@ font-size: 13.5px !important;
     font-family: Cairo !important;
     direction: ltr !important;
     font-weight: 800 !important;
-    font-size: 13.5px !important;
+    font-size: 14.5px !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;

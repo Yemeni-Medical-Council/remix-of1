@@ -509,7 +509,7 @@ export default function ExpensesTab() {
 
       {/* بيانات الجهة */}
       <div className="flex flex-col items-center">
-        <div className="w-full max-w-md space-y-4 text-right text-[1.25rem] font-medium leading-[1.7] text-slate-700 sm:space-y-5 sm:text-xl">
+        <div className="w-full max-w-md space-y-4 text-left text-[1.25rem] font-medium leading-[1.7] text-slate-700 sm:space-y-5 sm:text-xl">
           <p className="flex items-center justify-end gap-3">
             <span className="w-20 shrink-0 text-slate-600">المحافظة</span>
             <span className="font-extrabold text-slate-900">: صعـــدة</span>
@@ -548,13 +548,13 @@ export default function ExpensesTab() {
 
     return (
       <div className="space-y-0" dir="rtl">
-        <div className="w-full max-w-full overflow-hidden rounded-lg border border-black bg-white shadow-sm">
+        <div className="w-full max-w-auto overflow-hidden rounded-lg border border-black bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] table-auto border-collapse text-sm sm:text-base">
-              <thead className="sticky top-0 z-10 font-bold text-xs">
+            <table className="w-full min-w-auto table-auto border-collapse text-xs sm:text-base">
+              <thead className="sticky top-0 z-10 font-bold text-sm">
                 <tr>
                   {/* تغيير تنسيق الرأس ليكون متوسط النص بدلاً من المحاذاة لليمين فقط */}
-                  <TH rowSpan={2} cls="bg-slate-200 text-slate-800 text-center w-1/3">
+                  <TH rowSpan={2} cls="bg-slate-200 text-slate-800 text-center w-auto">
                     بيان مفردات الاستخدامات
                   </TH>
                   <TH rowSpan={2} cls="bg-slate-200 text-slate-800">الباب</TH>
@@ -580,7 +580,7 @@ export default function ExpensesTab() {
                   return (
                     <tr key={idx} className={rowClass(r)}>
                       {/* تفعيل التفاف النص (break-words whitespace-normal) والتوسيط (text-center align-middle) */}
-                      <td className="border border-black text-center align-middle numeric-cell whitespace-nowrap px-2 py-1 text-[10px] sm:text-xs">
+                      <td className="border border-black text-center align-middle numeric-cell whitespace-nowrap px-2 py-1 text-[14px] sm:text-xs">
                         {r.n}
                       </td>
                       <TD>{r.b || ""}</TD>
@@ -697,7 +697,7 @@ export default function ExpensesTab() {
             <p className="text-xs opacity-90">ملخص جميع الأشهر للعام {year}م</p>
           </div>
           <div className="overflow-auto max-h-[65vh]">
-            <table className="w-full min-w-max table-auto border-collapse text-sm sm:text-base">
+            <table className="w-full min-w-auto table-auto border-collapse text-sm sm:text-base">
               <thead className="font-bold text-xs sticky top-0 z-20">
                 <tr>
                   <TH cls="bg-slate-200 text-slate-800 text-center w-1/4">البيان</TH>
@@ -712,7 +712,7 @@ export default function ExpensesTab() {
               <tbody>
                 {schema.rows.map((r, idx) => (
                   <tr key={idx} className={rowClass(r)}>
-                    <td className="border border-black text-center align-middle whitespace-normal break-words px-2 py-1 text-[10px] sm:text-xs">
+                    <td className="border border-black text-center align-middle whitespace-normal break-words px-2 py-1 text-[14px] sm:text-xs">
                       {r.n}
                     </td>
                     {MONTHS.map((_, mi) => (
@@ -732,7 +732,7 @@ export default function ExpensesTab() {
             <p className="text-xs opacity-80">المبالغ بالريال — الشهر الجاري فقط</p>
           </div>
           <div className="overflow-auto">
-            <table className="w-full min-w-max table-auto border-collapse text-sm sm:text-base">
+            <table className="w-full min-w-auto table-auto border-collapse text-sm sm:text-base">
               <thead className="font-bold text-xs sticky top-0 z-10">
                 <tr>
                   <TH cls="bg-slate-200 text-slate-800 text-center w-1/4">البيان</TH>
@@ -839,10 +839,10 @@ export default function ExpensesTab() {
                 @page { size: A4 portrait; margin: 3mm; }
                 * { box-sizing: border-box; }
                 html, body { margin: 0; padding: 0; }
-                body { direction: rtl; background: #f1f5f9; color: #000; font-family: Cairo, Tajawal, Tahoma, Arial, sans-serif; font-weight: 700; }
+                body { direction: rtl; background: #f1f5f9; color: #000; font-family: Cairo; font-weight: 900; }
                 .print-page { min-height: auto; width: 100%; margin: 0; padding: 0; border: 0; background: #fff; }
-                .report-letterhead-block { display: flex; width: 100%; max-width: none; height: 30mm; min-height: 30mm; max-height: 30mm; align-items: stretch; justify-content: center; margin: 0 0 3mm; page-break-before: avoid; page-break-after: avoid; }
-                .report-letterhead-image { display:flex; width: 100%; max-width: none; height: 100%; max-height: 100%; object-fit: fill; object-position:top; margin: 0; }
+                .report-letterhead-block { display: flex; width: 100%; max-width: auto; height: 30mm; min-height: 30mm; max-height: 30mm; align-items: stretch; justify-content: center; margin: 0 0 3mm; page-break-before: avoid; page-break-after: avoid; }
+                .report-letterhead-image { display:flex; width: 100%; max-width: auto; height: 100%; max-height: auto; object-fit: fill; object-position:top; margin: 0; }
                 ${runningLetterheadCss}
                 #expenses-report { width: 100%; }
                 #expenses-report > * { margin-bottom: 4mm; }
@@ -870,10 +870,10 @@ export default function ExpensesTab() {
                 #expenses-report .bab-4 { background-color: #fed7aa !important; color: #7c2d12 !important; }
                 #expenses-report .bab-5 { background-color: #fecdd3 !important; color: #881337 !important; }
                 #expenses-report .bab-default { background-color: #d1fae5 !important; color: #064e3b !important; }
-                #expenses-report table { width: 100%; max-width: 100%; min-width: 0; table-layout: auto; border-collapse: collapse; font-size: 16px; }
+                #expenses-report table { width: 100%; max-width: auto; min-width: 0; table-layout: auto; border-collapse: collapse; font-size: 16px; }
                 #expenses-report th, #expenses-report td { border: 1px solid #000 !important; padding: 2px 3px !important; text-align: center !important; vertical-align: middle !important; white-space: normal !important; overflow: visible !important; overflow-wrap: break-word !important; word-break: normal !important; line-height: 1.2; color: #000 !important; font-weight: 700 !important; }
-                #expenses-report thead th { font-size: 16px; font-weight: 900 !important; }
-                #expenses-report tbody td { font-size: 14px; }
+                #expenses-report thead th { font-size: 14px; font-weight: 900 !important; }
+                #expenses-report tbody td { font-size: 16px; }
                 #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report .font-mono, #expenses-report input[type="number"], #expenses-report input[type="date"] { width: 1% !important; min-width: 0 !important; white-space: nowrap !important; overflow: visible !important; overflow-wrap: normal !important; word-break: keep-all !important; font-family: 'Times New Roman', Times, serif !important; font-size: clamp(8px, 1vw, 11px) !important; font-variant-numeric: tabular-nums; direction: ltr; }
                 #expenses-report input { width: 100% !important; min-width: 0 !important; border: 0; background: transparent; color: #000; font: inherit; text-align: center; }
                 #expenses-report .text-white { color: #fff !important; }

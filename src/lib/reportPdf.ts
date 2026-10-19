@@ -7,21 +7,32 @@ export type ReportOrientation = 'portrait' | 'landscape';
 export const reportDocumentCss = `
   :root { 
   --report-paper:#ffffff; --report-ink:#172b35; --report-muted:#526773;
-    --report-rule:#000; --report-stripe:#f0f7f8;
+    --report-rule:#000; --report-stripe: gold;
     --report-total:#e4f1de; --report-accent:#176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
-    color:#000; font-family:'Cairo'; font-size:16px; line-height:1.5; }
+    color:#000; 
+font-family: Cairo  !important; font-size:16px; 
+line-height: 1.5; 
+    width: 100% !important;
+ height: auto !important;
+
+  }
   h1,h2 { text-align:center; color:#000; font-size:22px; margin:0 0 6px; }
   .sub,.meta { text-align:center; color:#000; font-size:20px; margin-bottom:10px; }
-  table { width:100%; border-collapse:collapse; table-layout:auto; text-align:center; }
+  table {
+width:100%; 
+    max-width: auto;
+border-collapse:collapse; table-layout:auto; text-align:center; }
   th,td { border:1px solid var(--report-rule); padding:5px 6px; text-align:center; vertical-align:middle; }
-  thead th { background: gold; color:#000; font-weight:800; }
+  thead th { 
+  background: gold; 
+color:#000; font-weight:800; }
   tbody tr:nth-child(even) td { background:var(--report-stripe); }
   .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent); }
   .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
   .report-letterhead-block { width:100%; height:26mm; margin:0 0 3mm; }
-  .report-letterhead-image { display:flex; width:100%; height:100%; object-fit:fill; }
+  .report-letterhead-image { display:flex; width:100%; height:auto; object-fit:fill; }
   .num,.numeric-cell,.date-cell,.idx { direction:ltr; unicode-bidi:isolate; font-variant-numeric:tabular-nums; }
 `;
 
@@ -47,7 +58,7 @@ font-family: Cairo !important;
   font-size: 16px !important; padding:6px 5px !important; font-weight:800 !important; }
   .report-page-content table {
   width: 100% !important; 
-  max-width: 100% !important;
+  max-width: auto !important;
 table-layout: auto !important; }
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
@@ -66,7 +77,7 @@ overflow-wrap:normal !important;
 white-space: normal !important;
 word-break:normal !important;
 overflow-wrap: anywhere !important;
-min-width: 200px !important; 
+min-width: 300px !important; 
 text-align:center !important;
   }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
@@ -118,7 +129,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   paper.style.cssText = `width:${widthMm}mm;min-height:${heightMm}mm;padding:${marginMm}mm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
   const content = source.cloneNode(true) as HTMLElement;
   content.classList.add('report-page-content');
-  content.style.cssText = 'width:100%;min-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
+  content.style.cssText = 'width:100%;min-height:auto;height:auto;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
   footer.style.cssText = 'margin-top:auto;padding-top:2mm;text-align:center;font-size:22px;color:#000;direction:rtl;';
   paper.append(content, footer);
@@ -236,7 +247,7 @@ export async function downloadReportPdf(options: {
 }) {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');
-  frame.style.cssText = 'position:fixed;left:-20000px;top:0;width:1200px;height:1800px;border:0;pointer-events:none;';
+  frame.style.cssText = 'position:fixed;left:-20000px;top:20000px;width:1800px;height:1800px;border:0;pointer-events:none;';
   document.body.append(frame);
   try {
     const doc = frame.contentDocument;
@@ -257,7 +268,7 @@ export async function downloadReportPdf(options: {
   }
 }
 
-export async function downloadReportDocumentPdf(html: string, title: string, orientation: ReportOrientation = 'landscape') {
+export async function downloadReportDocumentPdf(html: string, title: string, orientation: ReportOrientation = 'portrait') {
   const parsed = new DOMParser().parseFromString(html, 'text/html');
   parsed.querySelectorAll('script').forEach(script => script.remove());
   const css = Array.from(parsed.querySelectorAll('style')).map(style => style.textContent || '').join('\n');
