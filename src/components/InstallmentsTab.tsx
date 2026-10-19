@@ -2930,7 +2930,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
 
       <button
         onClick={() => setPrintSettingsYear(2026)}
-        className={`w-full ${BTN_COMPACT} bg-green-800 text-white rounded-md font-bold shadow hover:bg-green-700 transition-colors flex items-center justify-center gap-1 text-sm`}
+        className={`w-full ${BTN_COMPACT} bg-green-800 text-black rounded-md font-bold shadow hover:bg-green-700 transition-colors flex items-center justify-center gap-1 text-sm`}
       >
         <Printer className={ICON_MOBILE} />
         <span>طباعة تفصيلية</span>
@@ -2967,16 +2967,17 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
         pdfMarginMm={1}
         pdfCss={INSTALLMENTS_SUMMARY_REPORT_CSS}
         additionalWebActions={installments2026WebActions}
-  className="w-full grid grid-cols-2 gap-2 
-        [&>button]:w-auto 
-        [&>button]:min-w-0 
-   [&>button]:justify-center [&>button]:px-2 
+className="grid grid-cols-3 border border-1-black gap-2 w-full flex 
+[&>button]:w-full
+[&>button]:min-w-auto
+[&>button]:justify-center 
+[&>button]:px-2 
    [&>button]:py-1.5 [&>button]:text-sm [&>button]:font-bold [&>button]:rounded-md [&>button]:shadow"
       />
 
       {/* السطر 6: زر تنزيل PDF تفصيلي (يمتد عبر العرض الكامل لختام المجموعة) */}
       <button
-        className="col-span-2 apk-only-actions w-full flex-items-center justify-center gap-1 px-3 py-2 bg-[#10528e] text-white rounded-md text-sm font-bold shadow-sm hover:bg-[#0d4272] active:scale-95 transition-all disabled:opacity-50"
+        className="apk-only-actions w-auto flex-items-center justify-center gap-1 px-3 py-2 bg-[#10528e] text-white rounded-md text-sm font-bold shadow-sm hover:bg-[#0d4272] active:scale-95 transition-all disabled:opacity-50"
         type="button"
         onClick={handleDetailedPdf2026}
         disabled={detailedPdfBusy2026}
