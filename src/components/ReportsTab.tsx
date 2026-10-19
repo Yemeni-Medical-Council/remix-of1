@@ -96,8 +96,8 @@ const canonicalFeeCategory = (value: unknown) => {
 // أنماط CSS مطابقة لواجهة جدول التقارير عند الطباعة والتصدير لـ PDF
 const reportsTabPrintCss = `
   table thead th, thead th {
-    background: #0c4a6e !important;
-    color: #ffffff !important;
+    background: gold !important;
+    color: #000 !important;
     font-weight: 900 !important;
     border: 1px solid #0369a1 !important;
   }
