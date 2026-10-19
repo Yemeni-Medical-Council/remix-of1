@@ -12,7 +12,7 @@ export const reportDocumentCss = `
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
     color:#000; 
-font-family: Cairo  !important; font-size:16px; 
+font-family: Cairo !important; font-size: 16px; 
 line-height: 1.5; 
     width: 100% !important;
  height: auto !important;
@@ -28,11 +28,11 @@ border-collapse:collapse; table-layout:auto; text-align:center; }
   thead th { 
   background: gold; 
 color:#000; font-weight:800; }
-  tbody tr:nth-child(even) td { background:var(--report-stripe); }
+  tbody tr:nth-child(even) td { background: #ffffff; }
   .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent); }
   .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
   .report-letterhead-block { width:100%; height:26mm; margin:0 0 3mm; }
-  .report-letterhead-image { display:flex; width:100%; height:auto; object-fit:fill; }
+  .report-letterhead-image { display:flex; width:100%; min-height:auto; object-fit:fill; }
   .num,.numeric-cell,.date-cell,.idx { direction:ltr; unicode-bidi:isolate; font-variant-numeric:tabular-nums; }
 `;
 
@@ -62,9 +62,9 @@ font-family: Cairo !important;
 table-layout: auto !important; }
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
-white-space: nowrap !important;
+white-space: normal !important;
 word-break: keep-all !important;
-overflow-wrap:normal !important;
+overflow-wrap: normal !important;
   }
   .report-page-content tbody td.desc-cell,
   .report-page-content tbody td.details-cell,
@@ -75,9 +75,9 @@ overflow-wrap:normal !important;
   .report-page-content tbody td.description-cell .pdf-cell-text,
   .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
 white-space: normal !important;
-word-break:normal !important;
+word-break: normal !important;
 overflow-wrap: anywhere !important;
-min-width: 300px !important; 
+min-width: 400px !important; 
 text-align:center !important;
   }
   .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
@@ -90,16 +90,18 @@ white-space: normal !important; font-family: Cairo !important;
 font-size:14px !important;
   text-align:center !important
 vertical-align:middle !important;
+    width: 100%  !important;
+min-width: auto  !important;
   }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
   .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px black !important; }
-  .report-page-content .report-letterhead-cell img { width: 100%; max-height:26mm; object-fit:fill; }
+  .report-page-content .report-letterhead-cell img { width: 100%; max-height:auto; object-fit:fill; }
 `;
 
 const dimensions = (size: ReportPaperSize, orientation: ReportOrientation) => {
   const [short, long] = size === 'A3' ? [297, 420] : size === 'Letter' ? [215.9, 279.4] : [210, 297];
-  return orientation === 'landscape' ? [long, short] : [short, long];
+  return orientation === 'portrait' ? [long, short] : [short, long];
 };
 
 async function ready(doc: Document) {
@@ -126,12 +128,12 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   const holder = doc.createElement('div');
   holder.style.cssText = 'position:absolute;left:-20000px;top:0;pointer-events:none;';
   const paper = doc.createElement('div');
-  paper.style.cssText = `width:${widthMm}mm;min-height:${heightMm}mm;padding:${marginMm}mm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
+  paper.style.cssText = `width:${widthMm}cm;min-height:${heightMm}cm;padding:${marginMm}cm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
   const content = source.cloneNode(true) as HTMLElement;
   content.classList.add('report-page-content');
-  content.style.cssText = 'width:100%;min-height:auto;height:auto;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
+  content.style.cssText = 'width:100%;max-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
-  footer.style.cssText = 'margin-top:auto;padding-top:2mm;text-align:center;font-size:22px;color:#000;direction:rtl;';
+  footer.style.cssText = 'margin-top:10px;padding-top:10px;text-align:center;font-size:22px;color:#000;direction:rtl;';
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);
@@ -184,7 +186,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       }
     }
 
-    const pdf = new JsPDF({ unit: 'mm', format: pageSize.toLowerCase(), orientation, compress: true });
+    const pdf = new JsPDF({ unit: 'cm', format: pageSize.toLowerCase(), orientation, compress: true });
     pdf.setProperties({ title: fileName.replace(/\.pdf$/i, ''), subject: 'تقرير مالي', creator: 'المجلس اليمني للاختصاصات الطبية' });
 
     for (let index = 0; index < groups.length; index++) {
@@ -247,7 +249,7 @@ export async function downloadReportPdf(options: {
 }) {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');
-  frame.style.cssText = 'position:fixed;left:-20000px;top:20000px;width:1800px;height:1800px;border:0;pointer-events:none;';
+  frame.style.cssText = 'position:fixed;left:-20000px;top:20000px;width:2800px;height:2800px;border:0;pointer-events:none;font-family:Cairo';
   document.body.append(frame);
   try {
     const doc = frame.contentDocument;
