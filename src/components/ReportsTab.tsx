@@ -194,14 +194,21 @@ export default function ReportsTab() {
   };
 
   // تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق)
+    // دالة تصنيف السجل وفق عمود البيان في الحساب الجاري
+  const isTawfiqRecord = (description: unknown) => {
+    const text = String(description || "");
+    return /(الداعي|توفيق)/.test(text);
+  };
+
+  // 1. تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق - إذا لم يرد اسم الداعي في البيان)
   const youssefRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
         const d = normalizeDate(row.date);
         if (!d || d.getFullYear() < 2026) return false;
         if (!inPeriod(row.date)) return false;
-        const text = `${row.name || ""} ${row.description || ""}`;
-        return /يوسف/.test(text);
+        // إذا لم يُذكر الداعي أو توفيق في البيان فهو يعبر عن عهدة د/يوسف
+        return !isTawfiqRecord(row.description);
       })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
@@ -224,8 +231,10 @@ export default function ReportsTab() {
     let sumCredit = youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0;
 
     matched.forEach((row) => {
-      const debit = amountValue(row.expense); // منصرف له كـ سلفة
-      const credit = amountValue(row.income); // مسدد منه للمجلس
+      // المنصرف يؤخذ حصراً من عمود مبلغ الحافظة في الحساب الجاري
+      const debit = amountValue(row.hafizaAmount);
+      // المسدد (إن وجد توريد أو تسديد عهدة)
+      const credit = amountValue(row.income);
       running += debit - credit;
       sumDebit += debit;
       sumCredit += credit;
@@ -264,15 +273,15 @@ export default function ReportsTab() {
     return result;
   }, [accounts, youssefOpeningBalance, period, year, selectedMonthSet]);
 
-  // تقرير عهدة توفيق الداعي (من الحساب الجاري 2026 فما فوق)
+  // 2. تقرير عهدة توفيق الداعي (من الحساب الجاري 2026 فما فوق - إذا ورد اسم الداعي في البيان)
   const tawfiqRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
         const d = normalizeDate(row.date);
         if (!d || d.getFullYear() < 2026) return false;
         if (!inPeriod(row.date)) return false;
-        const text = `${row.name || ""} ${row.description || ""}`;
-        return /(توفيق|الداعي)/.test(text);
+        // إذا ورد اسم الداعي أو توفيق في عمود البيان
+        return isTawfiqRecord(row.description);
       })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
@@ -295,8 +304,10 @@ export default function ReportsTab() {
     let sumCredit = tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0;
 
     matched.forEach((row) => {
-      const debit = amountValue(row.expense); // منصرف له كعهدة
-      const credit = amountValue(row.income); // تسديد وتوريد عهدة
+      // المنصرف يؤخذ حصراً من عمود مبلغ الحافظة في الحساب الجاري
+      const debit = amountValue(row.hafizaAmount);
+      // المسدد (إن وجد توريد أو تسديد عهدة)
+      const credit = amountValue(row.income);
       running += debit - credit;
       sumDebit += debit;
       sumCredit += credit;
@@ -312,7 +323,7 @@ export default function ReportsTab() {
       result.push({
         date: row.date || "—",
         docNo,
-        description: row.description || "عهدة",
+        description: row.description || "عهدة توفيق الداعي",
         name: row.name || "توفيق الداعي",
         debit,
         credit,
@@ -552,7 +563,7 @@ export default function ReportsTab() {
           </label>
 
           {/* حقل الرصيد الافتتاحي اليدوي لسلفة د/يوسف وعهدة توفيق الداعي */}
-          {source === "youssefLoan" && (
+ {source === "youssefLoan" && (
             <label className="flex flex-col gap-1 text-xs font-black text-amber-900 bg-amber-50/80 p-1.5 rounded-xl border border-amber-200">
               <span className="flex items-center gap-1 font-black">
                 <Coins className="w-3.5 h-3.5 text-amber-600" />
