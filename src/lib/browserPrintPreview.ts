@@ -571,7 +571,7 @@ font-family: Cairo !important;
         let dateColIdx = -1;
         ths.forEach(function(th, idx) {
           const t = th.textContent.trim();
-          if (/التاريخ|date/i.test(t)) {
+          if (/التاريخ|التاريخ|date/i.test(t)) {
             dateColIdx = idx;
           }
         });
