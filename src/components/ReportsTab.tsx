@@ -145,7 +145,6 @@ const reportsTabPrintCss = `
 background: #9e3513 !important;
     color: #ffffff !important;
     font-weight: 800 !important;
-    border: 1px solid #0369a1 !important;
     white-space: nowrap !important;
   }
  tbody td {

@@ -48,7 +48,7 @@ export function openBrowserPrintPreview({
 
     .preview-toolbar {
 width: 100%;
-max-width: 100%;
+max-width: auto;
       position: sticky;
       top: 0;
       z-index: 9999;
@@ -58,7 +58,7 @@ max-width: 100%;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
       padding: 8px 14px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
       border-bottom: 2px solid #1f5f7a;
@@ -75,10 +75,10 @@ max-width: 100%;
     }
 
     .preview-toolbar .controls-group {
-      display: flex;
+      display: block;
       flex-wrap: wrap;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
     }
 
     .preview-toolbar select, .preview-toolbar input[type="date"], .preview-toolbar button {
@@ -112,9 +112,9 @@ max-width: 100%;
     .filter-box {
     width:100%;
    max-width: auto;
-      display: flex;
+      display: block;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
       background: rgba(255, 255, 255, 0.08);
       padding: 4px 8px;
       border-radius: 8px;
