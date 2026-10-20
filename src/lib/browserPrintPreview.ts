@@ -112,7 +112,7 @@ max-width: 100%;
     .filter-box {
     width:100%;
    max-width: auto;
-      display: block;
+      display: flex;
       align-items: center;
       gap: 6px;
       background: rgba(255, 255, 255, 0.08);
