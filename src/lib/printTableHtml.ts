@@ -104,7 +104,6 @@ font-family: Cairo !important;
     table-layout: auto !important;
     margin: 0 auto;
     text-align: center !important;
-    color: #000000 !important;
   }
   
   th, td {
@@ -112,12 +111,12 @@ font-family: Cairo !important;
     padding: 4px 5px !important;
     text-align: center !important;
     vertical-align: middle !important;
-    color: #000000 !important;
     box-sizing: border-box;
   }
 
   /* 1. رؤوس الأعمدة: خلفية كحلية غامقة وخط أبيض عريض */
   thead th {
+  color: #ffffff !important;
     font-weight: 800 !important;
     font-size: 14.5px !important;
     padding: 6px 4px !important;
@@ -148,8 +147,9 @@ min-width: auto;
 
   /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */
   tbody td {
+  color: #000 !important;
     white-space: normal !important;
-    font-weight: 700 !important;
+    font-weight: 1000 !important;
     font-size: 13.5px !important;
     padding: 3px 4px !important;
     text-align: center !important;
@@ -161,7 +161,7 @@ word-break: break-word !important;
   .pdf-cell-text {
 text-align: center !important;
   font-family: Cairo !important;
-    font-weight: 700;
+    font-weight: 900;
     line-height: 1.5 !important;
 white-space: nowrap !important;
 font-size: 13.5px !important;
@@ -187,6 +187,8 @@ font-size: 13.5px !important;
   tbody td[data-col-key="name"],
   tbody td.name-cell .pdf-cell-text,
   tbody td[data-col-key="date"] .pdf-cell-text {
+    font-weight: 900 !important;
+  color: #000 !important;
     white-space: nowrap !important;
  word-break: break-word !important;
     text-align: center !important;
@@ -199,6 +201,7 @@ font-size: 13.5px !important;
   tbody td.batch-cell,
   tbody td[data-col-key="specialty"],
   tbody td[data-col-key="batch"] {
+  color: #000 !important;
     white-space: normal !important;
       word-break: break-word !important;.
     text-align: center !important;
