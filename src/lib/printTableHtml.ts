@@ -116,6 +116,7 @@ font-family: Cairo !important;
 
   /* 1. رؤوس الأعمدة: خلفية كحلية غامقة وخط أبيض عريض */
   thead th {
+    background: #9e3513 !important;
   color: #ffffff !important;
     font-weight: 800 !important;
     font-size: 14.5px !important;
@@ -139,7 +140,10 @@ font-family: Cairo !important;
 
   /* الرأس الخاص بعمود البيان يسمح بالمرونة */
   thead th.desc-cell,
-  thead th[data-col-key="description"] {
+  thead th[data-col-key="description"] 
+    background: #267a94 !important;
+    color: #ffffff !important;
+
     white-space: normal !important;
 min-width: auto;
 
@@ -356,7 +360,6 @@ font-size: 13.5px !important;
     overflow-wrap: normal !important;
   }
   thead th {
-  background: #267a94 !important;
   color: #ffffff !important;
     white-space: normal !important;
     word-break: normal !important;

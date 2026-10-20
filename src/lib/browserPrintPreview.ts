@@ -48,7 +48,7 @@ export function openBrowserPrintPreview({
 
     .preview-toolbar {
 width: 100%;
-max-width: auto;
+max-width: 100%;
       position: sticky;
       top: 0;
       z-index: 9999;
@@ -65,7 +65,8 @@ max-width: auto;
     }
 
     .preview-toolbar .title-box {
-      display: flex;
+    width: auto;
+      display: block;
       align-items: center;
       gap: 8px;
       font-size: 13px;
@@ -111,7 +112,7 @@ max-width: auto;
     .filter-box {
     width:100%;
    max-width: auto;
-      display: flex;
+      display: block;
       align-items: center;
       gap: 6px;
       background: rgba(255, 255, 255, 0.08);
@@ -231,7 +232,6 @@ max-width: auto;
       text-align: center;
       vertical-align: middle;
       padding: 4px 5px;
-      color: #000;
       box-sizing: border-box;
 word-break: break-word !important;
 
@@ -254,15 +254,14 @@ word-break: break-word !important;
 
     thead th .pdf-cell-text, th .pdf-cell-text {
         min-width: auto;
-color: #000 !important;
       font-weight: 800 !important;
       font-size: 14.5px !important;
       padding: 6px 4px !important;
       white-space: normal !important;
   word-break: break-word !important;
-      border: 1px solid # 000000!important; -
-webkit - print - color - adjust: exact!important;
-print - color - adjust: exact!important;
+  border: 1px solid #000 !important; 
+-webkit-print-color-adjust: exact!important;
+print-color-adjust: exact!important;
 
     }
 
@@ -319,7 +318,7 @@ text-align: center !important;
 
     /* صف الإجمالي */
     .total-row td {
-      background: #fef3c7 !important;
+      background: #59ba8b !important;
       font-weight: 900 !important;
       font-size: 12px !important;
       border-top: 2px solid #000 !important;
@@ -364,15 +363,15 @@ white-space: normal !important;
       font-family:'Cairo',sans-serif !important;
       text-align:center !important;
       vertical-align:middle !important;
-      font-size:var(--print-cell-font-size,14px) !important;
+  font-size: 14px !important;
       line-height:1.4 !important;
     }
     .sheet-paper .report-page-content th,
     .sheet-paper .report-page-content td {
-      padding:var(--print-cell-padding,5px 6px) !important;
+      padding: 5px 6px !important;
     }
     .sheet-paper .report-page-content thead th {
-      font-size:var(--print-header-font-size,15px) !important;
+      font-size: 15px !important;
       font-weight:800 !important;
       padding:6px 5px !important;
     }
@@ -399,10 +398,9 @@ font-family: Cairo !important;
         padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        color: #000;
+
       }
       thead th, th {
-        color: #000 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }

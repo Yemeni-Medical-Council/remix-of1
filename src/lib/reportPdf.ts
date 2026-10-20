@@ -51,7 +51,7 @@ overflow-wrap: normal !important;
 word-break: break-word !important; 
 font-family: Cairo !important;
     font-size: 18px !important;
-    font-weight:700 !important; color:#000 !important;
+    font-weight:700 !important;
   line-height:1.4 !important;
   }
   .report-page-content thead th { 

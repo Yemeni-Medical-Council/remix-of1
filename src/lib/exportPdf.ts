@@ -86,7 +86,7 @@ ${reportLetterheadStyles}
     }
     table { 
       width: 100%;
-      max-width: auto;
+      min-width: auto;
       border: solid 1px black; 
       font-size: 20px; 
       table-layout: auto;
@@ -355,7 +355,7 @@ tr.subtotal-row td {
     width: 100% !important;
     max-width: auto !important;
     height: 30mm !important;
-    object-fit:fill !important; 
+    object-fit:fill !important;
     margin: 0 !important;
     object-position:top;
     }
@@ -573,8 +573,10 @@ margin-top: 6px; }
     .report-letterhead-row { width: 100%; }
     .report-letterhead-cell { padding: 0 !important; 
     width: 100%; }
-    .report-letterhead-image { width: 100% !important; max-width: auto !important; height: 50mm !important; 
-    object-fit:fill !important; margin: 0 !important; }
+    .report-letterhead-image { width: 100% !important; max-width: auto !important; height: 32mm !important; 
+    object-fit:fill !important; margin: 0 !important;
+object-position: top !important;
+    }
     table { width: 100%; max-width: 100%;
   table-layout: auto !important; margin-top: 4px; }
     th:first-child, td:first-child,

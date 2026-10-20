@@ -34,9 +34,8 @@ const baseCss = (
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: #fff; }
   body {
-    font-family: cairo;
+    font-family: Cairo;
     direction: rtl;
-    color: #000;
     font-weight: 800;
     font-size: 18px;
     line-height: 1.5;
@@ -69,7 +68,6 @@ font-size: 19px !important;
     padding: 6px 8px !important; 
     line-height: 1.5 !important; 
     font-size: 18px; 
-    color: #000 !important; 
     font-weight: 900 !important; 
     white-space:normal !important;
     width:100% !important;
@@ -182,7 +180,6 @@ min-height: auto;
     th, td { 
       padding: 2px 2px !important; 
       font-size:18px; 
-      color: #000 !important; 
       font-weight: 900 !important; 
       white-space:normal !important;
       word-break: keep-all !important;

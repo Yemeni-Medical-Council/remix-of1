@@ -182,7 +182,6 @@ font-family: Cairo;
           text-align: center;
           vertical-align: middle;
           font-size: 20px;
-          color: #000 !important;
           font-weight: 900 !important;
         }
         th {
@@ -191,7 +190,7 @@ font-family: Cairo;
           color: #fffff !important;
           font-weight: 900 !important;
           white-space: normal !important;
-          font-size: 18px;
+          font-size: 14px;
 font-family: AlQabas-Bold;
 
 
@@ -239,7 +238,6 @@ margin: 10px 0;
 text-align: center;
 vertical-align: middle;
 font-size: 20px;
-color: #000 !important;
 font-weight: 900 !important;
           }
 th, td { color: #000 !important; font-weight: 900 !important; }
@@ -431,7 +429,8 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
   const head = `<meta charset="utf-8"><title>${REV_SCHEMA.title} - ${MONTHS_PDF[month - 1]} ${year}م</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Cairo
+  :wght@400;500;700;900&display=swap">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     @page { size: A4 landscape; margin: 5mm; padding: 0; }
@@ -462,14 +461,15 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
       font-weight: 900 !important;
     }
     .period { 
-      font-weight: 900 !important; 
+font-weight: 900 !important; 
       color: #000 !important; 
       margin: 2px 0;
       font-size: 15px;
     }
     table { 
+ font-family: Cairo !important;
       width: 100% !important;
-      max-width: 100% !important;
+  max-width: 100% !important;
       border: solid 1px black; 
       font-size: 18px !important; 
       table-layout: auto !important;
@@ -490,8 +490,10 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
       color: #000 !important;
       font-weight: 900 !important;
       white-space: normal !important;
+        min-width: auto;
     }
     td:not(.num):not(.idx) {
+color: #000 !important;
       white-space: nowrap !important;
       overflow-wrap: break-word !important;
       word-break: normal !important;
@@ -499,6 +501,7 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
       width: auto !important; 
     }
     td.num, td.idx {
+color: #000 !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
@@ -512,6 +515,7 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
       direction: ltr;
     }
     td.acc { 
+      font-family: Cairo !important;
       text-align: center; 
       font-weight: 900 !important; 
       color: #000 !important;
@@ -536,7 +540,9 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
     @media print { 
       * { margin: 0; padding: 0; } 
       body { margin: 0; padding: 0; width: 100%; background: white; }
-      table { width: 100% !important; max-width: 100% !important; }
+      table {
+  font-family: Cairo !important;
+    width: 100% !important; max-width: 100% !important; }
       @page { margin: 5mm; }
     }
   </style>`;

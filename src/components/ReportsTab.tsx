@@ -141,9 +141,9 @@ const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "ot
 
 // أنماط طباعة مخصصة للتقارير
 const reportsTabPrintCss = `
-  thead th, thead th {
-    background: #9e3513 !important;
-    color: #fff !important;
+  thead th {
+background: #9e3513 !important;
+    color: #ffffff !important;
     font-weight: 800 !important;
     border: 1px solid #0369a1 !important;
     white-space: nowrap !important;
