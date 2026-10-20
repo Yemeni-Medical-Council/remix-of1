@@ -148,7 +148,7 @@ const reportsTabPrintCss = `
     border: 1px solid #0369a1 !important;
     white-space: nowrap !important;
   }
-  table tbody td {
+ tbody td {
     color: #000000 !important;
     font-weight: 900 !important;
     border: 1px solid #cbd5e1 !important;
