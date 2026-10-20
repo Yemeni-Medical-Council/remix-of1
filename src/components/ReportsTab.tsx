@@ -120,6 +120,25 @@ const canonicalFeeCategory = (value: unknown) => {
   return String(value).trim() || "رسوم أخرى";
 };
 
+// دالة تصنيف السجل وفق عمود البيان في الحساب الجاري
+// تُعيد "tawfiq" إذا كان البيان خاصاً بعهدة الداعي/توفيق الداعي
+// وتُعيد "youssef" إذا كان البيان يحتوي على كلمة عهدة (بدون ذكر الداعي)
+// وتُعيد "other" لبقية السجلات
+const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "other" => {
+  const text = String(description || "").trim();
+  if (!text) return "other";
+
+  // فحص أولاً سجلات عهدة الداعي / توفيق الداعي
+  const isTawfiq = /(عهدة\s*الداعي|توفيق\s*الداعي)/.test(text);
+  if (isTawfiq) return "tawfiq";
+
+  // فحص سجلات عهدة د/يوسف: تحتوي على "عهدة" أو "العهدة" أو "عهدة د/يوسف"
+  const isYoussef = /(عهدة\s*د\s*\/?\s*يوسف|العهدة|عهدة)/.test(text);
+  if (isYoussef) return "youssef";
+
+  return "other";
+};
+
 // أنماط طباعة مخصصة للتقارير
 const reportsTabPrintCss = `
   table thead th, thead th {
@@ -193,22 +212,15 @@ export default function ReportsTab() {
     return date.getFullYear() === year && selectedMonthSet.has(date.getMonth());
   };
 
-  // تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق)
-    // دالة تصنيف السجل وفق عمود البيان في الحساب الجاري
-  const isTawfiqRecord = (description: unknown) => {
-    const text = String(description || "");
-    return /(الداعي|توفيق)/.test(text);
-  };
-
-  // 1. تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق - إذا لم يرد اسم الداعي في البيان)
+  // 1. تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق)
   const youssefRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
         const d = normalizeDate(row.date);
         if (!d || d.getFullYear() < 2026) return false;
         if (!inPeriod(row.date)) return false;
-        // إذا لم يُذكر الداعي أو توفيق في البيان فهو يعبر عن عهدة د/يوسف
-        return !isTawfiqRecord(row.description);
+        // يُقرأ فقط السجلات التي بيانها يحتوي على كلمة "عهدة" (وليست خاصة بالداعي)
+        return classifyCustodyRecord(row.description) === "youssef";
       })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
@@ -231,10 +243,9 @@ export default function ReportsTab() {
     let sumCredit = youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0;
 
     matched.forEach((row) => {
-      // المنصرف يؤخذ حصراً من عمود مبلغ الحافظة في الحساب الجاري
-      const debit = amountValue(row.hafizaAmount);
-      // المسدد (إن وجد توريد أو تسديد عهدة)
-      const credit = amountValue(row.income);
+      // حسب طلبك: الدائن (المسدد) = مبلغ الحافظة، والمدين (المنصرف) = الإيرادات
+      const credit = amountValue(row.hafizaAmount);   // دائن (المسدد) من عمود مبلغ الحافظة
+      const debit  = amountValue(row.income);         // مدين (المنصرف) من عمود الإيرادات
       running += debit - credit;
       sumDebit += debit;
       sumCredit += credit;
@@ -250,7 +261,7 @@ export default function ReportsTab() {
       result.push({
         date: row.date || "—",
         docNo,
-        description: row.description || "سلفة",
+        description: row.description || "عهدة د/ يوسف",
         name: row.name || "د/ يوسف",
         debit,
         credit,
@@ -273,15 +284,15 @@ export default function ReportsTab() {
     return result;
   }, [accounts, youssefOpeningBalance, period, year, selectedMonthSet]);
 
-  // 2. تقرير عهدة توفيق الداعي (من الحساب الجاري 2026 فما فوق - إذا ورد اسم الداعي في البيان)
+  // 2. تقرير عهدة توفيق الداعي (من الحساب الجاري 2026 فما فوق)
   const tawfiqRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
         const d = normalizeDate(row.date);
         if (!d || d.getFullYear() < 2026) return false;
         if (!inPeriod(row.date)) return false;
-        // إذا ورد اسم الداعي أو توفيق في عمود البيان
-        return isTawfiqRecord(row.description);
+        // يُقرأ فقط السجلات التي بيانها يحتوي على "عهدة الداعي" أو "توفيق الداعي"
+        return classifyCustodyRecord(row.description) === "tawfiq";
       })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
@@ -304,10 +315,9 @@ export default function ReportsTab() {
     let sumCredit = tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0;
 
     matched.forEach((row) => {
-      // المنصرف يؤخذ حصراً من عمود مبلغ الحافظة في الحساب الجاري
-      const debit = amountValue(row.hafizaAmount);
-      // المسدد (إن وجد توريد أو تسديد عهدة)
-      const credit = amountValue(row.income);
+      // حسب طلبك: الدائن (المسدد) = مبلغ الحافظة، والمدين (المنصرف) = الإيرادات
+      const credit = amountValue(row.hafizaAmount);   // دائن (المسدد) من عمود مبلغ الحافظة
+      const debit  = amountValue(row.income);         // مدين (المنصرف) من عمود الإيرادات
       running += debit - credit;
       sumDebit += debit;
       sumCredit += credit;
