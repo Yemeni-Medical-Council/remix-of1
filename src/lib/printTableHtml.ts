@@ -130,6 +130,7 @@ font-family: Cairo !important;
 
   thead th .pdf-cell-text,
   th .pdf-cell-text {
+    background: #267a94 !important;
     color: #ffffff !important;
     font-weight: 800 !important;
     white-space: normal !important;
@@ -239,8 +240,8 @@ font-size: 13.5px !important;
 
   /* صف الإجمالي النهائي */
   .total-row td {
-    background: #fef3c7 !important;
-    color: #000000 !important;
+    background: #91400d !important;
+    color: #fff !important;
     font-weight: 900 !important;
     font-size: 13px !important;
     border-top: 2px solid #000000 !important;
@@ -352,6 +353,8 @@ font-size: 13.5px !important;
     overflow-wrap: normal !important;
   }
   thead th {
+  background: #267a94 !important;
+  color: #ffffff !important;
     white-space: normal !important;
     word-break: normal !important;
     overflow-wrap: anywhere !important;

@@ -142,7 +142,7 @@ const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "ot
 // أنماط طباعة مخصصة للتقارير
 const reportsTabPrintCss = `
   table thead th, thead th {
-    background: #0f283a !important;
+    background: #9e3513 !important;
     color: #ffffff !important;
     font-weight: 800 !important;
     border: 1px solid #0369a1 !important;
@@ -750,7 +750,7 @@ export default function ReportsTab() {
         {/* جدول عرض التقرير */}
         <div className="overflow-x-auto p-3 sm:p-4">
           {reportRows.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-slate-500">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-white">
               <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
               لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
             </div>
@@ -773,7 +773,7 @@ export default function ReportsTab() {
 
                   let rowStyle = "bg-white text-slate-900";
                   if (isTotal) {
-                    rowStyle = "bg-[#1f5f7a] text-white font-black";
+                    rowStyle = "bg-[#1f5f7a] text-white font-bold";
                   } else if (isOpening) {
                     rowStyle = "bg-amber-100/80 text-amber-950 font-black";
                   } else if (row.summaryLevel === "fee") {
