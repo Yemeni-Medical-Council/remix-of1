@@ -24,7 +24,7 @@ line-height: 1.5;
 width:100%; 
     max-width: auto;
 border-collapse:collapse; table-layout:auto; text-align:center; }
-  th,td { border:1px solid var(--report-rule); padding:5px 6px; text-align:center; vertical-align:middle; }
+  th,td { padding:5px 6px; text-align:center; vertical-align:middle; }
   thead th { 
   background: gold; 
 color:#000; font-weight:800; }
@@ -95,7 +95,7 @@ min-width: auto  !important;
   }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
-  .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px black !important; }
+  .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px  !important; }
   .report-page-content .report-letterhead-cell img { width: 100%; max-height:auto; object-fit:fill; }
 `;
 

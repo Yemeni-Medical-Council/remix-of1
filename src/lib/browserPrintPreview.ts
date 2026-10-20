@@ -112,9 +112,9 @@ max-width: auto;
     .filter-box {
     width:100%;
    max-width: auto;
-      display: block;
+      display: inline-block;
       align-items: center;
-      gap: 10px;
+      gap: 13px;
       background: rgba(255, 255, 255, 0.08);
       padding: 4px 8px;
       border-radius: 8px;
@@ -228,7 +228,6 @@ max-width: auto;
 
     /* تنسيق الخلايا العام: منع الالتفاف كقاعدة عامة */
     th, td {
-      border: 1px solid #000000;
       text-align: center;
       vertical-align: middle;
       padding: 4px 5px;
@@ -247,15 +246,14 @@ word-break: break-word !important;
       padding: 6px 4px !important;
       white-space: normal !important;
       word-break: break-word !important;
-      border: 1px solid #000000 !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
         min-width: auto;
-      font-weight: 800 !important;
-      font-size: 14.5px !important;
+  font-weight: 800 !importat;
+      font-size: 16.5px !important;
       padding: 6px 4px !important;
       white-space: normal !important;
   word-break: break-word !important;
@@ -573,7 +571,7 @@ font-family: Cairo !important;
         let dateColIdx = -1;
         ths.forEach(function(th, idx) {
           const t = th.textContent.trim();
-          if (/تاريخ|التاريخ|date/i.test(t)) {
+          if (/التاريخ|date/i.test(t)) {
             dateColIdx = idx;
           }
         });
@@ -614,7 +612,10 @@ font-family: Cairo !important;
               if (fromVal && rowDate < fromVal) show = false;
               if (toVal && rowDate > toVal) show = false;
             } else {
-              // إذا طُلب نطاق زمني والصف لا يحتوي على تاريخ نعتبره خارج النطاق
+// إذا طُلب
+نطاق زمني
+والصف لا يحتوي
+على تاريخ نعتبره خارج النطاق
               show = false;
             }
           }

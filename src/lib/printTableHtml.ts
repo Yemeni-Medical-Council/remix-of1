@@ -107,7 +107,6 @@ font-family: Cairo !important;
   }
   
   th, td {
-    border: 1px solid #000000 !important;
     padding: 4px 5px !important;
     text-align: center !important;
     vertical-align: middle !important;
