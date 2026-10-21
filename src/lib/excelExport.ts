@@ -1,5 +1,3 @@
-import * as XLSX from "xlsx";
-
 import { saveBlobToInternalStorage } from "@/lib/nativeFileStorage";
 
 export type ExcelPalette = {
@@ -64,14 +62,24 @@ const columnLetter = (column: number): string => {
   return result;
 };
 
-const readableHeaderFont = (argb: string): string => {
-  const hex = argb.slice(-6);
-  const red = Number.parseInt(hex.slice(0, 2), 16);
-  const green = Number.parseInt(hex.slice(2, 4), 16);
-  const blue = Number.parseInt(hex.slice(4, 6), 16);
-  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
-  return luminance < 155 ? "FFFFFFFF" : BLACK;
-};
+// فك ترميز عناوين الخلايا ذاتياً دون استدعاء مكتبة خارجية ثقيلة
+function decodeCellAddress(addr: string): { r: number; c: number } {
+  const match = addr.match(/^([A-Za-z]+)(\d+)$/);
+  if (!match) return { r: 0, c: 0 };
+  const letters = match[1].toUpperCase();
+  let col = 0;
+  for (let i = 0; i < letters.length; i++) {
+    col = col * 26 + (letters.charCodeAt(i) - 64);
+  }
+  return { c: col - 1, r: parseInt(match[2], 10) - 1 };
+}
+
+function decodeRangeString(ref: string): { s: { r: number; c: number }; e: { r: number; c: number } } {
+  const parts = ref.split(":");
+  const s = decodeCellAddress(parts[0] || "A1");
+  const e = parts[1] ? decodeCellAddress(parts[1]) : s;
+  return { s, e };
+}
 
 export async function createExcelWorkbook(): Promise<ExcelWorkbook> {
   const ExcelJS = (await import("exceljs")).default;
@@ -281,18 +289,18 @@ export function appendRows(
 
 export function appendXlsxSheet(
   workbook: ExcelWorkbook,
-  source: XLSX.WorkSheet,
+  source: any,
   sheetName: string,
   meta: ExcelReportMeta,
   imageId: number | null,
 ): ExcelWorksheet {
   const worksheet = workbook.addWorksheet(sheetName, { views: [{ rightToLeft: true }] });
   const dataStartRow = addReportHeader(workbook, worksheet, meta, imageId);
-  const range = XLSX.utils.decode_range(source["!ref"] || "A1");
+  const range = decodeRangeString(source["!ref"] || "A1");
 
   for (let row = range.s.r; row <= range.e.r; row++) {
     for (let col = range.s.c; col <= range.e.c; col++) {
-      const address = XLSX.utils.encode_cell({ r: row, c: col });
+      const address = `${columnLetter(col + 1)}${row + 1}`;
       const sourceCell = source[address];
       if (!sourceCell) continue;
       const cell = worksheet.getCell(dataStartRow + row, col + 1);
@@ -304,7 +312,7 @@ export function appendXlsxSheet(
     }
   }
 
-  (source["!merges"] || []).forEach((merge: XLSX.Range) => {
+  (source["!merges"] || []).forEach((merge: any) => {
     worksheet.mergeCells(
       dataStartRow + merge.s.r,
       merge.s.c + 1,
