@@ -339,13 +339,16 @@ color: white;
 print-color-adjust: exact; 
     }
 tr.group-row td {
-background: #32a4c7 !important; 
+background: #941f1f !important; color: #fff;
 font-weight: 900 !important; }
 tr.subtotal-row td { 
-  background: #16794c !important; font-weight: 800 !important; 
-     color:white;
+  background: #30a66d !important; font-weight: 800 !important; 
+     color: #fff;
 }
-    tr.total-row td { background: #e03636 !important; font-weight: 900 !important; }
+    tr.total-row td {
+background: #733f12 !important; color: #fff;
+  font-weight: 900 !important;
+    }
     /* تحسينات محصورة بتقريري كشف الحساب الشهري والإيرادات */
     @page { size: A4 landscape; margin: 3mm; padding: 0; }
     body { padding: 0 1px; width: 100%; }
@@ -361,7 +364,7 @@ tr.subtotal-row td {
     }
     table { 
 width: 100%; 
-max-width: auto; 
+min-width: auto; 
 table-layout: auto !important; 
 margin-top: 4px; 
 text-align:center;
@@ -375,6 +378,7 @@ text-align:center;
       overflow-wrap: break-word !important;
       word-break: normal !important;
       line-height: 1.5;
+      text-align:center;
     }
     .num, .numeric-cell, .date-cell {
       width:100% !important;
@@ -389,7 +393,7 @@ text-align:center;
       font-variant-numeric: tabular-nums;
       direction: ltr;
     }
-    td.acc { width: 100% !important; white-space:nowrap !important; overflow-wrap: break-word !important; word-break: normal !important; }
+    td.acc { width: 100% !important; white-space:normal !important; overflow-wrap: break-word !important; word-break: normal !important; }
     @media print {
       body { padding: 0; }
       @page { size: A4 landscape; margin: 3mm; }

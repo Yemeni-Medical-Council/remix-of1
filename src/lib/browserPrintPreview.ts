@@ -228,6 +228,7 @@ max-width: auto;
 
     /* تنسيق الخلايا العام: منع الالتفاف كقاعدة عامة */
     th, td {
+  border: 1px solid #000 !important; 
       text-align: center;
       vertical-align: middle;
       padding: 4px 5px;
@@ -257,7 +258,6 @@ word-break: break-word !important;
       padding: 6px 4px !important;
       white-space: normal !important;
   word-break: break-word !important;
-  border: 1px solid #000 !important; 
 -webkit-print-color-adjust: exact!important;
 print-color-adjust: exact!important;
 

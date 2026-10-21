@@ -95,7 +95,7 @@ min-width: auto  !important;
   }
   .report-page-content thead { display:table-header-group; }
   .report-page-content tr { break-inside:avoid; }
-  .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px  !important; }
+  .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px #000 !important; }
   .report-page-content .report-letterhead-cell img { width: 100%; max-height:auto; object-fit:fill; }
 `;
 

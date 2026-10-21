@@ -107,6 +107,9 @@ font-family: Cairo !important;
   }
   
   th, td {
+  border: 1px solid #000 !important; 
+  
+
     padding: 4px 5px !important;
     text-align: center !important;
     vertical-align: middle !important;
@@ -153,7 +156,7 @@ min-width: auto;
   color: #000 !important;
     white-space: normal !important;
     font-weight: 1000 !important;
-    font-size: 13.5px !important;
+    font-size: 15.5px !important;
     padding: 3px 4px !important;
     text-align: center !important;
     line-height: 1.3 !important;

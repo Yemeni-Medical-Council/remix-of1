@@ -25,7 +25,7 @@ type Row = {
   e: number | "";
   lv: "header" | "bab" | "fasl" | "band" | "type" | "sub";
 };
-const schema = schemaJson as { rows: Row[]; totals: string[] };
+const schema = schemaJson as { rows: Row[];totals: string[] };
 
 // ====== أسماء الأشهر ======
 const MONTHS = [
@@ -52,8 +52,8 @@ const QUARTERS = [
 const YEAR_DEFAULT = 2026;
 const STORAGE_KEY = "expenses-data-v1";
 
-type Cell = { f: number; r: number };
-type Store = Record<string, Cell>;
+type Cell = { f: number;r: number };
+type Store = Record < string, Cell > ;
 const emptyCell: Cell = { f: 0, r: 0 };
 
 function loadStore(): Store {
@@ -63,6 +63,7 @@ function loadStore(): Store {
     return {};
   }
 }
+
 function saveStore(s: Store) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 }
@@ -71,18 +72,18 @@ const isLeaf = (r: Row) => r.lv === "type";
 
 const normalizeExpenseText = (value: string) =>
   value
-    .trim()
-    .toLowerCase()
-    .replace(/[أإآ]/g, "ا")
-    .replace(/ة/g, "ه")
-    .replace(/[ًٌٍَُِّْـ]/g, "")
-    .replace(/[\s_-]+/g, "");
+  .trim()
+  .toLowerCase()
+  .replace(/[أإآ]/g, "ا")
+  .replace(/ة/g, "ه")
+  .replace(/[ًٌٍَُِّْـ]/g, "")
+  .replace(/[\s_-]+/g, "");
 
 const getExpenseCodes = () => {
   let bab = "";
   let fasl = "";
   let band = "";
-
+  
   return schema.rows.map((row) => {
     if (row.b !== "") bab = String(row.b);
     if (row.c !== "") fasl = String(row.c);
@@ -97,12 +98,12 @@ const EXPENSE_CODES = getExpenseCodes();
 const findExpenseRow = (description: string) => {
   const value = normalizeExpenseText(description);
   if (!value) return -1;
-
+  
   const codeIndex = EXPENSE_CODES.findIndex(
     (code) => code && (value === normalizeExpenseText(code) || value.includes(normalizeExpenseText(code))),
   );
   if (codeIndex >= 0) return codeIndex;
-
+  
   return schema.rows.findIndex(
     (row) => isLeaf(row) && value.includes(normalizeExpenseText(row.n)),
   );
@@ -110,18 +111,18 @@ const findExpenseRow = (description: string) => {
 
 function htmlTableToMatrix(table: HTMLTableElement): string[][] {
   const grid: string[][] = [];
-
+  
   Array.from(table.rows).forEach((row, rowIndex) => {
     if (!grid[rowIndex]) grid[rowIndex] = [];
     let columnIndex = 0;
-
+    
     Array.from(row.cells).forEach((cell) => {
       while (grid[rowIndex][columnIndex] !== undefined) columnIndex += 1;
-
+      
       const rowSpan = Math.max(1, cell.rowSpan || 1);
       const columnSpan = Math.max(1, cell.colSpan || 1);
       const value = cell.textContent?.replace(/\s+/g, " ").trim() || "";
-
+      
       for (let rowOffset = 0; rowOffset < rowSpan; rowOffset += 1) {
         const targetRowIndex = rowIndex + rowOffset;
         if (!grid[targetRowIndex]) grid[targetRowIndex] = [];
@@ -131,11 +132,11 @@ function htmlTableToMatrix(table: HTMLTableElement): string[][] {
             rowOffset === 0 && columnOffset === 0 ? value : "";
         }
       }
-
+      
       columnIndex += columnSpan;
     });
   });
-
+  
   const columnCount = Math.max(1, ...grid.map((row) => row.length));
   return grid.map((row) =>
     Array.from({ length: columnCount }, (_, index) => row[index] ?? ""),
@@ -146,7 +147,7 @@ function htmlTableToMatrix(table: HTMLTableElement): string[][] {
 function computeAggregates(values: Cell[]): Cell[] {
   const rows = schema.rows;
   const out = values.map((v) => ({ ...v }));
-  const rank: Record<string, number> = { header: 0, bab: 1, fasl: 2, band: 3, type: 4, sub: 5 };
+  const rank: Record < string, number > = { header: 0, bab: 1, fasl: 2, band: 3, type: 4, sub: 5 };
   for (let i = rows.length - 1; i >= 0; i--) {
     const r = rows[i];
     if (isLeaf(r) || r.lv === "sub") continue;
@@ -186,7 +187,8 @@ function addTwo(a: Cell, b: Cell): Cell {
 
 function computeBabTotals(cur: Cell[], prev: Cell[]): BabTotal[] {
   const rows = schema.rows;
-  const babMap = new Map<number, { label: string; indices: number[] }>();
+  const babMap = new Map < number,
+    { label: string;indices: number[] } > ();
   let cb: number | null = null;
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
@@ -194,7 +196,7 @@ function computeBabTotals(cur: Cell[], prev: Cell[]): BabTotal[] {
       cb = r.b;
       if (!babMap.has(cb)) babMap.set(cb, { label: r.n, indices: [] });
     }
-    if (r.lv === "type" && cb !== null) babMap.get(cb)!.indices.push(i);
+    if (r.lv === "type" && cb !== null) babMap.get(cb) !.indices.push(i);
   }
   const sum = (idxs: number[], vals: Cell[]): Cell => {
     let f = 0,
@@ -207,7 +209,7 @@ function computeBabTotals(cur: Cell[], prev: Cell[]): BabTotal[] {
     f = f % 100;
     return { f, r };
   };
-  const labels: Record<number, string> = {
+  const labels: Record < number, string > = {
     1: "جملة الباب الأول : أجور وتعويضات العاملين",
     2: "جملة الباب الثاني : نفقات على السلع والخدمات والممتلكات",
     // يمكن إضافة مسميات أبواب أخرى هنا إن وجدت
@@ -257,7 +259,7 @@ const rowClass = (r: Row) => {
         return "bg-emerald-100 text-emerald-900 font-bold bab-default";
     }
   }
-
+  
   switch (r.lv) {
     case "header":
       return "bg-sky-700 text-white font-bold";
@@ -276,24 +278,30 @@ const rowClass = (r: Row) => {
 const getBabSummaryColor = (bn: number | null) => {
   if (bn === null) return "bg-sky-700 text-white font-bold";
   switch (bn) {
-    case 1: return "bg-emerald-200 text-emerald-900 font-semibold bab-1";
-    case 2: return "bg-blue-200 text-blue-900 font-semibold bab-2";
-    case 3: return "bg-fuchsia-200 text-fuchsia-900 font-semibold bab-3";
-    case 4: return "bg-orange-200 text-orange-900 font-semibold bab-4";
-    case 5: return "bg-rose-200 text-rose-900 font-semibold bab-5";
-    default: return "bg-emerald-100 text-emerald-900 font-semibold bab-default";
+    case 1:
+      return "bg-emerald-200 text-emerald-900 font-semibold bab-1";
+    case 2:
+      return "bg-blue-200 text-blue-900 font-semibold bab-2";
+    case 3:
+      return "bg-fuchsia-200 text-fuchsia-900 font-semibold bab-3";
+    case 4:
+      return "bg-orange-200 text-orange-900 font-semibold bab-4";
+    case 5:
+      return "bg-rose-200 text-rose-900 font-semibold bab-5";
+    default:
+      return "bg-emerald-100 text-emerald-900 font-semibold bab-default";
   }
 };
 
 const fmt = (n: number) => (n === 0 ? "0" : n.toLocaleString("en-US"));
 
 // ===== ثوابت ألوان الأعمدة =====
-const CUR_H = "bg-amber-300 text-amber-900"; 
-const CUR_C = "bg-sky-50"; 
-const PREV_H = "bg-sky-300 text-sky-900"; 
-const PREV_C = "bg-sky-50"; 
-const TOT_H = "bg-emerald-200 text-black-900"; 
-const TOT_C = "bg-emerald-50"; 
+const CUR_H = "bg-amber-300 text-amber-900";
+const CUR_C = "bg-sky-50";
+const PREV_H = "bg-sky-300 text-sky-900";
+const PREV_C = "bg-sky-50";
+const TOT_H = "bg-emerald-200 text-black-900";
+const TOT_C = "bg-emerald-50";
 
 // ===== خلية رأس موحدة =====
 const TH = ({
@@ -303,9 +311,9 @@ const TH = ({
   colSpan = 1,
 }: {
   children: React.ReactNode;
-  cls?: string;
-  rowSpan?: number;
-  colSpan?: number;
+  cls ? : string;
+  rowSpan ? : number;
+  colSpan ? : number;
 }) => (
   <th
     rowSpan={rowSpan}
@@ -323,8 +331,8 @@ const TD = ({
   right = false,
 }: {
   children: React.ReactNode;
-  cls?: string;
-  right?: boolean;
+  cls ? : string;
+  right ? : boolean;
 }) => (
   <td
     className={`border border-black px-1 sm:px-2 py-1 whitespace-nowrap align-middle numeric-cell font-mono text-sm sm:text-base ${right ? "text-center " : "text-center"} ${cls}`}
@@ -335,34 +343,35 @@ const TD = ({
 
 // ============================================================
 export default function ExpensesTab() {
-  const [store, setStore] = useState<Store>(() => loadStore());
+  const [store, setStore] = useState < Store > (() => loadStore());
   const accounts = useStore((state) => state.accounts);
   const { reportDate, reportDateLabel } = useReportDate();
-  const [year] = useState<number>(YEAR_DEFAULT);
-  const [view, setView] = useState<string>("cover");
-
+  const [year] = useState < number > (YEAR_DEFAULT);
+  const [view, setView] = useState < string > ("cover");
+  
   useEffect(() => {
     saveStore(store);
   }, [store]);
-
+  
   const monthlyLeaves: Cell[][] = useMemo(
     () => {
-      const linkedAmounts = new Map<string, number>();
-
+      const linkedAmounts = new Map < string,
+        number > ();
+      
       accounts.forEach((account) => {
         if (account.sourceExpenseId || Number(account.expense) <= 0) return;
         const rowIndex = findExpenseRow(account.description);
         if (rowIndex < 0) return;
-
+        
         const date = new Date(account.date);
         const accountYear = date.getFullYear();
         const monthIndex = date.getMonth();
         if (accountYear !== year || monthIndex < 0 || monthIndex >= MONTHS.length) return;
-
+        
         const key = `${monthIndex}-${rowIndex}`;
         linkedAmounts.set(key, (linkedAmounts.get(key) || 0) + Number(account.expense));
       });
-
+      
       return MONTHS.map((_, monthIndex) =>
         schema.rows.map((_, rowIndex) => {
           const manual = store[`${year}-${monthIndex}-${rowIndex}`] || emptyCell;
@@ -377,25 +386,26 @@ export default function ExpensesTab() {
     },
     [store, year, accounts],
   );
-
+  
   const monthlyComputed: Cell[][] = useMemo(
     () => monthlyLeaves.map((v) => computeAggregates(v)),
     [monthlyLeaves],
   );
-
+  
   const updateCell = (mi: number, ri: number, field: "f" | "r", val: number) => {
     setStore((prev) => {
       const key = `${year}-${mi}-${ri}`;
       const cur = prev[key] || emptyCell;
       const next = { ...cur, [field]: val };
       if (next.f === 0 && next.r === 0) {
-        const { [key]: _, ...rest } = prev;
+        const {
+          [key]: _, ...rest } = prev;
         return rest;
       }
       return { ...prev, [key]: next };
     });
   };
-
+  
   const sumCells = (arrs: Cell[][]): Cell[] => {
     if (!arrs.length) return schema.rows.map(() => emptyCell);
     return schema.rows.map((_, idx) => {
@@ -410,7 +420,7 @@ export default function ExpensesTab() {
       return { f, r };
     });
   };
-
+  
   // ========= ملخص الأبواب =========
   const renderBabSummary = (
     curVals: Cell[],
@@ -472,7 +482,7 @@ export default function ExpensesTab() {
       </div>
     );
   };
-
+  
   // ========= الغلاف =========
   const renderCover = () => (
     <div
@@ -526,7 +536,7 @@ export default function ExpensesTab() {
       </div>
     </div>
   );
-
+  
   // ========= الجدول الرئيسي =========
   const renderSheet = (opts: {
     title: string;
@@ -536,7 +546,7 @@ export default function ExpensesTab() {
     currentValues: Cell[];
     previousValues: Cell[];
     editable: boolean;
-    editMonthIdx?: number;
+    editMonthIdx ? : number;
   }) => {
     const totalValues = schema.rows.map((_, idx) => {
       let f = opts.currentValues[idx].f + opts.previousValues[idx].f;
@@ -545,7 +555,7 @@ export default function ExpensesTab() {
       f = f % 100;
       return { f, r };
     });
-
+    
     return (
       <div className="space-y-0" dir="rtl">
         <div className="w-full min-w-auto overflow-hidden rounded-lg border border-black bg-white shadow-sm text-center">
@@ -639,7 +649,7 @@ export default function ExpensesTab() {
       </div>
     );
   };
-
+  
   const renderMonth = (m: number) =>
     renderSheet({
       title: "كشف المصروفات الشهري",
@@ -651,7 +661,7 @@ export default function ExpensesTab() {
       editable: true,
       editMonthIdx: m,
     });
-
+  
   const renderQuarter = (qIdx: number) => {
     const q = QUARTERS[qIdx];
     const prevMonths: number[] = [];
@@ -666,7 +676,7 @@ export default function ExpensesTab() {
       editable: false,
     });
   };
-
+  
   const renderFinal = () =>
     renderSheet({
       title: "كشف الحساب النهائي (الأخيرة)",
@@ -677,7 +687,7 @@ export default function ExpensesTab() {
       previousValues: schema.rows.map(() => emptyCell),
       editable: false,
     });
-
+  
   // ========= كشف السنة =========
   const renderYear = () => {
     const cur = sumCells(monthlyComputed);
@@ -688,7 +698,7 @@ export default function ExpensesTab() {
       cur,
       schema.rows.map(() => emptyCell),
     );
-
+    
     return (
       <div className="space-y-4" dir="rtl">
         <div className="rounded-xl border-2 border-black overflow-hidden shadow-sm">
@@ -769,7 +779,7 @@ export default function ExpensesTab() {
       </div>
     );
   };
-
+  
   const subTabs = [
     { key: "cover", label: "الغلاف", group: "intro" },
     ...MONTHS.map((m, i) => ({ key: `m${i}`, label: m, group: "month" })),
@@ -779,20 +789,20 @@ export default function ExpensesTab() {
   ];
   
   const groupCls = (g: string) =>
-    g === "intro"
-      ? "bg-slate-700"
-      : g === "month"
-        ? "bg-sky-700"
-        : g === "period"
-          ? "bg-amber-600"
-          : g === "final"
-            ? "bg-rose-700"
-            : "bg-sky-700";
-
+    g === "intro" ?
+    "bg-slate-700" :
+    g === "month" ?
+    "bg-sky-700" :
+    g === "period" ?
+    "bg-amber-600" :
+    g === "final" ?
+    "bg-rose-700" :
+    "bg-sky-700";
+  
   const triggerExpenseAction = (id: string) => {
     (document.getElementById(id) as HTMLButtonElement | null)?.click();
   };
-
+  
   const expenseWebActions: WebActionItem[] = [
     { label: "طباعة التقرير", onSelect: () => triggerExpenseAction("expenses-print-action") },
     { label: "تصدير Excel", onSelect: () => triggerExpenseAction("expenses-excel-action") },
@@ -802,7 +812,7 @@ export default function ExpensesTab() {
       onSelect: () => triggerExpenseAction("expenses-clear-action"),
     },
   ];
-
+  
   return (
     <div className="sheet-tabs-ui space-y-3" dir="rtl">
       {/* شريط التبويبات + أزرار */}
@@ -841,14 +851,14 @@ export default function ExpensesTab() {
                 html, body { margin: 0; padding: 0; }
                 body { direction: rtl; background: #f1f5f9; color: #000; font-family: Cairo; font-weight: 900; }
                 .print-page { min-height: auto; width: 100%; margin: 0; padding: 0; border: 0; background: #fff; }
-                .report-letterhead-block { display: flex; width: 100%; max-width: auto; height: 30mm; min-height: 30mm; max-height: 30mm; align-items: stretch; justify-content: center; margin: 0 0 3mm; page-break-before: avoid; page-break-after: avoid; }
-                .report-letterhead-image { display:flex; width: 100%; max-width: auto; height: 100%; max-height: auto; object-fit: fill; object-position:top; margin: 0; }
-                ${runningLetterheadCss}
-                #expenses-report { width: 100%; }
-                #expenses-report > * { margin-bottom: 4mm; }
-                #expenses-report .overflow-x-auto, #expenses-report .overflow-auto { overflow: visible !important; }
+                .report-letterhead-block { display: block; width: 100%; max-width: auto; height: 30mm; min-height: 30mm; max-height: 30mm; align-items: stretch; justify-content: center; margin: 0 0 3mm; page-break-before: avoid; page-break-after: avoid; }
+                .report-letterhead-image { display:flex; width: 100%; min-width: auto; height: 100%; min-height: auto; object-fit: fill; object-position:top; margin: 0; }
+    ${runningLetterheadCss}
+ #expenses-report { width: 100%; }
+ #expenses-report > * { margin-bottom: 4mm; }
+ #expenses-report .overflow-x-auto, #expenses-report .overflow-auto { overflow: visible !important; }
                 #expenses-report .rounded-xl { border-radius: 9px; }
-                #expenses-report .border-2 { border-width: 2px; }
+  #expenses-report .border-2 { border-width: 2px; }
                 #expenses-report .border-black, #expenses-report .border { border-color: #000 !important; }
                 #expenses-report .shadow, #expenses-report .shadow-sm, #expenses-report .shadow-md { box-shadow: none !important; }
                 #expenses-report .bg-gradient-to-r { background: linear-gradient(90deg, #0f766e, #047857) !important; color: #fff !important; padding: 9px !important; text-align: center; }
@@ -870,23 +880,26 @@ export default function ExpensesTab() {
                 #expenses-report .bab-4 { background-color: #fed7aa !important; color: #7c2d12 !important; }
                 #expenses-report .bab-5 { background-color: #fecdd3 !important; color: #881337 !important; }
                 #expenses-report .bab-default { background-color: #d1fae5 !important; color: #064e3b !important; }
-                #expenses-report table { width: 100%; max-width: auto; min-width: 0; table-layout: auto; border-collapse: collapse; font-size: 16px; }
-                #expenses-report th, #expenses-report td { border: 1px solid #000 !important; padding: 2px 3px !important; text-align: center !important; vertical-align: middle !important; white-space: normal !important; overflow: visible !important; overflow-wrap: break-word !important; word-break: normal !important; line-height: 1.2; color: #000 !important; font-weight: 700 !important; }
-                #expenses-report thead th { font-size: 14px; font-weight: 900 !important; }
+                #expenses-report table { width:100%; min-width: auto;table-layout: auto; border-collapse: collapse; font-size: 16px; }
+                #expenses-report th, #expenses-report td {
+                width:100%; 
+                min-width:auto; 
+                border: 1px solid #000 !important; padding: 2px 3px !important; text-align: center !important; vertical-align: middle !important; white-space: normal !important; overflow: visible !important; overflow-wrap: break-word !important; word-break: normal !important; line-height: 1.2; color: #000 !important; font-weight: 700 !important; }
+                #expenses-report thead th { font-size: 13px; font-weight: 900 !important; }
                 #expenses-report tbody td { font-size: 16px; }
-                #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report .font-mono, #expenses-report input[type="number"], #expenses-report input[type="date"] { width: 1% !important; min-width: 0 !important; white-space: nowrap !important; overflow: visible !important; overflow-wrap: normal !important; word-break: keep-all !important; font-family: 'Times New Roman', Times, serif !important; font-size: clamp(8px, 1vw, 11px) !important; font-variant-numeric: tabular-nums; direction: ltr; }
+                #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report .font-bold, #expenses-report input[type="number"], #expenses-report input[type="date"] { width: 1% !important; min-width: 0 !important; white-space: nowrap !important; overflow: visible !important; overflow-wrap: normal !important; word-break: keep-all !important; font-family: 'Times New Roman', Times, serif !important; font-size: clamp(8px, 1vw, 11px) !important; font-variant-numeric: tabular-nums; direction: ltr; }
                 #expenses-report input { width: 100% !important; min-width: 0 !important; border: 0; background: transparent; color: #000; font: inherit; text-align: center; }
                 #expenses-report .text-white { color: #fff !important; }
                 @media print {
                   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                   body { background: #fff; }
-                  .print-page { min-height: auto; width: 100%; padding: 0; border: 0; }
+                  .print-page { min-height: auto; width: 100%;min-width:auto; padding: 0; border: 0; }
                   #expenses-report { page-break-before: avoid; }
                   #expenses-report table { page-break-inside: auto; }
                   #expenses-report thead { display: table-header-group; }
                   #expenses-report tr { page-break-inside: avoid; }
                   #expenses-report th, #expenses-report td { white-space: normal !important; }
-                  #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report .font-mono { white-space: nowrap !important; }
+                  #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report .font-bold { white-space: nowrap !important; }
                 }
                 </style></head><body><div class="print-page">${reportLetterheadHtml()}<div id="expenses-report">${el.innerHTML}</div></div>
                 <script>window.onload=()=>setTimeout(()=>window.print(),300)</script></body></html>`;
@@ -956,13 +969,13 @@ export default function ExpensesTab() {
                   worksheet.mergeCells(nextRow, 1, nextRow, totalColumns);
                   sectionRow.height = 22;
                   sectionRow.getCell(1).font = {
-                    name: "Arial",
-                    size: 11,
+                    name: "cairo",
+                    size: 16,
                     bold: true,
                     color: { argb: "FF000000" },
                   };
                   sectionRow.getCell(1).alignment = {
-                    horizontal: "right",
+                    horizontal: "center",
                     vertical: "middle",
                     wrapText: true,
                     shrinkToFit: true,
