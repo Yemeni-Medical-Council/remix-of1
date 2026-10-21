@@ -158,8 +158,8 @@ const reportsTabPrintCss = `
     font-weight: 900 !important;
   }
   .summary-card-row td {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
+    background: #57f2c7 !important;
+    color: #000 !important;
     font-weight: 900 !important;
     border: 1px solid #94a3b8 !important;
   }
@@ -167,14 +167,14 @@ const reportsTabPrintCss = `
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    gap: 6px !important;
+    gap: 20px !important;
     margin-top: 10px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
   .custody-summary > div {
     flex: 1 1 0 !important;
-    min-width: 0 !important;
+    min-width: 100% !important;
     border: 1px solid #94a3b8 !important;
     border-radius: 8px !important;
     padding: 6px 4px !important;
@@ -880,50 +880,97 @@ export default function ReportsTab() {
                   ))}
                 </tr>
               </thead>
-              <tbody>
-                {displayRows.map((row, index) => {
-                  const isTotal = row.summaryLevel === "total";
-                  const isOpening = row.summaryLevel === "opening";
+<tbody>
+  {displayRows.map((row, index) => {
+    const isTotal = row.summaryLevel === "total";
+    const isOpening = row.summaryLevel === "opening";
 
-                  let rowStyle = "bg-blue-50 text-slate-900";
-                  if (isTotal) {
-                    rowStyle = "bg-[#1f5f7a] text-white font-bold";
-                  } else if (isOpening) {
-                    rowStyle = "bg-amber-100/80 text-amber-950 font-black";
-                  } else if (row.summaryLevel === "fee") {
-                    rowStyle = "bg-sky-200 font-white text-sky-950";
-                  } else if (row.summaryLevel === "period") {
-                    rowStyle = "bg-amber-200 font-white text-amber-950";
-                  } else if (index % 2 === 1) {
-                    rowStyle = "bg-slate-50/80 text-slate-900";
-                  }
+    let rowStyle = "bg-white text-slate-900";
+    if (isTotal) {
+      rowStyle = "bg-[#1f5f7a] text-white font-bold";
+    } else if (isOpening) {
+      rowStyle = "bg-amber-100/80 text-amber-950 font-black";
+    } else if (row.summaryLevel === "fee") {
+      rowStyle = "bg-sky-200 font-black text-sky-950";
+    } else if (row.summaryLevel === "period") {
+      rowStyle = "bg-amber-200 font-black text-amber-950";
+    } else if (index % 2 === 1) {
+      rowStyle = "bg-slate-50/80 text-slate-900";
+    }
 
-                  return (
-                    <tr
-                      key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`}
-                      className={`transition-colors ${rowStyle}`}
-                    >
-                      <td className="border border-slate-200 px-2 py-2 font-bold">
-                        {isTotal ? "★" : index + 1}
-                      </td>
-                      {sourceConfig.columns.map((column) => {
-                        const val = row[column.key];
-                        const isNum = numericKeys.includes(column.key);
-                        return (
-                          <td
-                            key={column.key}
-                            className={`border border-slate-200 px-3 py-2 font-semibold ${
-                              isNum ? "font-mono" : ""
-                            }`}
-                          >
-                            {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
+    return (
+      <tr
+        key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`}
+        className={`transition-colors ${rowStyle}`}
+      >
+        <td className="border border-slate-200 px-2 py-2 font-bold">
+          {isTotal ? "★" : index + 1}
+        </td>
+        {sourceConfig.columns.map((column) => {
+          const val = row[column.key];
+          const isNum = numericKeys.includes(column.key);
+          return (
+            <td
+              key={column.key}
+              className={`border border-slate-200 px-3 py-2 font-semibold ${
+                isNum ? "font-mono" : ""
+              }`}
+            >
+              {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
+            </td>
+          );
+        })}
+      </tr>
+    );
+  })}
+
+  {/* فاصل بصري + صفوف ملخص العهدة داخل الجدول (لتظهر في الطباعة والـ PDF) */}
+  {isLoanOrCustody && (() => {
+    const summaryCards = reportRows.filter((r) => r.summaryLevel === "summary-card");
+    if (!summaryCards.length) return null;
+
+    const cardStyles = [
+      { bg: "bg-amber-200", text: "text-amber-950", border: "border-amber-400" },
+      { bg: "bg-rose-200", text: "text-rose-950", border: "border-rose-400" },
+      { bg: "bg-emerald-200", text: "text-emerald-950", border: "border-emerald-400" },
+    ];
+
+    return (
+      <>
+        {/* صف فاصل */}
+        <tr className="h-3" aria-hidden="true">
+          <td
+            colSpan={sourceConfig.columns.length + 1}
+            className="border-0 bg-transparent p-0"
+            style={{ height: "12px" }}
+          />
+        </tr>
+
+        {summaryCards.map((row, i) => {
+          const style = cardStyles[i % cardStyles.length];
+          const value = amountValue(row.credit);
+          return (
+            <tr
+              key={`summary-${i}`}
+              className={`summary-card-row ${style.bg} ${style.text} font-black`}
+            >
+              <td className={`border ${style.border} px-2 py-2 font-bold`}>◆</td>
+              <td className={`border ${style.border} px-3 py-2`} colSpan={2}>
+                {String(row.description)}
+              </td>
+              <td className={`border ${style.border} px-3 py-2`}>—</td>
+              <td className={`border ${style.border} px-3 py-2`}>—</td>
+              <td className={`border ${style.border} px-3 py-2 font-mono`}>
+                {value.toLocaleString()}
+              </td>
+              <td className={`border ${style.border} px-3 py-2`}>—</td>
+            </tr>
+          );
+        })}
+      </>
+    );
+  })()}
+</tbody>
             </table>
           )}
 
@@ -942,15 +989,15 @@ export default function ReportsTab() {
                 border: "border-amber-300",
                 bg: "bg-amber-900",
                 text: "text-white",
-                labelText: "text-amber-900",
+                labelText: "text-gold",
               },
-              {
-                label: "المنصرف من العهدة خلال العام",
+         {
+   label: "المنصرف من العهدة خلال العام",
                 value: paidTotal,
                 border: "border-rose-300",
                 bg: "bg-rose-900",
-                text: "text-black",
-                labelText: "text-rose-900",
+                text: "text-white",
+                labelText: "text-rose-500",
               },
               {
                 label: "المتبقي من العهدة حتى تاريخ التقرير",
@@ -958,7 +1005,7 @@ export default function ReportsTab() {
                 border: "border-emerald-300",
                 bg: "bg-emerald-900",
                 text: "text-white",
-                labelText: "text-emerald-900",
+                labelText: "text-gold",
               },
             ];
 
@@ -969,7 +1016,7 @@ export default function ReportsTab() {
                     key={card.label}
                     className={`flex-1 max-w-auto rounded-xl border ${card.border} ${card.bg} px-2 py-2 text-center shadow-xs`}
                   >
-                    <div className={`text-[13px] sm:text-xs font-black ${card.labelText} leading-tight`}>
+                    <div className={`text-[15px] sm:text-xs font-black ${card.labelText} leading-tight`}>
                       {card.label}
                     </div>
                     <div className={`mt-0.5 font-bold text-sm sm:text-base font-black ${card.text}`}>
