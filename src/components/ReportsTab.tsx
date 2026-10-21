@@ -854,7 +854,7 @@ export default function ReportsTab() {
                   const isTotal = row.summaryLevel === "total";
                   const isOpening = row.summaryLevel === "opening";
 
-                  let rowStyle = "bg-white text-slate-900";
+                  let rowStyle = "bg-#cad545 text-slate-900";
                   if (isTotal) {
                     rowStyle = "bg-[#1f5f7a] text-white font-bold";
                   } else if (isOpening) {

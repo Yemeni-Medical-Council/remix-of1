@@ -16,7 +16,7 @@ const getInitialReportDate = (): string => {
   return new Date().toISOString().slice(0, 10);
 };
 
-export const formatReportDate = (value?: string): string => {
+export const formatReportDate = (value ? : string): string => {
   if (!value) return "";
   const [year, month, day] = value.split("-").map(Number);
   const date = new Date(year, (month || 1) - 1, day || 1);
@@ -28,11 +28,11 @@ export const formatReportDate = (value?: string): string => {
   });
 };
 
-const ReportDateContext = createContext<ReportDateContextValue | null>(null);
+const ReportDateContext = createContext < ReportDateContextValue | null > (null);
 
 export function ReportDateProvider({ children }: { children: ReactNode }) {
   const [reportDate, setReportDateState] = useState(getInitialReportDate);
-
+  
   const setReportDate = useCallback((value: string) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
     setReportDateState(value);
@@ -40,7 +40,7 @@ export function ReportDateProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(REPORT_DATE_STORAGE_KEY, value);
     }
   }, []);
-
+  
   const value = useMemo(
     () => ({
       reportDate,
@@ -49,7 +49,7 @@ export function ReportDateProvider({ children }: { children: ReactNode }) {
     }),
     [reportDate, setReportDate],
   );
-
+  
   return <ReportDateContext.Provider value={value}>{children}</ReportDateContext.Provider>;
 }
 

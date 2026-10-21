@@ -8,12 +8,13 @@ export const reportDocumentCss = `
   :root { 
   --report-paper:#ffffff; --report-ink:#172b35; --report-muted:#526773;
     --report-rule:#000; --report-stripe: gold;
-    --report-total:#e4f1de; --report-accent:#176b74; }
+    --report-total:#9de17d; --report-accent:#176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
     color:#000; 
 font-family: Cairo !important; font-size: 16px; 
 line-height: 1.5; 
+font-weight: 1000;
     width: 100% !important;
  height: auto !important;
 
@@ -23,11 +24,15 @@ line-height: 1.5;
   table {
 width:100%; 
     max-width: auto;
-border-collapse:collapse; table-layout:auto; text-align:center; }
+border-collapse:collapse; table-layout:auto; text-align:center; 
+ font-weight: 1000;
+  }
   th,td { padding:5px 6px; text-align:center; vertical-align:middle; }
   thead th { 
   background: gold; 
-color:#000; font-weight:800; }
+color:#000; 
+font-weight:800;
+}
   tbody tr:nth-child(even) td { background: #ffffff; }
   .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent); }
   .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
