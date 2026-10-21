@@ -106,14 +106,15 @@ export default function TabActions({
   };
   
   const handleExcel = async () => {
-    if (!rows.length) {
+    const excelRows = rows.filter((r) => r?.summaryLevel !== "summary-card");
+    if (!excelRows.length) {
       toast.error("لا توجد بيانات للتصدير");
       return;
     }
     
     try {
       const headers = ["م", ...columns.map((c) => c.label)];
-      const dataRows = rows.map((r, i) => [
+      const dataRows = excelRows.map((r, i) => [
         i + 1,
         ...columns.map((c) => {
           const v = r[c.key];
@@ -124,7 +125,7 @@ export default function TabActions({
         "الإجمالي",
         ...columns.map((c) =>
           numericKeys.includes(c.key) ?
-          rows.reduce((sum, r) => sum + (Number(r[c.key]) || 0), 0) :
+          excelRows.reduce((sum, r) => sum + (Number(r[c.key]) || 0), 0) :
           "",
         ),
       ];
@@ -138,7 +139,7 @@ export default function TabActions({
         {
           title,
           reportDateLabel,
-          recordCount: rows.length,
+          recordCount: excelRows.length,
           totalColumns: headers.length,
           palette: getExcelPalette(title),
         },

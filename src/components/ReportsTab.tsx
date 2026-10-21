@@ -142,12 +142,12 @@ const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "ot
 // أنماط طباعة مخصصة للتقارير
 const reportsTabPrintCss = `
   thead th {
-background: #9e3513 !important;
+    background: #9e3513 !important;
     color: #ffffff !important;
     font-weight: 800 !important;
     white-space: nowrap !important;
   }
- tbody td {
+  tbody td {
     color: #000000 !important;
     font-weight: 900 !important;
     border: 1px solid #cbd5e1 !important;
@@ -156,6 +156,45 @@ background: #9e3513 !important;
     background: #0284c7 !important;
     color: #ffffff !important;
     font-weight: 900 !important;
+  }
+  .summary-card-row td {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 900 !important;
+    border: 1px solid #94a3b8 !important;
+  }
+  .custody-summary {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    margin-top: 10px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .custody-summary > div {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    border: 1px solid #94a3b8 !important;
+    border-radius: 8px !important;
+    padding: 6px 4px !important;
+    text-align: center !important;
+    background: #f8fafc !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .custody-summary > div > div:first-child {
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    color: #0f172a !important;
+    line-height: 1.2 !important;
+  }
+  .custody-summary > div > div:last-child {
+    margin-top: 2px !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
   }
 `;
 
@@ -280,6 +319,41 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
+    // صفوف ملخص العهدة (تظهر في الطباعة/PDF فقط، وتُخفى في الشاشة)
+    const paidForSummary = sumCredit - (youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0);
+    const remainingForSummary = youssefOpeningBalance - paidForSummary;
+
+    result.push({
+      date: "—",
+      docNo: "—",
+      description: "مبلغ العهدة الافتتاحي للعام 2026",
+      name: "—",
+      debit: "",
+      credit: youssefOpeningBalance,
+      balance: "",
+      summaryLevel: "summary-card",
+    });
+    result.push({
+      date: "—",
+      docNo: "—",
+      description: "المنصرف من العهدة خلال العام",
+      name: "—",
+      debit: "",
+      credit: paidForSummary,
+      balance: "",
+      summaryLevel: "summary-card",
+    });
+    result.push({
+      date: "—",
+      docNo: "—",
+      description: "المتبقي من العهدة حتى تاريخ التقرير",
+      name: "—",
+      debit: "",
+      credit: remainingForSummary,
+      balance: "",
+      summaryLevel: "summary-card",
+    });
+
     return result;
   }, [accounts, youssefOpeningBalance, period, year, selectedMonthSet]);
 
@@ -350,6 +424,41 @@ export default function ReportsTab() {
       credit: sumCredit,
       balance: running,
       summaryLevel: "total",
+    });
+
+    // صفوف ملخص العهدة (تظهر في الطباعة/PDF فقط، وتُخفى في الشاشة)
+    const paidForSummary = sumCredit - (tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0);
+    const remainingForSummary = tawfiqOpeningBalance - paidForSummary;
+
+    result.push({
+      date: "—",
+      docNo: "—",
+      description: "مبلغ العهدة الافتتاحي للعام 2026",
+      name: "—",
+      debit: "",
+      credit: tawfiqOpeningBalance,
+      balance: "",
+      summaryLevel: "summary-card",
+    });
+    result.push({
+      date: "—",
+      docNo: "—",
+      description: "المنصرف من العهدة خلال العام",
+      name: "—",
+      debit: "",
+      credit: paidForSummary,
+      balance: "",
+      summaryLevel: "summary-card",
+    });
+    result.push({
+      date: "—",
+      docNo: "—",
+      description: "المتبقي من العهدة حتى تاريخ التقرير",
+      name: "—",
+      debit: "",
+      credit: remainingForSummary,
+      balance: "",
+      summaryLevel: "summary-card",
     });
 
     return result;
@@ -470,8 +579,8 @@ export default function ReportsTab() {
           { key: "docNo", label: "رقم المستند / الشيك" },
           { key: "description", label: "البيان" },
           { key: "name", label: "الاسم" },
-          { key: "debit", label: "مدين (الوارد)" },
-         { key: "credit", label: "دائن (المنصرف)" },
+          { key: "debit", label: "مدين (المورد)" },
+    { key: "credit", label: "دائن (المنصرف)" },
           { key: "balance", label: "الرصيد المتبقي" },
         ] satisfies TabCol[],
       };
@@ -484,8 +593,8 @@ export default function ReportsTab() {
           { key: "docNo", label: "رقم المستند / الشيك" },
           { key: "description", label: "البيان" },
           { key: "name", label: "الاسم" },
-          { key: "debit", label: "مدين (المنصرف)" },
-          { key: "credit", label: "دائن (المسدد)" },
+          { key: "debit", label: "مدين (الوارد)" },
+          { key: "credit", label: "دائن (المنصرف)" },
           { key: "balance", label: "الرصيد المتبقي" },
         ] satisfies TabCol[],
       };
@@ -539,6 +648,12 @@ export default function ReportsTab() {
 
   const isLoanOrCustody = source === "youssefLoan" || source === "tawfiqCustody";
 
+  // صفوف التقرير المعروضة في الشاشة (بدون صفوف الملخص لأنها تظهر ككروت)
+  const displayRows = useMemo(
+    () => reportRows.filter((row) => row.summaryLevel !== "summary-card"),
+    [reportRows]
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50 to-indigo-50 p-2 sm:p-4" dir="rtl">
       <section className="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-sky-200 bg-white shadow-xl">
@@ -572,7 +687,7 @@ export default function ReportsTab() {
           </label>
 
           {/* حقل الرصيد الافتتاحي اليدوي لسلفة د/يوسف وعهدة توفيق الداعي */}
- {source === "youssefLoan" && (
+          {source === "youssefLoan" && (
             <label className="flex flex-col gap-1 text-xs font-black text-amber-900 bg-amber-50/80 p-1.5 rounded-xl border border-amber-200">
               <span className="flex items-center gap-1 font-black">
                 <Coins className="w-3.5 h-3.5 text-amber-600" />
@@ -723,7 +838,7 @@ export default function ReportsTab() {
             )}
             <span>{title}</span>
             <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-bold text-sky-800">
-              {reportRows.length} سجل
+              {displayRows.length} سجل
             </span>
           </div>
 
@@ -748,7 +863,7 @@ export default function ReportsTab() {
 
         {/* جدول عرض التقرير */}
         <div className="overflow-x-auto p-3 sm:p-4">
-          {reportRows.length === 0 ? (
+          {displayRows.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-white">
               <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
               لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
@@ -766,7 +881,7 @@ export default function ReportsTab() {
                 </tr>
               </thead>
               <tbody>
-                {reportRows.map((row, index) => {
+                {displayRows.map((row, index) => {
                   const isTotal = row.summaryLevel === "total";
                   const isOpening = row.summaryLevel === "opening";
 
@@ -812,42 +927,56 @@ export default function ReportsTab() {
             </table>
           )}
 
-          {/* ملخص إجماليات العهدة أسفل الجدول */}
+          {/* ملخص إجماليات العهدة أسفل الجدول (صف واحد بحجم مناسب) */}
           {isLoanOrCustody && (() => {
             const openingBalance = source === "youssefLoan" ? youssefOpeningBalance : tawfiqOpeningBalance;
-            const paidTotal = reportRows
+            const paidTotal = displayRows
               .filter((row) => row.summaryLevel !== "opening" && row.summaryLevel !== "total")
               .reduce((sum, row) => sum + amountValue(row.credit), 0);
             const remaining = openingBalance - paidTotal;
 
+            const cards = [
+              {
+                label: "مبلغ العهدة الافتتاحي للعام 2026",
+                value: openingBalance,
+                border: "border-amber-300",
+                bg: "bg-amber-50",
+                text: "text-amber-950",
+                labelText: "text-amber-900",
+              },
+              {
+                label: "المنصرف من العهدة خلال العام",
+                value: paidTotal,
+                border: "border-rose-300",
+                bg: "bg-rose-50",
+                text: "text-rose-950",
+                labelText: "text-rose-900",
+              },
+              {
+                label: "المتبقي من العهدة حتى تاريخ التقرير",
+                value: remaining,
+                border: "border-emerald-300",
+                bg: "bg-emerald-50",
+                text: "text-emerald-950",
+                labelText: "text-emerald-900",
+              },
+            ];
+
             return (
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3 text-center shadow-sm">
-                  <div className="text-xs font-black text-amber-900">
-                    مبلغ العهدة الافتتاحي للعام 2026
+              <div className="custody-summary mt-4 flex w-full flex-nowrap items-stretch gap-2">
+                {cards.map((card) => (
+                  <div
+                    key={card.label}
+                    className={`flex-1 min-w-0 rounded-xl border ${card.border} ${card.bg} px-2 py-2 text-center shadow-sm`}
+                  >
+                    <div className={`text-[10px] sm:text-xs font-black ${card.labelText} leading-tight`}>
+                      {card.label}
+                    </div>
+                    <div className={`mt-0.5 font-mono text-sm sm:text-base font-black ${card.text}`}>
+                      {card.value.toLocaleString()}
+                    </div>
                   </div>
-                  <div className="mt-1 font-mono text-lg font-black text-amber-950">
-                    {openingBalance.toLocaleString()}
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-rose-300 bg-rose-50 p-3 text-center shadow-sm">
-    <div className="text-xs font-black text-rose-900">
-   المنصرف من العهدة خلال العام
-                  </div>
-                  <div className="mt-1 font-mono text-lg font-black text-rose-950">
-                    {paidTotal.toLocaleString()}
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-3 text-center shadow-sm">
-                  <div className="text-xs font-black text-emerald-900">
-                    المتبقي من العهدة حتى تاريخ التقرير
-                  </div>
-                  <div className="mt-1 font-mono text-lg font-black text-emerald-950">
-                    {remaining.toLocaleString()}
-                  </div>
-                </div>
+                ))}
               </div>
             );
           })()}
