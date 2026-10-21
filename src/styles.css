@@ -8,61 +8,20 @@
   margin:2mm;
 }
 
-@font-face {
-  font-family: "Cairo-Regular-normal";
-src: url("/Cairo-Regular-normal.") format("truetype");
-  font-style: normal;
-  font-weight: 1000;
-  font-display: swap;
-}
-
-@font-face {
-font-family: "Cairo-Regular-normal";
-src: url("/Cairo-Regular-normal.js") format("truetype");
-  font-style: normal;
-  font-weight: 600 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Cairo-Regular-normal";
-src: url("/Cairo-Regular-normal.js") format("truetype");
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Mohammad Bold Art";
-src: url("/MohammadBoldArt-Regular.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 800 900;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "cairo";
-src: url("/Cairo-Regular-normal.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: swap;
-}
-
-/* خط التطبيق العام (المهند) */
-@font-face {
-  font-family: "cairo";
-  src: url("/Cairo-Regular-normal.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 600 900;
-  font-display: swap;
-}
-
 /* خط العناوين ورؤوس الأعمدة (غامق) */
 @font-face {
   font-family: "Al Qabas Bold";
   src: url("/AlQabas-Bold.ttf") format("truetype");
   font-style: normal;
   font-weight: 700 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mohammad Bold Art";
+  src: url("/MohammadBoldArt-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 800 900;
   font-display: swap;
 }
 
