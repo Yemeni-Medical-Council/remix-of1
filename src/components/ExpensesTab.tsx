@@ -327,7 +327,7 @@ const TD = ({
   right?: boolean;
 }) => (
   <td
-    className={`border border-black px-1 sm:px-2 py-1 whitespace-nowrap align-middle numeric-cell font-mono text-sm sm:text-base ${right ? "text-right" : "text-center"} ${cls}`}
+    className={`border border-black px-1 sm:px-2 py-1 whitespace-nowrap align-middle numeric-cell font-mono text-sm sm:text-base ${right ? "text-center " : "text-center"} ${cls}`}
   >
     {children}
   </td>
@@ -426,7 +426,7 @@ export default function ExpensesTab() {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-max table-auto border-collapse text-sm sm:text-base">
-            <thead className="font-bold text-xs">
+            <thead className="font-bold text-sm">
               <tr>
                 <TH rowSpan={2} cls="bg-slate-200 text-slate-800 text-center w-1/4">
                   البيان
@@ -454,7 +454,7 @@ export default function ExpensesTab() {
                 return (
                   <tr key={i} className={baseClass}>
                     {/* تم تعديل التنسيق هنا لاحتواء النص تلقائياً والتوسيط */}
-                    <td className="border border-black text-center align-middle whitespace-normal break-words font-semibold px-2 py-1 text-xs sm:text-sm">
+                    <td className="border border-black text-center align-middle whitespace-normal break-words font-bold px-2 py-1 text-lg sm:text-lg">
                       {t.label}
                     </td>
                     <TD cls={isGrand ? "" : CUR_C}>{fmt(t.cur.f)}</TD>
@@ -481,21 +481,21 @@ export default function ExpensesTab() {
     >
       {/* الترويسة العلوية */}
       <div className="space-y-1">
-        <h3 className="text-[2rem] font-extrabold leading-[1.35] tracking-wide text-sky-800 sm:text-3xl">
+        <h3 className="text-[2rem] font-extrabold leading-[1.35] tracking-wide text-sky-800 sm:text-lg">
           الجمهورية اليمنية
         </h3>
-        <h4 className="text-[1.65rem] font-bold leading-[1.45] text-sky-700 sm:text-2xl">
+        <h4 className="text-[1.65rem] font-bold leading-[1.45] text-sky-700 sm:text-xs">
           وزارة المالية
         </h4>
       </div>
 
       {/* الخط الفاصل الأول */}
-      <hr className="mx-auto my-8 w-[88%] border-t-[3px] border-sky-700 opacity-90" />
+      <hr className="mx-auto my-8 w-auto border-t-[3px] border-sky-700 opacity-90" />
 
       {/* العنوان الرئيسي */}
       <div className="my-9 space-y-3 sm:my-10 sm:space-y-4">
         <h1 className="text-[3.15rem] font-black leading-[1.18] tracking-tight text-sky-800 sm:text-[4rem]">
-          كشف الحساب
+    كشف مفردات الاستخدمات 
           <br />
           الشهري
         </h1>
@@ -509,7 +509,7 @@ export default function ExpensesTab() {
 
       {/* بيانات الجهة */}
       <div className="flex flex-col items-center">
-        <div className="w-full max-w-md space-y-4 text-left text-[1.25rem] font-medium leading-[1.7] text-slate-700 sm:space-y-5 sm:text-xl">
+        <div className="w-full max-w-md space-y-4 text-right text-[1.25rem] font-medium leading-[1.7] text-slate-700 sm:space-y-5 sm:text-xl">
           <p className="flex items-center justify-end gap-3">
             <span className="w-20 shrink-0 text-slate-600">المحافظة</span>
             <span className="font-extrabold text-slate-900">: صعـــدة</span>
@@ -548,13 +548,13 @@ export default function ExpensesTab() {
 
     return (
       <div className="space-y-0" dir="rtl">
-        <div className="w-full max-w-auto overflow-hidden rounded-lg border border-black bg-white shadow-sm">
+        <div className="w-full min-w-auto overflow-hidden rounded-lg border border-black bg-white shadow-sm text-center">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-auto table-auto border-collapse text-xs sm:text-base">
+            <table className="w-auto min-w-auto table-auto border-collapse text-xs sm:text-base">
               <thead className="sticky top-0 z-10 font-bold text-sm">
                 <tr>
                   {/* تغيير تنسيق الرأس ليكون متوسط النص بدلاً من المحاذاة لليمين فقط */}
-                  <TH rowSpan={2} cls="bg-slate-200 text-slate-800 text-center w-auto">
+                  <TH rowSpan={2} cls="bg-slate-200 text-slate-800 text-center w-auto min-w-auto">
                     بيان مفردات الاستخدامات
                   </TH>
                   <TH rowSpan={2} cls="bg-slate-200 text-slate-800">الباب</TH>
@@ -580,7 +580,7 @@ export default function ExpensesTab() {
                   return (
                     <tr key={idx} className={rowClass(r)}>
                       {/* تفعيل التفاف النص (break-words whitespace-normal) والتوسيط (text-center align-middle) */}
-                      <td className="border border-black text-center align-middle numeric-cell whitespace-nowrap px-2 py-1 text-[14px] sm:text-xs">
+<td className="border border-black text-center align-middle numeric-cell whitespace-nowrap px-2 py-1 text-[14px] sm:text-sm">
                         {r.n}
                       </td>
                       <TD>{r.b || ""}</TD>
@@ -589,7 +589,7 @@ export default function ExpensesTab() {
                       <TD>{r.e || ""}</TD>
                       {editable ? (
                         <>
-                          <td className={`border border-black p-0.5 align-middle text-center numeric-cell whitespace-nowrap ${CUR_C}`}>
+ <td className={`border border-black p-0.5 align-middle text-center numeric-cell whitespace-nowrap ${CUR_C}`}>
                             <input
                               type="number"
                               min={0}
@@ -750,7 +750,7 @@ export default function ExpensesTab() {
                   const baseClass = getBabSummaryColor(bt.babNum);
                   return (
                     <tr key={btIdx} className={baseClass}>
-                      <td className="border border-black text-center align-middle whitespace-normal break-words px-2 py-1 text-[10px] sm:text-xs">
+ <td className="min-w-auto  border border-black text-center align-middle whitespace-normal break-words px-2 py-1 text-[16px] sm:text-xs">
                         {bt.label}
                       </td>
                       {MONTHS.map((_, mi) => (

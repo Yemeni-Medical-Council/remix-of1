@@ -230,7 +230,7 @@ export default function RevenueTab() {
 <thead className="sticky top-0 z-20 shadow-sm">
               <tr className="bg-slate-100 text-slate-700 font-bold border-b-2 border-black">
 <th rowSpan={2} className="border border-black text-center whitespace-normal !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base">
-  بيان مفردات الموارد 
+  بيان؟ الموارد 
                 </th>
 <th rowSpan={2} className="border border-black text-center whitespace-normal !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base">
                   الباب
