@@ -885,15 +885,15 @@ export default function ReportsTab() {
                   const isTotal = row.summaryLevel === "total";
                   const isOpening = row.summaryLevel === "opening";
 
-                  let rowStyle = "bg-white text-slate-900";
+                  let rowStyle = "bg-blue-50 text-slate-900";
                   if (isTotal) {
                     rowStyle = "bg-[#1f5f7a] text-white font-bold";
                   } else if (isOpening) {
                     rowStyle = "bg-amber-100/80 text-amber-950 font-black";
                   } else if (row.summaryLevel === "fee") {
-                    rowStyle = "bg-sky-200 font-black text-sky-950";
+                    rowStyle = "bg-sky-200 font-white text-sky-950";
                   } else if (row.summaryLevel === "period") {
-                    rowStyle = "bg-amber-200 font-black text-amber-950";
+                    rowStyle = "bg-amber-200 font-white text-amber-950";
                   } else if (index % 2 === 1) {
                     rowStyle = "bg-slate-50/80 text-slate-900";
                   }
@@ -940,39 +940,39 @@ export default function ReportsTab() {
                 label: "مبلغ العهدة الافتتاحي للعام 2026",
                 value: openingBalance,
                 border: "border-amber-300",
-                bg: "bg-amber-50",
-                text: "text-amber-950",
+                bg: "bg-amber-900",
+                text: "text-white",
                 labelText: "text-amber-900",
               },
               {
                 label: "المنصرف من العهدة خلال العام",
                 value: paidTotal,
                 border: "border-rose-300",
-                bg: "bg-rose-50",
-                text: "text-rose-950",
+                bg: "bg-rose-900",
+                text: "text-black",
                 labelText: "text-rose-900",
               },
               {
                 label: "المتبقي من العهدة حتى تاريخ التقرير",
                 value: remaining,
                 border: "border-emerald-300",
-                bg: "bg-emerald-50",
-                text: "text-emerald-950",
+                bg: "bg-emerald-900",
+                text: "text-white",
                 labelText: "text-emerald-900",
               },
             ];
 
             return (
-              <div className="custody-summary mt-4 flex w-full flex-nowrap items-stretch gap-2">
+              <div className="custody-summary mt-4 flex w-full flex-nowrap items-stretch gap-10">
                 {cards.map((card) => (
                   <div
                     key={card.label}
-                    className={`flex-1 min-w-0 rounded-xl border ${card.border} ${card.bg} px-2 py-2 text-center shadow-sm`}
+                    className={`flex-1 max-w-auto rounded-xl border ${card.border} ${card.bg} px-2 py-2 text-center shadow-xs`}
                   >
-                    <div className={`text-[10px] sm:text-xs font-black ${card.labelText} leading-tight`}>
+                    <div className={`text-[13px] sm:text-xs font-black ${card.labelText} leading-tight`}>
                       {card.label}
                     </div>
-                    <div className={`mt-0.5 font-mono text-sm sm:text-base font-black ${card.text}`}>
+                    <div className={`mt-0.5 font-bold text-sm sm:text-base font-black ${card.text}`}>
                       {card.value.toLocaleString()}
                     </div>
                   </div>
