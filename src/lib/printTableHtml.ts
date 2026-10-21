@@ -368,6 +368,49 @@ font-size: 13.5px !important;
     overflow-wrap: anywhere !important;
   }
 
+  /* ===== صفوف ملخص العهدة (المدمجة) ===== */
+  .summary-spacer-row td {
+    height: 14px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  .summary-card-row td {
+    text-align: center !important;
+    vertical-align: middle !important;
+    font-weight: 900 !important;
+    font-size: 13px !important;
+    padding: 7px 6px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    white-space: nowrap !important;
+  }
+  .summary-card-row .summary-label-cell {
+    text-align: center !important;
+    font-weight: 900 !important;
+  }
+  .summary-card-row .summary-value-cell {
+    text-align: center !important;
+    font-family: Cairo !important;
+    font-weight: 900 !important;
+    direction: ltr !important;
+  }
+  .summary-card-0 td {
+    background: #fde68a !important;
+    color: #78350f !important;
+    border: 1px solid #d97706 !important;
+  }
+  .summary-card-1 td {
+    background: #fecaca !important;
+    color: #7f1d1d !important;
+    border: 1px solid #dc2626 !important;
+  }
+  .summary-card-2 td {
+    background: #a7f3d0 !important;
+    color: #064e3b !important;
+    border: 1px solid #059669 !important;
+  }
+
   ${noteRowCss}
   ${runningLetterheadCss}
 `;
@@ -453,11 +496,12 @@ export function buildTableHtml(opts: {
     )
     .join("")}</tr>`;
 
-  // احتساب الإجماليات للأعمدة المالية
+  // احتساب الإجماليات للأعمدة المالية — يُستثنى صفوف الملخص من الحساب
+  const dataRowsForTotals = rows.filter((r) => r && !r.__summaryCard && r.summaryLevel !== "summary-card");
   const totals: Record<string, number> = {};
   columns.forEach((c) => {
     if (numericKeys.includes(c.key)) {
-      totals[c.key] = rows.reduce((sum, r) => sum + (Number(r[c.key]) || 0), 0);
+      totals[c.key] = dataRowsForTotals.reduce((sum, r) => sum + (Number(r[c.key]) || 0), 0);
     }
   });
 
@@ -471,12 +515,85 @@ export function buildTableHtml(opts: {
     )
     .join("")}</tr>`;
 
-  // بناء صفوف البيانات
+  // بناء صفوف البيانات (مع دعم صفوف الملخص المدمجة)
   const body = rows
-    .map(
-      (r, i) =>
-        `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
-          i + 1
+    .map((r, i) => {
+      // ===== صفوف ملخص العهدة: تُبنى كصف مدمج ملوّن =====
+      if (r && (r.__summaryCard || r.summaryLevel === "summary-card")) {
+        const cardIndex = Number(r.__summaryCard?.index ?? r.summaryCardIndex ?? 0) || 0;
+        const label = String(r.__summaryCard?.label ?? r.description ?? "");
+        const value = Number(r.__summaryCard?.value ?? r.credit ?? 0) || 0;
+        const colorClass = `summary-card-${cardIndex % 3}`;
+
+        // دمج البيان: كل الأعمدة ما عدا آخر عمودين (دائن + رصيد)
+        const labelSpan = Math.max(1, columns.length - 1); // +1 لعمود "م" داخل الخلية الأولى
+        const valueSpan = 2;
+
+        return `<tr class="summary-card-row ${colorClass}">
+          <td class="summary-label-cell" colspan="${labelSpan + 1}">
+            <span class="pdf-cell-text">${escapeHtml(label)}</span>
+          </td>
+          <td class="summary-value-cell" colspan="${Math.max(1, valueSpan)}">
+            <span class="pdf-cell-text">${escapeHtml(fmt(value))}</span>
+          </td>
+        </tr>`;
+      }
+
+      // ===== صف عادي =====
+      return `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
+        i + 1
+      }</span></td>${columns
+        .map((c) => {
+          const v = r[c.key];
+          const isNum = numericKeys.includes(c.key) || typeof v === "number";
+          const classes = getCellClass(c, v);
+
+          return `<td class="${classes}" data-col-key="${escapeHtml(c.key)}" data-col-name="${escapeHtml(
+            c.label
+          )}"><span class="pdf-cell-text">${
+            isNum ? escapeHtml(fmt(Number(v) || 0)) : escapeHtml(v)
+          }</span></td>`;
+        })
+        .join("")}</tr>`;
+    })
+    .join("");
+
+  // إدراج صف فاصل قبل صفوف الملخص (يظهر قبل أول صف __summaryCard)
+  const bodyWithSpacer = (() => {
+    const hasSummary = rows.some((r) => r && (r.__summaryCard || r.summaryLevel === "summary-card"));
+    if (!hasSummary) return body;
+
+    const summaryIndex = rows.findIndex((r) => r && (r.__summaryCard || r.summaryLevel === "summary-card"));
+    if (summaryIndex <= 0) return body;
+
+    const spacerHtml = `<tr class="summary-spacer-row"><td colspan="${columns.length + 1}"></td></tr>`;
+    // نقسم body على أول صف ملخص (لا يمكن بسهولة بسبب string) — نبني يدوياً:
+    const beforeRows = rows.slice(0, summaryIndex);
+    const afterRows = rows.slice(summaryIndex);
+
+    const buildRows = (arr: Record<string, any>[], startIndex: number) =>
+      arr.map((r, i) => {
+        const globalIndex = startIndex + i;
+        if (r && (r.__summaryCard || r.summaryLevel === "summary-card")) {
+          const cardIndex = Number(r.__summaryCard?.index ?? r.summaryCardIndex ?? 0) || 0;
+          const label = String(r.__summaryCard?.label ?? r.description ?? "");
+          const value = Number(r.__summaryCard?.value ?? r.credit ?? 0) || 0;
+          const colorClass = `summary-card-${cardIndex % 3}`;
+          const labelSpan = Math.max(1, columns.length - 1);
+          const valueSpan = 2;
+
+          return `<tr class="summary-card-row ${colorClass}">
+            <td class="summary-label-cell" colspan="${labelSpan + 1}">
+              <span class="pdf-cell-text">${escapeHtml(label)}</span>
+            </td>
+            <td class="summary-value-cell" colspan="${Math.max(1, valueSpan)}">
+              <span class="pdf-cell-text">${escapeHtml(fmt(value))}</span>
+            </td>
+          </tr>`;
+        }
+
+        return `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
+          globalIndex + 1
         }</span></td>${columns
           .map((c) => {
             const v = r[c.key];
@@ -489,9 +606,11 @@ export function buildTableHtml(opts: {
               isNum ? escapeHtml(fmt(Number(v) || 0)) : escapeHtml(v)
             }</span></td>`;
           })
-          .join("")}</tr>`
-    )
-    .join("");
+          .join("")}</tr>`;
+      }).join("");
 
-  return `<table><thead>${head}</thead><tbody>${body}${totalRow}</tbody></table>`;
+    return buildRows(beforeRows, 0) + spacerHtml + buildRows(afterRows, summaryIndex);
+  })();
+
+  return `<table><thead>${head}</thead><tbody>${bodyWithSpacer}${totalRow}</tbody></table>`;
 }

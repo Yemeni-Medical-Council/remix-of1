@@ -18,7 +18,7 @@ type ReportSource =
 type PeriodType = "all" | "month" | "quarter" | "half" | "year";
 type TraineeGrouping = "month" | "year";
 type TraineeDisplayMode = "detail" | "summary" | "both";
-type ReportRow = Record<string, string | number>;
+type ReportRow = Record<string, string | number | any>;
 
 const MONTHS: string[] = [
   "يناير",
@@ -157,44 +157,37 @@ const reportsTabPrintCss = `
     color: #ffffff !important;
     font-weight: 900 !important;
   }
+
+  /* ===== صفوف ملخص العهدة داخل الجدول ===== */
+  .summary-spacer-row td {
+    height: 14px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+  }
   .summary-card-row td {
-    background: #57f2c7 !important;
-    color: #000 !important;
-    font-weight: 900 !important;
-    border: 1px solid #94a3b8 !important;
-  }
-  .custody-summary {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 20px !important;
-    margin-top: 10px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-  .custody-summary > div {
-    flex: 1 1 0 !important;
-    min-width: 100% !important;
-    border: 1px solid #94a3b8 !important;
-    border-radius: 8px !important;
-    padding: 6px 4px !important;
     text-align: center !important;
-    background: #f8fafc !important;
+    vertical-align: middle !important;
+    font-weight: 900 !important;
+    padding: 8px 6px !important;
+    font-size: 12px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .custody-summary > div > div:first-child {
-    font-size: 9px !important;
-    font-weight: 900 !important;
-    color: #0f172a !important;
-    line-height: 1.2 !important;
+  .summary-card-0 td {
+    background: #fde68a !important;
+    color: #78350f !important;
+    border: 1px solid #d97706 !important;
   }
-  .custody-summary > div > div:last-child {
-    margin-top: 2px !important;
-    font-size: 12px !important;
-    font-weight: 900 !important;
-    color: #000000 !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  .summary-card-1 td {
+    background: #fecaca !important;
+    color: #7f1d1d !important;
+    border: 1px solid #dc2626 !important;
+  }
+  .summary-card-2 td {
+    background: #a7f3d0 !important;
+    color: #064e3b !important;
+    border: 1px solid #059669 !important;
   }
 `;
 
@@ -319,38 +312,26 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
-    // صفوف ملخص العهدة (تظهر في الطباعة/PDF فقط، وتُخفى في الشاشة)
+    // صفوف ملخص العهدة (تُبنى كصفوف مدمجة ملوّنة في الطباعة/PDF)
     const paidForSummary = sumCredit - (youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0);
     const remainingForSummary = youssefOpeningBalance - paidForSummary;
 
     result.push({
-      date: "—",
-      docNo: "—",
+      __summaryCard: { index: 0, label: "مبلغ العهدة الافتتاحي للعام 2026", value: youssefOpeningBalance },
       description: "مبلغ العهدة الافتتاحي للعام 2026",
-      name: "—",
-      debit: "",
       credit: youssefOpeningBalance,
-      balance: "",
       summaryLevel: "summary-card",
     });
     result.push({
-      date: "—",
-      docNo: "—",
+      __summaryCard: { index: 1, label: "المنصرف من العهدة خلال العام", value: paidForSummary },
       description: "المنصرف من العهدة خلال العام",
-      name: "—",
-      debit: "",
       credit: paidForSummary,
-      balance: "",
       summaryLevel: "summary-card",
     });
     result.push({
-      date: "—",
-      docNo: "—",
+      __summaryCard: { index: 2, label: "المتبقي من العهدة حتى تاريخ التقرير", value: remainingForSummary },
       description: "المتبقي من العهدة حتى تاريخ التقرير",
-      name: "—",
-      debit: "",
       credit: remainingForSummary,
-      balance: "",
       summaryLevel: "summary-card",
     });
 
@@ -426,38 +407,26 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
-    // صفوف ملخص العهدة (تظهر في الطباعة/PDF فقط، وتُخفى في الشاشة)
+    // صفوف ملخص العهدة (تُبنى كصفوف مدمجة ملوّنة في الطباعة/PDF)
     const paidForSummary = sumCredit - (tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0);
     const remainingForSummary = tawfiqOpeningBalance - paidForSummary;
 
     result.push({
-      date: "—",
-      docNo: "—",
+      __summaryCard: { index: 0, label: "مبلغ العهدة الافتتاحي للعام 2026", value: tawfiqOpeningBalance },
       description: "مبلغ العهدة الافتتاحي للعام 2026",
-      name: "—",
-      debit: "",
       credit: tawfiqOpeningBalance,
-      balance: "",
       summaryLevel: "summary-card",
     });
     result.push({
-      date: "—",
-      docNo: "—",
+      __summaryCard: { index: 1, label: "المنصرف من العهدة خلال العام", value: paidForSummary },
       description: "المنصرف من العهدة خلال العام",
-      name: "—",
-      debit: "",
       credit: paidForSummary,
-      balance: "",
       summaryLevel: "summary-card",
     });
     result.push({
-      date: "—",
-      docNo: "—",
+      __summaryCard: { index: 2, label: "المتبقي من العهدة حتى تاريخ التقرير", value: remainingForSummary },
       description: "المتبقي من العهدة حتى تاريخ التقرير",
-      name: "—",
-      debit: "",
       credit: remainingForSummary,
-      balance: "",
       summaryLevel: "summary-card",
     });
 
@@ -579,8 +548,8 @@ export default function ReportsTab() {
           { key: "docNo", label: "رقم المستند / الشيك" },
           { key: "description", label: "البيان" },
           { key: "name", label: "الاسم" },
-          { key: "debit", label: "مدين (المورد)" },
-    { key: "credit", label: "دائن (المنصرف)" },
+          { key: "debit", label: "مدين (المنصرف)" },
+          { key: "credit", label: "دائن (المسدد)" },
           { key: "balance", label: "الرصيد المتبقي" },
         ] satisfies TabCol[],
       };
@@ -593,8 +562,8 @@ export default function ReportsTab() {
           { key: "docNo", label: "رقم المستند / الشيك" },
           { key: "description", label: "البيان" },
           { key: "name", label: "الاسم" },
-          { key: "debit", label: "مدين (الوارد)" },
-          { key: "credit", label: "دائن (المنصرف)" },
+          { key: "debit", label: "مدين (المنصرف)" },
+          { key: "credit", label: "دائن (المسدد)" },
           { key: "balance", label: "الرصيد المتبقي" },
         ] satisfies TabCol[],
       };
@@ -648,7 +617,7 @@ export default function ReportsTab() {
 
   const isLoanOrCustody = source === "youssefLoan" || source === "tawfiqCustody";
 
-  // صفوف التقرير المعروضة في الشاشة (بدون صفوف الملخص لأنها تظهر ككروت)
+  // صفوف التقرير المعروضة في الشاشة (بدون صفوف الملخص لأنها تُعرض كصفوف مدمجة أسفل الجدول)
   const displayRows = useMemo(
     () => reportRows.filter((row) => row.summaryLevel !== "summary-card"),
     [reportRows]
@@ -880,153 +849,103 @@ export default function ReportsTab() {
                   ))}
                 </tr>
               </thead>
-<tbody>
-  {displayRows.map((row, index) => {
-    const isTotal = row.summaryLevel === "total";
-    const isOpening = row.summaryLevel === "opening";
+              <tbody>
+                {displayRows.map((row, index) => {
+                  const isTotal = row.summaryLevel === "total";
+                  const isOpening = row.summaryLevel === "opening";
 
-    let rowStyle = "bg-white text-slate-900";
-    if (isTotal) {
-      rowStyle = "bg-[#1f5f7a] text-white font-bold";
-    } else if (isOpening) {
-      rowStyle = "bg-amber-100/80 text-amber-950 font-black";
-    } else if (row.summaryLevel === "fee") {
-      rowStyle = "bg-sky-200 font-black text-sky-950";
-    } else if (row.summaryLevel === "period") {
-      rowStyle = "bg-amber-200 font-black text-amber-950";
-    } else if (index % 2 === 1) {
-      rowStyle = "bg-slate-50/80 text-slate-900";
-    }
+                  let rowStyle = "bg-white text-slate-900";
+                  if (isTotal) {
+                    rowStyle = "bg-[#1f5f7a] text-white font-bold";
+                  } else if (isOpening) {
+                    rowStyle = "bg-amber-100/80 text-amber-950 font-black";
+                  } else if (row.summaryLevel === "fee") {
+                    rowStyle = "bg-sky-200 font-black text-sky-950";
+                  } else if (row.summaryLevel === "period") {
+                    rowStyle = "bg-amber-200 font-black text-amber-950";
+                  } else if (index % 2 === 1) {
+                    rowStyle = "bg-slate-50/80 text-slate-900";
+                  }
 
-    return (
-      <tr
-        key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`}
-        className={`transition-colors ${rowStyle}`}
-      >
-        <td className="border border-slate-200 px-2 py-2 font-bold">
-          {isTotal ? "★" : index + 1}
-        </td>
-        {sourceConfig.columns.map((column) => {
-          const val = row[column.key];
-          const isNum = numericKeys.includes(column.key);
-          return (
-            <td
-              key={column.key}
-              className={`border border-slate-200 px-3 py-2 font-semibold ${
-                isNum ? "font-mono" : ""
-              }`}
-            >
-              {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
-            </td>
-          );
-        })}
-      </tr>
-    );
-  })}
+                  return (
+                    <tr
+                      key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`}
+                      className={`transition-colors ${rowStyle}`}
+                    >
+                      <td className="border border-slate-200 px-2 py-2 font-bold">
+                        {isTotal ? "★" : index + 1}
+                      </td>
+                      {sourceConfig.columns.map((column) => {
+                        const val = row[column.key];
+                        const isNum = numericKeys.includes(column.key);
+                        return (
+                          <td
+                            key={column.key}
+                            className={`border border-slate-200 px-3 py-2 font-semibold ${
+                              isNum ? "font-mono" : ""
+                            }`}
+                          >
+                            {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
 
-  {/* فاصل بصري + صفوف ملخص العهدة داخل الجدول (لتظهر في الطباعة والـ PDF) */}
-  {isLoanOrCustody && (() => {
-    const summaryCards = reportRows.filter((r) => r.summaryLevel === "summary-card");
-    if (!summaryCards.length) return null;
+                {/* صف فاصل + صفوف ملخص العهدة داخل الجدول بخلايا مدمجة وألوان مميزة */}
+                {isLoanOrCustody && (() => {
+                  const summaryRows = reportRows.filter((r) => r.summaryLevel === "summary-card");
+                  if (!summaryRows.length) return null;
 
-    const cardStyles = [
-      { bg: "bg-amber-200", text: "text-amber-950", border: "border-amber-400" },
-      { bg: "bg-rose-200", text: "text-rose-950", border: "border-rose-400" },
-      { bg: "bg-emerald-200", text: "text-emerald-950", border: "border-emerald-400" },
-    ];
+                  const cardStyles = [
+                    { label: "مبلغ العهدة الافتتاحي للعام 2026",   bg: "bg-amber-200",   text: "text-amber-950",   border: "border-amber-500",   cls: "summary-card-0" },
+                    { label: "المنصرف من العهدة خلال العام",        bg: "bg-rose-200",    text: "text-rose-950",    border: "border-rose-500",    cls: "summary-card-1" },
+                    { label: "المتبقي من العهدة حتى تاريخ التقرير", bg: "bg-emerald-200", text: "text-emerald-950", border: "border-emerald-500", cls: "summary-card-2" },
+                  ];
 
-    return (
-      <>
-        {/* صف فاصل */}
-        <tr className="h-3" aria-hidden="true">
-          <td
-            colSpan={sourceConfig.columns.length + 1}
-            className="border-0 bg-transparent p-0"
-            style={{ height: "12px" }}
-          />
-        </tr>
+                  return (
+                    <>
+                      {/* صف فاصل مرئي */}
+                      <tr className="summary-spacer" aria-hidden="true">
+                        <td
+                          colSpan={sourceConfig.columns.length + 1}
+                          className="border-0 bg-transparent p-0"
+                          style={{ height: "14px" }}
+                        />
+                      </tr>
 
-        {summaryCards.map((row, i) => {
-          const style = cardStyles[i % cardStyles.length];
-          const value = amountValue(row.credit);
-          return (
-            <tr
-              key={`summary-${i}`}
-              className={`summary-card-row ${style.bg} ${style.text} font-black`}
-            >
-              <td className={`border ${style.border} px-2 py-2 font-bold`}>◆</td>
-              <td className={`border ${style.border} px-3 py-2`} colSpan={2}>
-                {String(row.description)}
-              </td>
-              <td className={`border ${style.border} px-3 py-2`}>—</td>
-              <td className={`border ${style.border} px-3 py-2`}>—</td>
-              <td className={`border ${style.border} px-3 py-2 font-mono`}>
-                {value.toLocaleString()}
-              </td>
-              <td className={`border ${style.border} px-3 py-2`}>—</td>
-            </tr>
-          );
-        })}
-      </>
-    );
-  })()}
-</tbody>
+                      {summaryRows.map((row, i) => {
+                        const style = cardStyles[i % cardStyles.length];
+                        const value = amountValue(row.credit);
+                        return (
+                          <tr
+                            key={`summary-${i}`}
+                            className={`summary-card-row ${style.cls} ${style.bg} ${style.text} font-black`}
+                          >
+                            {/* خلية البيان: تدمج من عمود "م" حتى قبل عمود المبلغ (6 خلايا) */}
+                            <td
+                              colSpan={6}
+                              className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm`}
+                            >
+                              {style.label}
+                            </td>
+                            {/* خلية المبلغ: تدمج عمودَي "دائن" و"الرصيد" (خليتان) */}
+                            <td
+                              colSpan={2}
+                              className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base`}
+                            >
+                              {value.toLocaleString()}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </>
+                  );
+                })()}
+              </tbody>
             </table>
           )}
-
-          {/* ملخص إجماليات العهدة أسفل الجدول (صف واحد بحجم مناسب) */}
-          {isLoanOrCustody && (() => {
-            const openingBalance = source === "youssefLoan" ? youssefOpeningBalance : tawfiqOpeningBalance;
-            const paidTotal = displayRows
-              .filter((row) => row.summaryLevel !== "opening" && row.summaryLevel !== "total")
-              .reduce((sum, row) => sum + amountValue(row.credit), 0);
-            const remaining = openingBalance - paidTotal;
-
-            const cards = [
-              {
-                label: "مبلغ العهدة الافتتاحي للعام 2026",
-                value: openingBalance,
-                border: "border-amber-300",
-                bg: "bg-amber-900",
-                text: "text-white",
-                labelText: "text-gold",
-              },
-         {
-   label: "المنصرف من العهدة خلال العام",
-                value: paidTotal,
-                border: "border-rose-300",
-                bg: "bg-rose-900",
-                text: "text-white",
-                labelText: "text-rose-500",
-              },
-              {
-                label: "المتبقي من العهدة حتى تاريخ التقرير",
-                value: remaining,
-                border: "border-emerald-300",
-                bg: "bg-emerald-900",
-                text: "text-white",
-                labelText: "text-gold",
-              },
-            ];
-
-            return (
-              <div className="custody-summary mt-4 flex w-full flex-nowrap items-stretch gap-10">
-                {cards.map((card) => (
-                  <div
-                    key={card.label}
-                    className={`flex-1 max-w-auto rounded-xl border ${card.border} ${card.bg} px-2 py-2 text-center shadow-xs`}
-                  >
-                    <div className={`text-[15px] sm:text-xs font-black ${card.labelText} leading-tight`}>
-                      {card.label}
-                    </div>
-                    <div className={`mt-0.5 font-bold text-sm sm:text-base font-black ${card.text}`}>
-                      {card.value.toLocaleString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
         </div>
       </section>
     </div>

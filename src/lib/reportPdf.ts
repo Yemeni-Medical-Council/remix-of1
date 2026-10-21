@@ -108,7 +108,7 @@ async function ready(doc: Document) {
   const fontReady = doc.fonts?.ready ?? Promise.resolve();
   await Promise.race([
     fontReady,
-    new Promise<void>((resolve) => window.setTimeout(resolve, 1500)),
+    new Promise < void > ((resolve) => window.setTimeout(resolve, 1500)),
   ]);
   await Promise.all(Array.from(doc.images).map(image => {
     if (image.complete) return Promise.resolve();
@@ -117,7 +117,7 @@ async function ready(doc: Document) {
 }
 
 export async function downloadRenderedReportPdf(source: HTMLElement, options: {
-  fileName: string; pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
+  fileName: string;pageSize ? : ReportPaperSize;orientation ? : ReportOrientation;marginMm ? : number;
 }) {
   const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 4 } = options;
   const doc = source.ownerDocument;
@@ -137,18 +137,18 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);
-
+  
   try {
     const table = Array.from(content.querySelectorAll('table')).sort((a, b) => b.rows.length - a.rows.length)[0];
     const body = table?.tBodies[0];
-
+    
     // استخراج الصفوف الظاهرة فقط (استبعاد المخفية بسبب فلترة التاريخ)
     const allRows = body ? Array.from(body.rows).filter(r => (r as HTMLElement).style.display !== 'none') : [];
     const totalRow = allRows.find(r => r.classList.contains('total-row'));
     const rows = allRows.filter(r => !r.classList.contains('total-row')).map(r => r.cloneNode(true) as HTMLTableRowElement);
-
+    
     if (body) body.replaceChildren();
-
+    
     const maxHeight = (heightMm - marginMm * 2) * pxPerMm - 35;
     const fitWidth = () => {
       content.style.zoom = '1';
@@ -157,15 +157,15 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
         content.style.zoom = String(Math.max(0.88, available / content.scrollWidth));
       }
     };
-
+    
     const overflows = () => {
       const h = content.offsetHeight || content.getBoundingClientRect().height;
       return h > maxHeight;
     };
-
+    
     const groups: HTMLTableRowElement[][] = [];
     let group: HTMLTableRowElement[] = [];
-
+    
     if (rows.length === 0) {
       groups.push([]);
     } else {
@@ -185,20 +185,26 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
         groups.push(group);
       }
     }
-
+    
     const pdf = new JsPDF({ unit: 'cm', format: pageSize.toLowerCase(), orientation, compress: true });
     pdf.setProperties({ title: fileName.replace(/\.pdf$/i, ''), subject: 'تقرير مالي', creator: 'المجلس اليمني للاختصاصات الطبية' });
-
+    
     for (let index = 0; index < groups.length; index++) {
       const currentRows = [...groups[index]];
-      // إضافة صف الإجمالي في الصفحة الأخيرة دائماً
+      // إدراج صف الإجمالي في الصفحة الأخيرة قبل صفوف الملخص (إن وُجدت)
       if (index === groups.length - 1 && totalRow) {
-        currentRows.push(totalRow.cloneNode(true) as HTMLTableRowElement);
+        const clonedTotal = totalRow.cloneNode(true) as HTMLTableRowElement;
+        const firstSummaryIdx = currentRows.findIndex((r) => r.classList.contains("summary-card-row"));
+        if (firstSummaryIdx === -1) {
+          currentRows.push(clonedTotal);
+        } else {
+          currentRows.splice(firstSummaryIdx, 0, clonedTotal);
+        }
       }
       if (body) body.replaceChildren(...currentRows);
       fitWidth();
       footer.textContent = `صفحة ${index + 1} من ${groups.length}`;
-
+      
       const canvas = await html2canvas(paper, {
         scale: 2,
         useCORS: true,
@@ -213,7 +219,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       if (index > 0) pdf.addPage();
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, widthMm, heightMm, undefined, 'FAST');
     }
-
+    
     const blob = pdf.output('blob');
     try {
       await saveBlobToInternalStorage(blob, fileName);
@@ -244,8 +250,8 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
 }
 
 export async function downloadReportPdf(options: {
-  title: string; body: string; css?: string; fileName: string;
-  pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
+  title: string;body: string;css ? : string;fileName: string;
+  pageSize ? : ReportPaperSize;orientation ? : ReportOrientation;marginMm ? : number;
 }) {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');
@@ -263,7 +269,7 @@ export async function downloadReportPdf(options: {
     doc.close();
     const source = doc.getElementById('report-source');
     if (!source) throw new Error('تعذر تحديد محتوى التقرير');
-    await new Promise<void>((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
+    await new Promise < void > ((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
     await downloadRenderedReportPdf(source, options);
   } finally {
     frame.remove();
