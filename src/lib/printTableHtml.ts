@@ -249,7 +249,7 @@ font-size: 13.5px !important;
 
   /* صف الإجمالي النهائي */
   .total-row td {
-    background: #91400d !important;
+    background: #1d5e07 !important;
     color: #fff !important;
     font-weight: 900 !important;
     font-size: 13px !important;

@@ -153,7 +153,7 @@ const reportsTabPrintCss = `
     border: 1px solid #cbd5e1 !important;
   }
   .total-row td {
-    background: #0284c7 !important;
+    background: #31f5ff !important;
     color: #ffffff !important;
     font-weight: 900 !important;
   }
@@ -562,8 +562,8 @@ export default function ReportsTab() {
           { key: "docNo", label: "رقم المستند / الشيك" },
           { key: "description", label: "البيان" },
           { key: "name", label: "الاسم" },
-          { key: "debit", label: "مدين (المنصرف)" },
-          { key: "credit", label: "دائن (المسدد)" },
+          { key: "debit", label: "مدين (الوارد)" },
+          { key: "credit", label: "دائن (المنصرف)" },
           { key: "balance", label: "الرصيد المتبقي" },
         ] satisfies TabCol[],
       };
@@ -858,11 +858,11 @@ export default function ReportsTab() {
                   if (isTotal) {
                     rowStyle = "bg-[#1f5f7a] text-white font-bold";
                   } else if (isOpening) {
-                    rowStyle = "bg-amber-100/80 text-amber-950 font-black";
+                    rowStyle = "bg-amber-100/80 text-amber-950 font-white";
                   } else if (row.summaryLevel === "fee") {
-                    rowStyle = "bg-sky-200 font-black text-sky-950";
+                    rowStyle = "bg-sky-200 font-white text-sky-950";
                   } else if (row.summaryLevel === "period") {
-                    rowStyle = "bg-amber-200 font-black text-amber-950";
+                    rowStyle = "bg-amber-200 font-white text-amber-950";
                   } else if (index % 2 === 1) {
                     rowStyle = "bg-slate-50/80 text-slate-900";
                   }

@@ -136,7 +136,7 @@ word-break: normal !important;
       font-weight: 700 !important;
     }
     .total-row td { background: #1f7fb8 !important; font-weight: 900 !important; }
-    .subtotal-row td { background: #cbd5e1 !important; font-weight: 800 !important; }
+    .subtotal-row td { background: #43fb5a !important; font-weight: 800 !important; }
     .group-row td { background: #fef3c7 !important; font-weight: 900 !important; }
     @media print { 
       body { padding: 4px; }
@@ -567,7 +567,7 @@ margin-top: 6px; }
   background: #fef3c7 !important; font-weight: 900 !important;
   color: #fff;
     }
-    tr.subtotal-row td { background: #cbd5e1 !important;
+    tr.subtotal-row td { background: #31f5ff !important;
   font-weight: 800 !important;
     }
     tr.total-row td { background: #1f7fb8 !important; font-weight: 900 !important; }

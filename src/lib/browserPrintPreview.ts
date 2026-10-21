@@ -316,7 +316,7 @@ text-align: center !important;
 
     /* صف الإجمالي */
     .total-row td {
-      background: #59ba8b !important;
+      background: #52ff00 !important;
       font-weight: 900 !important;
       font-size: 12px !important;
       border-top: 2px solid #000 !important;

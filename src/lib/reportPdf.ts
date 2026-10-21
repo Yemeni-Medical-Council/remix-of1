@@ -6,9 +6,9 @@ export type ReportOrientation = 'portrait' | 'landscape';
 
 export const reportDocumentCss = `
   :root { 
-  --report-paper:#ffffff; --report-ink:#172b35; --report-muted:#526773;
+  --report-paper: #ffffff; --report-ink: #172b35; --report-muted: #526773;
     --report-rule:#000; --report-stripe: gold;
-    --report-total:#9de17d; --report-accent:#176b74; }
+    --report-total: #776807; --report-accent: #176b74; }
   * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
     color:#000; 
@@ -34,7 +34,9 @@ color:#000;
 font-weight:800;
 }
   tbody tr:nth-child(even) td { background: #ffffff; }
-  .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent); }
+  .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent);
+  color:#fff; 
+  }
   .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
   .report-letterhead-block { width:100%; height:26mm; margin:0 0 3mm; }
   .report-letterhead-image { display:flex; width:100%; min-height:auto; object-fit:fill; }
@@ -138,7 +140,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   content.classList.add('report-page-content');
   content.style.cssText = 'width:100%;max-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
-  footer.style.cssText = 'margin-top:10px;padding-top:10px;text-align:center;font-size:22px;color:#000;direction:rtl;';
+  footer.style.cssText = 'margin-top:10px;padding-top:10px;text-align:center;font-size:22px;color:#000;direction:rtl;background:31f5ff;';
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);
