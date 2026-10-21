@@ -257,6 +257,7 @@ word-break: break-word !important;
       padding: 6px 4px !important;
       white-space: normal !important;
   word-break: break-word !important;
+  border: 1px solid #000 !important; 
 -webkit-print-color-adjust: exact!important;
 print-color-adjust: exact!important;
 
@@ -553,6 +554,54 @@ font-family: Cairo !important;
         return isNaN(d.getTime()) ? null : d;
       }
 
+      function findDateColumnIndex(table) {
+        const ths = Array.from(table.querySelectorAll('thead th'));
+        // المرحلة 1: مطابقة دقيقة على نص الرأس (مع تجاهل المسافات والزخارف)
+        const exactPatterns = [
+          /^التاريخ$/,
+          /^تاريخ$/,
+          /^date$/i
+        ];
+        for (let idx = 0; idx < ths.length; idx++) {
+          const raw = ths[idx].textContent || '';
+          const clean = raw.replace(/[\\u200f\\u200e\\u202a-\\u202e]/g, '').trim();
+          if (exactPatterns.some(function(p) { return p.test(clean); })) {
+            return idx;
+          }
+        }
+        // المرحلة 2: مطابقة مرنة (يحتوي على كلمة تاريخ/date)
+        for (let idx = 0; idx < ths.length; idx++) {
+          const clean = (ths[idx].textContent || '').replace(/\\s+/g, ' ').trim();
+          if (/التاريخ|تاريخ|date/i.test(clean)) {
+            return idx;
+          }
+        }
+        // المرحلة 3: فحص بيانات أول صف لاكتشاف العمود الذي يحتوي على تواريخ
+        const firstBodyRow = table.querySelector('tbody tr:not(.total-row)');
+        if (firstBodyRow) {
+          for (let idx = 0; idx < firstBodyRow.cells.length; idx++) {
+            const cellText = (firstBodyRow.cells[idx].textContent || '').trim();
+            if (parseRowDate(cellText)) {
+              return idx;
+            }
+          }
+        }
+        return -1;
+      }
+
+      function readCellDate(cell) {
+        if (!cell) return null;
+        // أولوية 1: data-date / datetime
+        const dataAttr = cell.getAttribute('data-date') || cell.getAttribute('datetime');
+        if (dataAttr) {
+          const d = parseRowDate(dataAttr);
+          if (d) return d;
+        }
+        // أولوية 2: نص الخلية (يدعم .pdf-cell-text)
+        const textEl = cell.querySelector('.pdf-cell-text') || cell;
+        return parseRowDate((textEl.textContent || '').trim());
+      }
+
       function formatNum(num) {
         return Number(num).toLocaleString('en-US');
       }
@@ -566,14 +615,7 @@ font-family: Cairo !important;
         const table = document.querySelector('.sheet-paper table');
         if (!table) return;
 
-        const ths = Array.from(table.querySelectorAll('thead th'));
-        let dateColIdx = -1;
-        ths.forEach(function(th, idx) {
-          const t = th.textContent.trim();
-          if (/التاريخ|التاريخ|date/i.test(t)) {
-            dateColIdx = idx;
-          }
-        });
+        const dateColIdx = findDateColumnIndex(table);
 
         const numericColIndices = [];
         const totalRow = table.querySelector('.total-row');
@@ -597,12 +639,7 @@ font-family: Cairo !important;
         rows.forEach(function(row) {
           let rowDate = null;
           if (dateColIdx >= 0 && row.cells[dateColIdx]) {
-            rowDate = parseRowDate(row.cells[dateColIdx].textContent);
-          } else {
-            for (let i = 0; i < row.cells.length; i++) {
-              rowDate = parseRowDate(row.cells[i].textContent);
-              if (rowDate) break;
-            }
+            rowDate = readCellDate(row.cells[dateColIdx]);
           }
 
           let show = true;
@@ -611,10 +648,7 @@ font-family: Cairo !important;
               if (fromVal && rowDate < fromVal) show = false;
               if (toVal && rowDate > toVal) show = false;
             } else {
-// إذا طُلب
-نطاق زمني
-والصف لا يحتوي
-على تاريخ نعتبره خارج النطاق
+              // إذا طُلب نطاق زمني والصف لا يحتوي على تاريخ في عمود التاريخ نعتبره خارج النطاق
               show = false;
             }
           }
