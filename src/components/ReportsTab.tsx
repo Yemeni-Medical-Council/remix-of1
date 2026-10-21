@@ -268,11 +268,11 @@ export default function ReportsTab() {
       });
     });
 
-    // سطر الإجمالي
+    // صف الإجمالي الكلي لكل الأعمدة فقط
     result.push({
       date: "—",
       docNo: "—",
-      description: "الإجمالي وصافي الرصيد المتبقي",
+      description: "الإجمالي الكلي",
       name: "—",
       debit: sumDebit,
       credit: sumCredit,
@@ -340,11 +340,11 @@ export default function ReportsTab() {
       });
     });
 
-    // سطر الإجمالي
+    // صف الإجمالي الكلي لكل الأعمدة فقط
     result.push({
       date: "—",
       docNo: "—",
-      description: "الإجمالي وصافي العهدة المتبقية",
+      description: "الإجمالي الكلي",
       name: "—",
       debit: sumDebit,
       credit: sumCredit,
@@ -470,8 +470,8 @@ export default function ReportsTab() {
           { key: "docNo", label: "رقم المستند / الشيك" },
           { key: "description", label: "البيان" },
           { key: "name", label: "الاسم" },
-          { key: "debit", label: "مدين (المنصرف)" },
-          { key: "credit", label: "دائن (المسدد)" },
+          { key: "debit", label: "مدين (الوارد)" },
+         { key: "credit", label: "دائن (المنصرف)" },
           { key: "balance", label: "الرصيد المتبقي" },
         ] satisfies TabCol[],
       };
@@ -811,6 +811,46 @@ export default function ReportsTab() {
               </tbody>
             </table>
           )}
+
+          {/* ملخص إجماليات العهدة أسفل الجدول */}
+          {isLoanOrCustody && (() => {
+            const openingBalance = source === "youssefLoan" ? youssefOpeningBalance : tawfiqOpeningBalance;
+            const paidTotal = reportRows
+              .filter((row) => row.summaryLevel !== "opening" && row.summaryLevel !== "total")
+              .reduce((sum, row) => sum + amountValue(row.credit), 0);
+            const remaining = openingBalance - paidTotal;
+
+            return (
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3 text-center shadow-sm">
+                  <div className="text-xs font-black text-amber-900">
+                    مبلغ العهدة الافتتاحي للعام 2026
+                  </div>
+                  <div className="mt-1 font-mono text-lg font-black text-amber-950">
+                    {openingBalance.toLocaleString()}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-rose-300 bg-rose-50 p-3 text-center shadow-sm">
+    <div className="text-xs font-black text-rose-900">
+   المنصرف من العهدة خلال العام
+                  </div>
+                  <div className="mt-1 font-mono text-lg font-black text-rose-950">
+                    {paidTotal.toLocaleString()}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-3 text-center shadow-sm">
+                  <div className="text-xs font-black text-emerald-900">
+                    المتبقي من العهدة حتى تاريخ التقرير
+                  </div>
+                  <div className="mt-1 font-mono text-lg font-black text-emerald-950">
+                    {remaining.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </section>
     </div>
