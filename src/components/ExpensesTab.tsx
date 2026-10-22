@@ -560,7 +560,15 @@ export default function ExpensesTab() {
       <div className="space-y-0" dir="rtl">
         <div className="w-full min-w-auto overflow-hidden rounded-lg border border-black bg-white shadow-sm text-center">
           <div className="overflow-x-auto">
-            <table className="w-auto min-w-auto table-auto border-collapse text-xs sm:text-base">
+            <table className="expenses-main-table w-auto min-w-auto table-auto border-collapse text-sm sm:text-base">
+              <colgroup>
+                <col style={{ width: "36%" }} />
+                <col style={{ width: "4%" }} /><col style={{ width: "4%" }} />
+                <col style={{ width: "4%" }} /><col style={{ width: "4%" }} />
+                <col style={{ width: "4%" }} /><col style={{ width: "12%" }} />
+                <col style={{ width: "4%" }} /><col style={{ width: "12%" }} />
+                <col style={{ width: "4%" }} /><col style={{ width: "12%" }} />
+              </colgroup>
               <thead className="sticky top-0 z-10 font-bold text-sm">
                 <tr>
                   {/* تغيير تنسيق الرأس ليكون متوسط النص بدلاً من المحاذاة لليمين فقط */}
@@ -590,7 +598,7 @@ export default function ExpensesTab() {
                   return (
                     <tr key={idx} className={rowClass(r)}>
                       {/* تفعيل التفاف النص (break-words whitespace-normal) والتوسيط (text-center align-middle) */}
-<td className="border border-black text-center align-middle numeric-cell whitespace-nowrap px-2 py-1 text-[14px] sm:text-sm">
+	<td className="expense-account-name border border-black text-center align-middle whitespace-normal px-2 py-1 font-bold text-[15px] sm:text-base">
                         {r.n}
                       </td>
                       <TD>{r.b || ""}</TD>
@@ -846,16 +854,15 @@ export default function ExpensesTab() {
               if (!el) return;
               const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(`المصروفات - ${view} - ${reportDateLabel}`)}</title>
                 <style>
-                @page { size: A4 portrait; margin: 3mm; }
                 * { box-sizing: border-box; }
                 html, body { margin: 0; padding: 0; }
-                body { direction: rtl; background: #f1f5f9; color: #000; font-family: Cairo; font-weight: 900; }
+                body { direction: rtl; background: #f1f5f9; color: #000; font-family: Cairo, sans-serif !important; font-weight: 800; }
                 .print-page { min-height: auto; width: 100%; margin: 0; padding: 0; border: 0; background: #fff; }
-                .report-letterhead-block { display: block; width: 100%; max-width: auto; height: 30mm; min-height: 30mm; max-height: 30mm; align-items: stretch; justify-content: center; margin: 0 0 3mm; page-break-before: avoid; page-break-after: avoid; }
+                .report-letterhead-block { display: block; width: 100%; max-width: auto; height: 26mm; min-height: 26mm; max-height: 26mm; align-items: stretch; justify-content: center; margin: 0 0 3mm; page-break-before: avoid; page-break-after: avoid; }
                 .report-letterhead-image { display:flex; width: 100%; min-width: auto; height: 100%; min-height: auto; object-fit: fill; object-position:top; margin: 0; }
     ${runningLetterheadCss}
  #expenses-report { width: 100%; }
- #expenses-report > * { margin-bottom: 4mm; }
+ #expenses-report > * { margin-bottom: 3mm; }
  #expenses-report .overflow-x-auto, #expenses-report .overflow-auto { overflow: visible !important; }
                 #expenses-report .rounded-xl { border-radius: 9px; }
   #expenses-report .border-2 { border-width: 2px; }
@@ -880,15 +887,15 @@ export default function ExpensesTab() {
                 #expenses-report .bab-4 { background-color: #fed7aa !important; color: #7c2d12 !important; }
                 #expenses-report .bab-5 { background-color: #fecdd3 !important; color: #881337 !important; }
                 #expenses-report .bab-default { background-color: #d1fae5 !important; color: #064e3b !important; }
-                #expenses-report table { width:100%; min-width: auto;table-layout: auto; border-collapse: collapse; font-size: 16px; }
+                #expenses-report table { width:100%; min-width: 0; table-layout: auto; border-collapse: collapse; font-family: Cairo, sans-serif !important; font-size: 13px !important; margin: 0 auto; }
+                #expenses-report table.expenses-main-table { table-layout: fixed; }
                 #expenses-report th, #expenses-report td {
-                width:100%; 
-                min-width:auto; 
-                border: 1px solid #000 !important; padding: 2px 3px !important; text-align: center !important; vertical-align: middle !important; white-space: normal !important; overflow: visible !important; overflow-wrap: break-word !important; word-break: normal !important; line-height: 1.2; color: #000 !important; font-weight: 700 !important; }
-                #expenses-report thead th { font-size: 13px; font-weight: 900 !important; }
-                #expenses-report tbody td { font-size: 16px; }
-                #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report .font-bold, #expenses-report input[type="number"], #expenses-report input[type="date"] { width: 1% !important; min-width: 0 !important; white-space: nowrap !important; overflow: visible !important; overflow-wrap: normal !important; word-break: keep-all !important; font-family: 'Times New Roman', Times, serif !important; font-size: clamp(8px, 1vw, 11px) !important; font-variant-numeric: tabular-nums; direction: ltr; }
-                #expenses-report input { width: 100% !important; min-width: 0 !important; border: 0; background: transparent; color: #000; font: inherit; text-align: center; }
+                width:auto; min-width:0; border:1px solid #000 !important; padding:5px 3px !important; text-align:center !important; vertical-align:middle !important; white-space:normal !important; overflow:visible !important; overflow-wrap:break-word !important; word-break:normal !important; line-height:1.3 !important; color:#000 !important; font-family:Cairo, sans-serif !important; font-size:13px !important; font-weight:800 !important; }
+                #expenses-report thead th { font-size:13.5px !important; font-weight:900 !important; padding:6px 3px !important; }
+                #expenses-report tbody td { font-size:13px !important; }
+                #expenses-report td.expense-account-name { font-family:Cairo, sans-serif !important; font-size:14px !important; font-weight:900 !important; direction:rtl !important; white-space:normal !important; overflow-wrap:anywhere !important; }
+                #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report input[type="number"], #expenses-report input[type="date"] { width:auto !important; min-width:0 !important; white-space:nowrap !important; overflow:visible !important; overflow-wrap:normal !important; word-break:keep-all !important; font-family:Cairo, sans-serif !important; font-size:13px !important; font-variant-numeric:tabular-nums; direction:ltr; }
+                #expenses-report input { width:100% !important; min-width:0 !important; border:0; background:transparent; color:#000; font-family:Cairo, sans-serif !important; font-size:13px !important; text-align:center; }
                 #expenses-report .text-white { color: #fff !important; }
                 @media print {
                   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -899,7 +906,8 @@ export default function ExpensesTab() {
                   #expenses-report thead { display: table-header-group; }
                   #expenses-report tr { page-break-inside: avoid; }
                   #expenses-report th, #expenses-report td { white-space: normal !important; }
-                  #expenses-report .numeric-cell, #expenses-report .date-cell, #expenses-report .font-bold { white-space: nowrap !important; }
+                  #expenses-report td.expense-account-name { font-family:Cairo, sans-serif !important; font-size:14px !important; }
+                  #expenses-report .numeric-cell, #expenses-report .date-cell { white-space: nowrap !important; }
                 }
                 </style></head><body><div class="print-page">${reportLetterheadHtml()}<div id="expenses-report">${el.innerHTML}</div></div>
                 <script>window.onload=()=>setTimeout(()=>window.print(),300)</script></body></html>`;
@@ -912,7 +920,7 @@ export default function ExpensesTab() {
                 contentCss: Array.from(parsed.querySelectorAll("style")).map((style) => style.textContent || "").join("\n"),
                 defaultOrientation: "portrait",
                 defaultPageSize: "A4",
-                defaultMarginMm: 3,
+                defaultMarginMm: 8,
               });
               if (!opened) toast.error("تم منع فتح نافذة الطباعة، يرجى السماح بالنوافذ المنبثقة");
             }}
