@@ -268,22 +268,29 @@ async function ready(doc: Document) {
 
 export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   fileName: string; pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
+  fitToContent?: boolean;
 }) {
-  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 3 } = options;
+  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 3, fitToContent = false } = options;
   const doc = source.ownerDocument;
   await ready(doc);
   const [{ default: html2canvas }, { default: JsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
-  const [widthMm, heightMm] = dimensions(pageSize, orientation);
+  const [widthMm, pageHeightMm] = dimensions(pageSize, orientation);
+  let heightMm = pageHeightMm;
   const pxPerMm = 96 / 25.4;
   const holder = doc.createElement('div');
   holder.style.cssText = 'position:absolute;left:-20000px;top:0;pointer-events:none;';
   const paper = doc.createElement('div');
-  paper.style.cssText = `width:${widthMm}mm;min-height:${heightMm}mm;padding:${marginMm}mm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
+  paper.style.cssText = fitToContent
+    ? `width:${widthMm}mm;height:auto;min-height:0;padding:0;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`
+    : `width:${widthMm}mm;min-height:${heightMm}mm;padding:${marginMm}mm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
   const content = source.cloneNode(true) as HTMLElement;
   content.classList.add('report-page-content');
-  content.style.cssText = 'width:100%;max-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
+  content.style.cssText = fitToContent
+    ? 'width:100%;max-height:none;height:auto;min-height:0;padding:0;margin:0;border:0;box-shadow:none;transform:none;'
+    : 'width:100%;max-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
   footer.style.cssText = 'margin-top:8px;padding-top:6px;text-align:center;font-size:14px;color:#000000;direction:rtl;font-weight:700;';
+  if (fitToContent) footer.style.display = 'none';
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);
@@ -316,7 +323,15 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     const groups: HTMLTableRowElement[][] = [];
     let group: HTMLTableRowElement[] = [];
     
-    if (rows.length === 0) {
+    if (fitToContent) {
+      body?.replaceChildren(...rows);
+      fitWidth();
+      await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+      // قَصّ طول الصفحة إلى الارتفاع الفعلي للمحتوى بدل مساحة A4 الفارغة.
+      heightMm = Math.max(40, Math.ceil((paper.scrollHeight / pxPerMm) * 10) / 10);
+      paper.style.height = `${heightMm}mm`;
+      groups.push(rows);
+    } else if (rows.length === 0) {
       groups.push([]);
     } else {
       for (const row of rows) {
@@ -336,7 +351,12 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       }
     }
     
-    const pdf = new JsPDF({ unit: 'mm', format: pageSize.toLowerCase(), orientation, compress: true });
+    const pdf = new JsPDF({
+      unit: 'mm',
+      format: fitToContent ? [widthMm, heightMm] : pageSize.toLowerCase(),
+      orientation,
+      compress: true,
+    });
     pdf.setProperties({ title: fileName.replace(/\.pdf$/i, ''), subject: 'تقرير مالي', creator: 'المجلس اليمني للاختصاصات الطبية' });
     
     for (let index = 0; index < groups.length; index++) {
@@ -414,6 +434,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
 export async function downloadReportPdf(options: {
   title: string; body: string; css?: string; fileName: string;
   pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
+  fitToContent?: boolean;
 }) {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');

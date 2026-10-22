@@ -4,25 +4,35 @@ import { downloadRenderedReportPdf } from "./reportPdf";
 interface OpenBrowserPrintPreviewOptions {
   title: string;
   tableHtml: string;
+  reportDateLabel?: string;
+  contentCss?: string;
   defaultOrientation?: "portrait" | "landscape";
   paperSize?: "A4" | "A3" | "Letter";
+  defaultPageSize?: "A4" | "A3" | "Letter";
   margin?: "minimal" | "normal";
+  defaultMarginMm?: number;
+  fitToContent?: boolean;
 }
 
-export function openBrowserPrintPreview({
-  title,
-  tableHtml,
-  defaultOrientation = "landscape",
-  paperSize = "A4",
-  margin = "minimal"
-}: OpenBrowserPrintPreviewOptions) {
+export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions) {
+  const {
+    title,
+    tableHtml,
+    reportDateLabel,
+    contentCss = "",
+    defaultOrientation = "landscape",
+  } = options;
+  const fitToContent = options.fitToContent ?? false;
+  const paperSize = options.defaultPageSize ?? options.paperSize ?? "A4";
+  const defaultMargin = options.defaultMarginMm !== undefined
+    ? `${options.defaultMarginMm}mm`
+    : options.margin === "normal" ? "8mm" : "3mm";
   const newWin = window.open("", "_blank");
   if (!newWin) {
     alert("يرجى السماح بالنوافذ المنبثقة لمعاينة الطباعة");
     return false;
   }
 
-  const defaultMargin = margin === "minimal" ? "3mm" : "8mm";
   const hasEmbeddedLetterhead = tableHtml.includes("report-letterhead");
 
   const html = `<!DOCTYPE html>
@@ -439,11 +449,12 @@ export function openBrowserPrintPreview({
       tfoot { display: table-footer-group !important; }
     }
   </style>
+  <style>${contentCss}</style>
 </head>
 <body>
   <div class="preview-toolbar">
     <div class="toolbar-left">
-      <span class="toolbar-title">🖨️ ${title}</span>
+      <span class="toolbar-title">🖨️ ${title}${reportDateLabel ? ` — ${reportDateLabel}` : ""}</span>
 
       <div class="toolbar-control">
         <label>الاتجاه:</label>
@@ -465,6 +476,7 @@ export function openBrowserPrintPreview({
       <div class="toolbar-control">
         <label>الهامش:</label>
         <select id="selMargin">
+          <option value="0mm" ${defaultMargin === "0mm" ? "selected" : ""}>بدون هامش (0 مم)</option>
           <option value="2mm">ضيق جداً (2 مم)</option>
           <option value="3mm" ${defaultMargin === "3mm" ? "selected" : ""}>ضيق (3 مم)</option>
           <option value="6mm">متوسط (6 مم)</option>
@@ -528,6 +540,7 @@ export function openBrowserPrintPreview({
 
   <script>
     (function() {
+      const fitToContent = ${fitToContent ? "true" : "false"};
       const selOrientation = document.getElementById('selOrientation');
       const selPageSize = document.getElementById('selPageSize');
       const selMargin = document.getElementById('selMargin');
@@ -719,8 +732,8 @@ export function openBrowserPrintPreview({
       function updatePageSettings() {
         const orientation = selOrientation.value;
         const pageSize = selPageSize.value;
-        const margin = selMargin.value;
-        const scale = parseFloat(selScale.value) || 1;
+      const margin = selMargin.value;
+      const scale = parseFloat(selScale.value) || 1;
 
         paperContainer.classList.remove('portrait', 'landscape');
         paperContainer.classList.add(orientation);
@@ -733,9 +746,10 @@ export function openBrowserPrintPreview({
           paperContainer.style.width = orientation === 'portrait' ? '210mm' : '297mm';
         }
 
-        paperContainer.style.padding = margin;
+        paperContainer.style.padding = fitToContent ? '0' : margin;
         const heights = pageSize === 'A3' ? [420, 297] : pageSize === 'Letter' ? [279.4, 215.9] : [297, 210];
-        paperContainer.style.minHeight = heights[orientation === 'portrait' ? 0 : 1] + 'mm';
+        paperContainer.style.minHeight = fitToContent ? '0' : heights[orientation === 'portrait' ? 0 : 1] + 'mm';
+        paperContainer.style.height = fitToContent ? 'auto' : '';
         paperContainer.style.transform = 'none';
 
         const table = paperContainer.querySelector('table');
@@ -756,7 +770,9 @@ export function openBrowserPrintPreview({
 
         const tableContainer = document.getElementById('tableContainer');
         tableContainer.style.zoom = String(scale);
-        dynamicRule.innerHTML = '@page { size: ' + pageSize + ' ' + orientation + '; margin: ' + margin + '; }';
+        if (!fitToContent) {
+          dynamicRule.innerHTML = '@page { size: ' + pageSize + ' ' + orientation + '; margin: ' + margin + '; }';
+        }
 
         window.requestAnimationFrame(function() {
           const table = tableContainer.querySelector('table');
@@ -768,6 +784,11 @@ export function openBrowserPrintPreview({
           const naturalWidth = Math.max(table.scrollWidth, table.getBoundingClientRect().width);
           const fitScale = Math.max(0.9, Math.min(1, availableWidth / Math.max(1, naturalWidth)));
           tableContainer.style.zoom = String(scale * fitScale);
+          if (fitToContent) {
+            const heightMm = Math.max(40, Math.ceil((paperContainer.scrollHeight * 25.4 / 96) * 10) / 10);
+            paperContainer.style.height = heightMm + 'mm';
+            dynamicRule.innerHTML = '@page { size: ' + pageWidthMm + 'mm ' + heightMm + 'mm; margin: 0; }';
+          }
         });
       }
 
@@ -778,7 +799,8 @@ export function openBrowserPrintPreview({
           await window.downloadReportFromPreview({
             pageSize: selPageSize.value,
             orientation: selOrientation.value,
-            marginMm: parseFloat(selMargin.value)
+            marginMm: parseFloat(selMargin.value),
+            fitToContent: fitToContent
           });
         } catch (err) {
           console.error(err);

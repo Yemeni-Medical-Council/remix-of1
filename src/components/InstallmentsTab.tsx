@@ -2185,13 +2185,9 @@ td.t-fees { background: ${colorTokens.fees} !important; }
           ? "الرصيد الإضافي (له)"
           : "الحالة: تم السداد بالكامل";
 
-    // تنسيقات CSS لملء ورقة A4 بالكامل وتوحيد خط Cairo
+    // تنسيقات CSS لقص الصفحة على حدود كشف المتدرب وتوحيد خط Cairo
     const statementCss = `
       @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-      @page { 
-        size: A4 portrait; 
-        margin: 8mm; 
-      }
       * { 
         box-sizing: border-box; 
         font-family: 'Cairo', sans-serif !important; 
@@ -2200,7 +2196,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         margin: 0; 
         padding: 0; 
         width: 100%;
-  min-height: auto;
+        min-height: auto;
         background: #fff;
         color: #000;
         direction: rtl;
@@ -2209,23 +2205,23 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .container {
         width: 100%;
-        min-height: auto;
+        min-height: 0;
         margin: 0;
         padding: 0;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: flex-start;
       }
       .page-frame {
-        width: auto;
-        min-height: auto;
+        width: 100%;
+        min-height: 0;
         border: 2px solid #0f766e;
-        border-radius: 12px;
+        border-radius: 0;
         background: #fff;
-        padding: 14px 18px;
+        padding: 4mm;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: flex-start;
         box-sizing: border-box;
       }
       .statement-title {
@@ -2334,14 +2330,9 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         break-inside: avoid;
       }
       @media print {
-        @page { size: A4 portrait; margin: 8mm;
-   min-height: auto;
-
-          
-        }
         body { margin: 0; padding: 0; }
         .print-toolbar { display: none !important; }
-        .page-frame { min-height: 200mm }
+        .page-frame { min-height: 0; border-radius: 0; }
         .info-box, th, td, .statement-title {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -2405,6 +2396,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         pageSize: "A4",
         orientation: "portrait",
         marginMm: 0,
+        fitToContent: true,
       });
       toast.success("تم تنزيل كشف الحساب بصيغة PDF بنجاح");
     } catch (error) {
@@ -2423,6 +2415,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       defaultOrientation: "portrait",
       defaultPageSize: "A4",
       defaultMarginMm: 0,
+      fitToContent: true,
     });
     if (!opened) {
       toast.error("تم منع فتح نافذة المعاينة، يرجى السماح بالنوافذ المنبثقة في كروم");
