@@ -258,7 +258,7 @@ async function ready(doc: Document) {
   const fontReady = doc.fonts?.ready ?? Promise.resolve();
   await Promise.race([
     fontReady,
-    new Promise<void>((resolve) => window.setTimeout(resolve, 1500)),
+    new Promise<void>((resolve) => window.setTimeout(resolve, 2500)),
   ]);
   await Promise.all(Array.from(doc.images).map(image => {
     if (image.complete) return Promise.resolve();
@@ -445,6 +445,9 @@ export async function downloadReportPdf(options: {
     if (!doc) throw new Error('تعذر تجهيز التقرير');
     doc.open();
     doc.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(options.title)}</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
       <style>${reportDocumentCss}
       ${options.css || ''}
       ${reportContainmentCss}</style></head><body><div id="report-source" class="report-page-content">

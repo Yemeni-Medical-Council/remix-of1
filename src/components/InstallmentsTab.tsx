@@ -2150,15 +2150,14 @@ td.t-fees { background: ${colorTokens.fees} !important; }
     const remaining = dueTotal - totalPaid;
     const safeName = safePdfFileName(row.name);
 
-    // 5. صفوف الأشهر المسددة فقط
-    const paidRows = monthsList
+    // 5. إظهار سطر مستقل لكل شهر؛ البيان اسم القسط والمبلغ في عموده المنفصل
+    const monthlyRows = monthsList
       .map((m) => {
         const amount = Number(row?.payments?.[m]) || 0;
-        if (amount <= 0) return "";
         return `
-          <tr class="row-paid">
-            <td class="lbl">سداد شهر ${escapeHtml(m)}</td>
-            <td class="num">${escapeHtml(fmt(amount))}</td>
+          <tr class="${amount > 0 ? "row-paid" : "row-unpaid"}">
+            <td class="lbl">قسط شهر ${escapeHtml(m)}</td>
+            <td class="num">${amount > 0 ? escapeHtml(fmt(amount)) : "—"}</td>
           </tr>`;
       })
       .join("");
@@ -2226,7 +2225,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .statement-title {
         text-align: center;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 900;
         color: #0f766e;
         margin: 0 0 12px;
@@ -2251,13 +2250,13 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       box-sizing: border-box;
       }
       .info-lbl {
-        font-size: 13px;
+        font-size: 20px;
         font-weight: 700;
         color: #0f766e;
         margin-bottom: 2px;
       }
       .info-val {
-        font-size: 15px;
+        font-size: 20px;
         font-weight: 900;
         color: #000000 !important;
         white-space: nowrap;
@@ -2289,7 +2288,20 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       td {
         color: #000000 !important;
-        font-size: 16px;
+        font-size: 20px;
+      }
+      .report-page-content .page-frame th,
+      .report-page-content .page-frame td {
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 20px !important;
+        line-height: 1.4 !important;
+      }
+      .report-page-content .page-frame .info-lbl,
+      .report-page-content .page-frame .info-val,
+      .report-page-content .page-frame .statement-title,
+      .report-page-content .page-frame .foot {
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 20px !important;
       }
       .lbl {
         font-weight: 800;
@@ -2299,7 +2311,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       }
       .num {
         font-weight: 900;
-        font-size: 18px;
+        font-size: 20px;
         direction: ltr;
         text-align: center;
         padding-left: 16px;
@@ -2309,6 +2321,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       .row-due-old td { background: #fef3c7 !important; }
       .row-total-due td { background: #fee2e2 !important; font-weight: 900; }
       .row-paid td { background: #f0fdf4 !important; font-weight: 800; }
+      .row-unpaid td { background: #f8fafc !important; color: #64748b !important; }
       .row-total-paid td { background: #d1fae5 !important; font-weight: 900; }
       .row-final td {
         background: #f1f5f9 !important;
@@ -2322,7 +2335,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 13px;
+        font-size: 20px;
         font-weight: 800;
         color: #000000;
         border-top: 1.5px dashed #0f766e;
@@ -2362,7 +2375,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
                 <tr class="row-fees"><td class="lbl">إجمالي الرسوم المستحقة</td><td class="num">${escapeHtml(fmt(fees))}</td></tr>
                 ${prevRow}
                 <tr class="row-total-due"><td class="lbl">إجمالي المبلغ المطلوب</td><td class="num">${escapeHtml(fmt(dueTotal))}</td></tr>
-                ${paidRows}
+                ${monthlyRows}
                 <tr class="row-total-paid"><td class="lbl">إجمالي المسدد (له)</td><td class="num">${escapeHtml(fmt(totalPaid))}</td></tr>
                 <tr class="row-final"><td class="lbl">${escapeHtml(remainingLabel)}</td><td class="num">${escapeHtml(fmt(Math.abs(remaining)))}</td></tr>
               </tbody>
