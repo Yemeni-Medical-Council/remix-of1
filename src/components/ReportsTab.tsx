@@ -324,8 +324,18 @@ export default function ReportsTab() {
   const selectedMonths = useMemo(() => periodMonths(period, month), [period, month]);
   const selectedMonthSet = useMemo(() => new Set(selectedMonths), [selectedMonths]);
   const years = useMemo(() => getYearOptions([...hafiza.map((row) => row.date), ...accounts.map((row) => row.date)]), [hafiza, accounts]);
-  const traineeOptions = useMemo(() => Array.from(new Set(hafiza.map((row) => String(row.name || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ar")), [hafiza]);
+  const traineeOptions = useMemo(() => Array.from(new Set(hafiza
+    .filter((row) => {
+      const date = normalizeDate(row.notifyDate);
+      return Boolean(date && date.getFullYear() >= TRAINEE_REPORT_START_YEAR && amountValue(row.notifyAmount) > 0);
+    })
+    .map((row) => String(row.name || "").trim())
+    .filter(Boolean))).sort((a, b) => a.localeCompare(b, "ar")), [hafiza]);
   const feeOptions = useMemo(() => Array.from(new Set(hafiza
+    .filter((row) => {
+      const date = normalizeDate(row.notifyDate);
+      return Boolean(date && date.getFullYear() >= TRAINEE_REPORT_START_YEAR && amountValue(row.notifyAmount) > 0);
+    })
     .filter((row) => selectedTrainee === "all" || String(row.name || "").trim() === selectedTrainee)
     .map((row) => canonicalFeeCategory(row.description))
     .filter(Boolean))).sort((a, b) => a.localeCompare(b, "ar")), [hafiza, selectedTrainee]);
@@ -557,20 +567,20 @@ export default function ReportsTab() {
 
   const traineeRows = useMemo<ReportRow[]>(() => {
     const payments = hafiza.flatMap((row) => {
-      const date = normalizeDate(row.date);
+      const date = normalizeDate(row.notifyDate);
       const trainee = String(row.name || "").trim();
       const category = canonicalFeeCategory(row.description);
-      const amount = amountValue(row.hafizaAmount);
+      const amount = amountValue(row.notifyAmount);
       if (!date || date.getFullYear() < TRAINEE_REPORT_START_YEAR || !trainee || amount <= 0 || (selectedTrainee !== "all" && trainee !== selectedTrainee) || (selectedFee !== "all" && category !== selectedFee)) return [];
       const p = traineeGrouping === "year" ? String(date.getFullYear()) : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
-      return [{ date: row.date, year: date.getFullYear(), period: p, trainee, category, description: String(row.description || "رسوم أخرى").trim(), source: "حوافظ التوريد", amount }];
+      return [{ notifyDate: row.notifyDate, hafizaNo: row.hafizaNo || "", notifyNo: row.notifyNo || "", year: date.getFullYear(), period: p, trainee, category, description: String(row.description || "رسوم أخرى").trim(), source: "حوافظ التوريد", amount }];
     });
 
     const categories = Array.from(new Set(payments.map((row) => String(row.category)))).sort((a, b) => a.localeCompare(b, "ar"));
     const result: ReportRow[] = [];
 
     categories.forEach((category) => {
-      const categoryPayments = payments.filter((row) => row.category === category).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const categoryPayments = payments.filter((row) => row.category === category).sort((a, b) => String(a.notifyDate).localeCompare(String(b.notifyDate)));
       if (traineeDisplayMode === "detail" || traineeDisplayMode === "both") {
         result.push(...categoryPayments.map((row) => ({ ...row, displayType: "تفصيلي", summaryLevel: "detail" })));
       }
@@ -617,8 +627,9 @@ export default function ReportsTab() {
     const totals = new Map<string, number>();
     hafiza.forEach((row) => {
       const name = String(row.name || "").trim();
-      const amount = amountValue(row.hafizaAmount);
-      if (amount <= 0 || !normalizeDate(row.date) || normalizeDate(row.date)!.getFullYear() < TRAINEE_REPORT_START_YEAR) return;
+      const amount = amountValue(row.notifyAmount);
+      const date = normalizeDate(row.notifyDate);
+      if (amount <= 0 || !date || date.getFullYear() < TRAINEE_REPORT_START_YEAR) return;
       if (selectedTrainee !== "all" && name !== selectedTrainee) return;
       const category = canonicalFeeCategory(row.description);
       totals.set(category, (totals.get(category) || 0) + amount);
@@ -659,7 +670,7 @@ export default function ReportsTab() {
         ] satisfies TabCol[],
       };
     }
-    if (source === "trainee") return { title: "كشف مدفوعات المتدربين من حوافظ التوريد", columns: [{ key: "year", label: "السنة" }, { key: "period", label: "الشهر / السنة" }, { key: "trainee", label: "اسم المتدرب" }, { key: "description", label: "البيان الأصلي" }, { key: "category", label: "التصنيف الموحد" }, { key: "displayType", label: "نوع السجل" }, { key: "source", label: "المصدر" }, { key: "amount", label: "المبلغ" }] satisfies TabCol[] };
+    if (source === "trainee") return { title: "كشف مدفوعات المتدربين من حوافظ التوريد", columns: [{ key: "year", label: "السنة" }, { key: "notifyDate", label: "تاريخ التوريد" }, { key: "period", label: "الشهر / السنة" }, { key: "trainee", label: "اسم المتدرب" }, { key: "hafizaNo", label: "رقم الحافظة" }, { key: "notifyNo", label: "رقم الإشعار" }, { key: "description", label: "البيان الأصلي" }, { key: "category", label: "التصنيف الموحد" }, { key: "displayType", label: "نوع السجل" }, { key: "source", label: "المصدر" }, { key: "amount", label: "مبلغ التوريد" }] satisfies TabCol[] };
     if (source === "feeTotals") return { title: "إجماليات الرسوم حسب النوع", columns: [{ key: "category", label: "نوع الرسم" }, { key: "source", label: "المصدر" }, { key: "amount", label: "الإجمالي" }] satisfies TabCol[] };
     if (source === "hafiza") return { title: "تقرير حوافظ التوريد", columns: [{ key: "date", label: "التاريخ" }, { key: "hafizaNo", label: "رقم الحافظة" }, { key: "description", label: "البيان" }, { key: "name", label: "الاسم" }, { key: "amount", label: "المبلغ" }, { key: "income", label: "الإيرادات" }] satisfies TabCol[] };
     if (source === "account") return { title: "تقرير الحساب الجاري", columns: [{ key: "date", label: "التاريخ" }, { key: "description", label: "البيان" }, { key: "name", label: "الاسم" }, { key: "income", label: "الإيرادات" }, { key: "expense", label: "المصروفات" }] satisfies TabCol[] };
