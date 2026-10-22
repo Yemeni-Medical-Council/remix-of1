@@ -389,8 +389,17 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
         scrollY: 0,
       });
       if (!canvas.width || !canvas.height) throw new Error('تعذر تجهيز صورة التقرير');
+      const pngBlob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('تعذر ترميز صفحة التقرير'));
+        }, 'image/png');
+      });
+      const pngBytes = new Uint8Array(await pngBlob.arrayBuffer());
       if (index > 0) pdf.addPage();
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, widthMm, heightMm, undefined, 'FAST');
+      pdf.addImage(pngBytes, 'PNG', 0, 0, widthMm, heightMm, undefined, 'FAST');
+      canvas.width = 0;
+      canvas.height = 0;
     }
     
     const blob = pdf.output('blob');
