@@ -270,11 +270,17 @@ const reportsTabPrintCss = `
   .report-page-content table tbody tr.summary-card-2 td { background: #a7f3d0 !important; color: #022c22 !important; border-color: #10b981 !important; }
   .report-page-content table tbody tr.summary-card-2 .pdf-cell-text { color: #022c22 !important; }
   /* توحيد الحدود إلى الأسود لجميع خلايا الجدول، بما فيها الرأس والإجمالي والملخص */
-  table th,
-  table td,
-  .report-page-content table th,
-  .report-page-content table td {
+  #tableContainer table th,
+  #tableContainer table td,
+  #report-source table th,
+  #report-source table td {
     border: 1px solid #000000 !important;
+  }
+  @media print {
+    #tableContainer table th,
+    #tableContainer table td {
+      border: 1px solid #000000 !important;
+    }
   }
 `;
 
