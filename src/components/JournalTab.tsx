@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import ImportButton from "@/components/ImportButton";
-import TabActions from "@/components/TabActions";
+import TabActions, { greenPrintHeaderCss } from "@/components/TabActions";
 import type { WebActionItem } from "@/components/WebActionMenu";
 import type { Journal } from "@/lib/store";
 import { useTableControls } from "@/hooks/useTableControls";
@@ -484,6 +484,7 @@ export default function JournalTab() {
       fileName="قيود-اليومية"
       numericKeys={["debit", "credit"]}
       pdfLayout="wide-centered"
+      pdfCss={greenPrintHeaderCss}
       onClear={clearJournal}
       additionalWebActions={journalWebActions}
       className="w-auto !grid !grid-cols-2 sm:!flex !gap-2 [&>button]:min-w-0 [&>button]:justify-center [&>button]:rounded-xl [&>button]:px-2 [&>button]:py-2 [&>button]:text-xs [&>button]:font-bold [&>button]:shadow-sm"

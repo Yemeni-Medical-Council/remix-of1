@@ -18,6 +18,21 @@ import WebActionMenu, { type WebActionItem } from "@/components/WebActionMenu";
 
 export type TabCol = { key: string;label: string };
 
+export const greenPrintHeaderCss = `
+  #tableContainer table thead th,
+  #tableContainer table thead th.desc-cell,
+  #tableContainer table thead th[data-col-key="description"] {
+    background: #14532d !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  #tableContainer table thead th .pdf-cell-text {
+    color: #ffffff !important;
+    background: transparent !important;
+  }
+`;
+
 type Props = {
   title: string;
   rows: Record < string,

@@ -27,7 +27,7 @@ import {
   Landmark,
   Ticket,
 } from "lucide-react";
-import TabActions from "./TabActions";
+import TabActions, { greenPrintHeaderCss } from "./TabActions";
 import WebActionMenu, { type WebActionItem } from "./WebActionMenu";
 import schema from "@/data/revenueTemplate.json";
 import expensesSchemaJson from "@/lib/expensesSchema.json";
@@ -840,6 +840,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
         fileName={`الحساب-الجاري-${accountReportYear}`}
         numericKeys={["hafizaAmount", "income", "expense", "balance"]}
         pdfLayout="wide-centered"
+        pdfCss={greenPrintHeaderCss}
       />
     </div>
   </div> 
@@ -1094,6 +1095,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
               fileName="الحساب-الجاري"
               numericKeys={["hafizaAmount", "income", "expense", "balance"]}
               pdfLayout="wide-centered"
+              pdfCss={greenPrintHeaderCss}
               onClear={clearAccounts}
               className="col-span-2 w-full"
             />

@@ -21,7 +21,7 @@ import {
   CreditCard,
   ScrollText,
 } from "lucide-react";
-import TabActions from "./TabActions";
+import TabActions, { greenPrintHeaderCss } from "./TabActions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -396,7 +396,7 @@ className="w-full text-center px-3 py-2 hover:bg-sky-50 text-xs sm:text-xs flex 
                   <X className="w-4 h-4" />
                 </Button>
               )}
-              <TabActions title="حوافظ التوريد" rows={hafiza} columns={COLS} fileName="حوافظ-التوريد" pdfLayout="wide-centered" pdfOrientation="portrait" />
+              <TabActions title="حوافظ التوريد" rows={hafiza} columns={COLS} fileName="حوافظ-التوريد" pdfLayout="wide-centered" pdfOrientation="portrait" pdfCss={greenPrintHeaderCss} />
             </div>
           </div>
         </CardHeader>
