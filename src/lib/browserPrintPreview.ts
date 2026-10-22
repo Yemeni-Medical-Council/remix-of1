@@ -12,6 +12,8 @@ interface OpenBrowserPrintPreviewOptions {
   margin?: "minimal" | "normal";
   defaultMarginMm?: number;
   fitToContent?: boolean;
+  autoDownloadPdf?: boolean;
+  downloadFileName?: string;
 }
 
 export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions) {
@@ -541,6 +543,7 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
   <script>
     (function() {
       const fitToContent = ${fitToContent ? "true" : "false"};
+      const autoDownloadPdf = ${options.autoDownloadPdf ? "true" : "false"};
       const selOrientation = document.getElementById('selOrientation');
       const selPageSize = document.getElementById('selPageSize');
       const selMargin = document.getElementById('selMargin');
@@ -820,6 +823,12 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
       btnDownloadPdf.addEventListener('click', downloadDirectPdf);
       btnClose.addEventListener('click', function() { window.close(); });
 
+      if (autoDownloadPdf) {
+        window.addEventListener('load', function() {
+          window.setTimeout(downloadDirectPdf, 250);
+        }, { once: true });
+      }
+
       window.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
           e.preventDefault();
@@ -837,7 +846,10 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
   (newWin as any).downloadReportFromPreview = async (settings: any) => {
     const paper = newWin.document.getElementById("paperContainer");
     if (!paper) throw new Error("تعذر تحديد الورقة");
-    await downloadRenderedReportPdf(paper, { ...settings, fileName: `${title.replace(/[\\/:*?"<>|]/g, "-")}.pdf` });
+    await downloadRenderedReportPdf(paper, {
+      ...settings,
+      fileName: options.downloadFileName || `${title.replace(/[\\/:*?"<>|]/g, "-")}.pdf`,
+    });
   };
   newWin.document.open();
   newWin.document.write(html);

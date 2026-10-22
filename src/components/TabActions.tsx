@@ -11,7 +11,6 @@ import {
 import { Printer, FileSpreadsheet, Trash2, Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useReportDate } from "@/lib/reportDate";
-import { exportTablePdf } from "@/lib/pdfExporter";
 import { buildTableHtml } from "@/lib/printTableHtml";
 import { reportDocumentCss } from "@/lib/reportPdf";
 import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
@@ -47,7 +46,6 @@ export default function TabActions({
   numericKeys = [],
   className = "",
   printLabel = "طباعة",
-  pdfLayout = "default",
   pdfOrientation,
   pdfMarginMm,
   pdfCss,
@@ -69,7 +67,7 @@ export default function TabActions({
     
     // تحديد الاتجاه الافتراضي بناءً على عدد الأعمدة أو خيار التبويب
     const defaultOrientation: "portrait" | "landscape" =
-      pdfOrientation === "landscape" || columns.length > 7 ? "landscape" : "portrait";
+      pdfOrientation === "portrait" ? "portrait" : pdfOrientation === "landscape" || columns.length > 7 ? "landscape" : "portrait";
     
     const opened = openBrowserPrintPreview({
       title,
@@ -94,12 +92,24 @@ export default function TabActions({
     if (pdfBusy) return;
     setPdfBusy(true);
     try {
-      await exportTablePdf({ title, columns, rows, numericKeys, fileName, reportDate, pdfLayout,
-        orientation: pdfOrientation === "portrait" ? "portrait" : pdfOrientation === "landscape" || columns.length > 7 ? "landscape" : "portrait",
-        marginMm: pdfMarginMm,
-        css: pdfCss,
-        includeTotalRow });
-      toast.success("تم تجهيز ملف PDF للحفظ أو المشاركة");
+      const orientation: "portrait" | "landscape" =
+        pdfOrientation === "portrait" ? "portrait" : pdfOrientation === "landscape" || columns.length > 7 ? "landscape" : "portrait";
+      const opened = openBrowserPrintPreview({
+        title,
+        reportDateLabel,
+        tableHtml: tableHtml(),
+        contentCss: pdfCss ? `${reportDocumentCss}\n${pdfCss}` : reportDocumentCss,
+        defaultOrientation: orientation,
+        defaultPageSize: "A4",
+        ...(pdfMarginMm === undefined ? {} : { defaultMarginMm: pdfMarginMm }),
+        autoDownloadPdf: true,
+        downloadFileName: `${fileName}-${reportDate || new Date().toISOString().slice(0, 10)}.pdf`,
+      });
+      if (!opened) {
+        toast.error("تعذر فتح معاينة التقرير؛ اسمح بالنوافذ المنبثقة ثم أعد المحاولة");
+        return;
+      }
+      toast.success("تم فتح المعاينة ويجري تنزيل PDF بالإعدادات نفسها");
     } catch (err) {
       console.error("PDF export error:", err);
       toast.error("تعذّر تنزيل ملف PDF، حاول مرة أخرى");
