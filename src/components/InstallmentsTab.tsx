@@ -2150,14 +2150,15 @@ td.t-fees { background: ${colorTokens.fees} !important; }
     const remaining = dueTotal - totalPaid;
     const safeName = safePdfFileName(row.name);
 
-    // 5. إظهار سطر مستقل لكل شهر؛ البيان اسم القسط والمبلغ في عموده المنفصل
+    // 5. إظهار الأشهر التي لها مبلغ سداد فقط
     const monthlyRows = monthsList
       .map((m) => {
         const amount = Number(row?.payments?.[m]) || 0;
+        if (amount <= 0) return "";
         return `
-          <tr class="${amount > 0 ? "row-paid" : "row-unpaid"}">
+          <tr class="row-paid">
             <td class="lbl">قسط شهر ${escapeHtml(m)}</td>
-            <td class="num">${amount > 0 ? escapeHtml(fmt(amount)) : "—"}</td>
+            <td class="num">${escapeHtml(fmt(amount))}</td>
           </tr>`;
       })
       .join("");
