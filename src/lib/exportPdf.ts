@@ -11,6 +11,7 @@ import { REPORT_LETTERHEAD_SRC } from "@/lib/printTableHtml";
 import revSchema from "@/data/revenueTemplate.json";
 import { printReportHtmlAsync } from "@/lib/nativePrinter";
 import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
+import { reportDocumentCss } from "@/lib/reportPdf";
 
 const reportLetterheadRow = (columnCount: number) => `
   <tr class="report-letterhead-row">
@@ -502,120 +503,36 @@ export async function revenuePdf(
     body += `<tr class="group-row"><td class="acc">إجمالي ${ch.title}</td><td class="num">${ch.no}</td><td colspan="3"></td><td class="num">${fc(a.cur)}</td><td class="num">${fc(a.prev)}</td><td class="num">${fc(a.cur + a.prev)}</td></tr>`;
   });
 
-  const head = `<meta charset="utf-8"><title>${REV_SCHEMA.title} - ${MONTHS_PDF[month - 1]} ${year}م</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-${reportLetterheadStyles}
-    @page { size: A4 landscape; margin: 8mm; padding: 0; }
-    body { 
-      font-family: Cairo; 
-      direction: rtl; 
-      color: #000 !important; 
-      padding: 6px; 
-      background: white;
-    font-size: 19.5px !important;
-text-align:center;
-      font-weight: 700 !important;
-    }
-    h1 { text-align: center; 
-  font-size: 22px;
-  font-weight: 900; margin: 0 0 4px; }
-    .meta { text-align: center; font-size: 20px; 
-    font-weight: 900; margin: 2px 0; }
-    table { 
-width: 100%; 
-max-width: auto;
-text-align:center;
-border:solid 1px black; 
-font-size: 20px; 
-table-layout: auto; 
-margin-top: 6px; }
-    
-    th:nth-child(1), td:nth-child(1) { width: 44%; }
-    th:nth-child(2), td:nth-child(2),
-    th:nth-child(3), td:nth-child(3),
-    th:nth-child(4), td:nth-child(4),
-    th:nth-child(5), td:nth-child(5) { width: 4%; }
-    th:nth-child(6), td:nth-child(6),
-    th:nth-child(7), td:nth-child(7),
-    th:nth-child(8), td:nth-child(8) { width: 13%; }
-    
-    th, td { 
-      border: 1px solid #000; 
-      padding: 3px 2px !important;
-      text-align: center;
-      vertical-align: middle;
+  const title = `${REV_SCHEMA.title} - ${MONTHS_PDF[month - 1]} ${year}م`;
+  const revenuePrintCss = `
+    ${reportLetterheadStyles}
+    table { table-layout: auto !important; }
+    td.acc { white-space: normal !important; overflow-wrap: break-word !important; }
+    tbody tr.group-row td {
+      background: #fef3c7 !important;
+      color: #451a03 !important;
       font-weight: 900 !important;
-      line-height: 1.25;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
     }
-    .num {
-      font-family: 'Times New Roman', Times, serif !important;
-      font-size: 20px !important;
-      direction: ltr;
-      unicode-bidi: embed;
+    tbody tr.subtotal-row td {
+      background: #e0f2fe !important;
+      color: #082f49 !important;
+      font-weight: 800 !important;
     }
-    td.acc {
-  text-align: center; font-weight: 800 !important; }
-    th { background: gold !important; 
-    font-size: 20.5px !important;
-        color: #000;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    tbody tr.total-row td {
+      background: #0437bb !important;
+      color: #ffffff !important;
+      border: 1px solid #000000 !important;
+      font-weight: 900 !important;
     }
-    tr.group-row td {
-  background: #fef3c7 !important; font-weight: 900 !important;
-  color: #fff;
-    }
-    tr.subtotal-row td { background: #31f5ff !important;
-  font-weight: 800 !important;
-    }
-    tr.total-row td { background: #1f7fb8 !important; font-weight: 900 !important; }
-    /* تحسينات محصورة بتقريري كشف الحساب الشهري والإيرادات */
-    @page { size: A4 landscape; margin: 3mm; padding: 0; }
-    body { padding: 0 1px; width: 100%; }
-    .report-letterhead-row { width: 100%; }
-    .report-letterhead-cell { padding: 0 !important; 
-    width: 100%; }
-    .report-letterhead-image { width: 100% !important; max-width: auto !important; height: 32mm !important; 
-    object-fit:fill !important; margin: 0 !important;
-object-position: top !important;
-    }
-    table { width: 100%; max-width: 100%;
-  table-layout: auto !important; margin-top: 4px; }
-    th:first-child, td:first-child,
-    th:not(:first-child), td:not(:first-child) { width: auto !important; }
-    th, td {
-      padding: 2px 3px !important;
-      white-space:nowrap !important;
-      overflow: visible !important;
-      overflow-wrap: break-word !important;
-      word-break: normal !important;
-      line-height: 1.2;
-    }
-    .num, .numeric-cell, .date-cell {
-      width: 1% !important;
-      min-width: 0 !important;
-      white-space: nowrap !important;
-      overflow: visible !important;
-      overflow-wrap: normal !important;
-      word-break: keep-all !important;
-      hyphens: none !important;
-      font-family: 'Times New Roman', Times, serif !important;
-      font-size: 19px !important;
-      font-variant-numeric: tabular-nums;
-      direction: ltr;
-    }
-    td.acc { width:100% !important;
-white-space: normal !important; overflow-wrap: break-word !important; word-break: normal !important; }
-    @media print {
-      body { padding: 0; }
-      @page { size: A4 landscape; margin: 3mm; }
-    }
-  </style>`;
-
-  await printReportHtmlAsync(
-    `<!doctype html><html lang="ar" dir="rtl"><head>${head}</head><body>${body}<script>window.onload=()=>{setTimeout(()=>window.print(),400)}</script></body></html>`,
-    `${REV_SCHEMA.title} - ${MONTHS_PDF[month - 1]} ${year}م`,
-  );
+  `;
+  const opened = openBrowserPrintPreview({
+    title,
+    reportDateLabel,
+    tableHtml: body,
+    contentCss: `${reportDocumentCss}\n${revenuePrintCss}`,
+    defaultOrientation: "landscape",
+    defaultPageSize: "A4",
+    defaultMarginMm: 3,
+  });
+  if (!opened) throw new Error("تم منع فتح نافذة معاينة الطباعة");
 }
