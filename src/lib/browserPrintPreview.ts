@@ -337,7 +337,7 @@ export function openBrowserPrintPreview({
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
-      color: #ffffff !important;
+      color: #000 !important;
       font-weight: 900;
       white-space: normal !important;
       background: transparent !important;
@@ -346,7 +346,7 @@ export function openBrowserPrintPreview({
     thead th.desc-cell,
     thead th[data-col-key="description"] {
       background: #174258 !important;
-      color: #ffffff !important;
+      color: #000 !important;
       white-space: normal !important;
     min-width: 50%;
 

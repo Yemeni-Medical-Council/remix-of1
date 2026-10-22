@@ -121,9 +121,6 @@ const canonicalFeeCategory = (value: unknown) => {
 };
 
 // دالة تصنيف السجل وفق عمود البيان في الحساب الجاري
-// تُعيد "tawfiq" إذا كان البيان خاصاً بعهدة الداعي/توفيق الداعي
-// وتُعيد "youssef" إذا كان البيان يحتوي على كلمة عهدة (بدون ذكر الداعي)
-// وتُعيد "other" لبقية السجلات
 const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "other" => {
   const text = String(description || "").trim();
   if (!text) return "other";
@@ -139,28 +136,71 @@ const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "ot
   return "other";
 };
 
-// أنماط طباعة مخصصة للتقارير
+// أنماط طباعة مخصصة للتقارير متطابقة 100% مع نافذة معاينة المتصفح
 const reportsTabPrintCss = `
+  /* رؤوس الأعمدة: نفس أخضر المعاينة مع تمييز عمود البيان باللون البترولي */
   thead th {
-    background: #9e3513 !important;
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    white-space: nowrap !important;
-  }
-  tbody td {
-    color: #000000 !important;
-    font-weight: 900 !important;
-    border: 1px solid #cbd5e1 !important;
-  }
-  .total-row td {
-    background: #31f5ff !important;
+    background: #027d11 !important;
     color: #ffffff !important;
     font-weight: 900 !important;
+    font-size: 13.5px !important;
+    padding: 6px 4px !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    border: 1px solid #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  thead th .pdf-cell-text,
+  th .pdf-cell-text {
+    background: transparent !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+  }
+  thead th.desc-cell,
+  thead th[data-col-key="description"] {
+    background: #174258 !important;
+    color: #ffffff !important;
+    white-space: normal !important;
   }
 
-  /* ===== صفوف ملخص العهدة داخل الجدول ===== */
+  /* خلايا البيانات: خط Cairo عريض أسود */
+  tbody td {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    border: 1px solid #000000 !important;
+    font-size: 13.5px !important;
+    padding: 4px 5px !important;
+    text-align: center !important;
+  }
+  tbody tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+
+  /* صف الإجمالي الكلي الملون في تقارير العهد والتقارير العامة */
+  .total-row,
+  .total-row td,
+  tr.total-row td,
+  tr[data-summary="total"] td {
+    background: #0437bb !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    border-top: 2px solid #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+    white-space: nowrap !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .total-row td .pdf-cell-text,
+  tr.total-row td .pdf-cell-text {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    background: transparent !important;
+  }
+
+  /* ===== صفوف ملخص العهدة (الافتتاحي / المنصرف / المتبقي) ===== */
   .summary-spacer-row td {
-    height: 14px !important;
+    height: 12px !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
@@ -169,25 +209,41 @@ const reportsTabPrintCss = `
     text-align: center !important;
     vertical-align: middle !important;
     font-weight: 900 !important;
-    padding: 8px 6px !important;
-    font-size: 12px !important;
+    padding: 7px 6px !important;
+    font-size: 13px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    white-space: nowrap !important;
   }
+  /* البطاقة 0: الرصيد الافتتاحي (كهرماني/أصفر) */
   .summary-card-0 td {
     background: #fde68a !important;
     color: #78350f !important;
-    border: 1px solid #d97706 !important;
+    border: 1.5px solid #d97706 !important;
   }
+  .summary-card-0 .pdf-cell-text {
+    color: #78350f !important;
+    background: transparent !important;
+  }
+  /* البطاقة 1: المنصرف خلال العام (وردي/أحمر) */
   .summary-card-1 td {
     background: #fecaca !important;
     color: #7f1d1d !important;
-    border: 1px solid #dc2626 !important;
+    border: 1.5px solid #dc2626 !important;
   }
+  .summary-card-1 .pdf-cell-text {
+    color: #7f1d1d !important;
+    background: transparent !important;
+  }
+  /* البطاقة 2: المتبقي من العهدة (زمردي/أخضر فاتح) */
   .summary-card-2 td {
     background: #a7f3d0 !important;
     color: #064e3b !important;
-    border: 1px solid #059669 !important;
+    border: 1.5px solid #059669 !important;
+  }
+  .summary-card-2 .pdf-cell-text {
+    color: #064e3b !important;
+    background: transparent !important;
   }
 `;
 
@@ -250,7 +306,6 @@ export default function ReportsTab() {
         const d = normalizeDate(row.date);
         if (!d || d.getFullYear() < 2026) return false;
         if (!inPeriod(row.date)) return false;
-        // يُقرأ فقط السجلات التي بيانها يحتوي على كلمة "عهدة" (وليست خاصة بالداعي)
         return classifyCustodyRecord(row.description) === "youssef";
       })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -274,9 +329,8 @@ export default function ReportsTab() {
     let sumCredit = youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0;
 
     matched.forEach((row) => {
-      // حسب طلبك: الدائن (المسدد) = مبلغ الحافظة، والمدين (المنصرف) = الإيرادات
-      const credit = amountValue(row.hafizaAmount);   // دائن (المسدد) من عمود مبلغ الحافظة
-      const debit  = amountValue(row.income);         // مدين (المنصرف) من عمود الإيرادات
+      const credit = amountValue(row.hafizaAmount);
+      const debit = amountValue(row.income);
       running += debit - credit;
       sumDebit += debit;
       sumCredit += credit;
@@ -300,7 +354,7 @@ export default function ReportsTab() {
       });
     });
 
-    // صف الإجمالي الكلي لكل الأعمدة فقط
+    // صف الإجمالي الكلي الملون لكل الأعمدة
     result.push({
       date: "—",
       docNo: "—",
@@ -312,7 +366,7 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
-    // صفوف ملخص العهدة (تُبنى كصفوف مدمجة ملوّنة في الطباعة/PDF)
+    // صفوف ملخص العهدة
     const paidForSummary = sumCredit - (youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0);
     const remainingForSummary = youssefOpeningBalance - paidForSummary;
 
@@ -345,7 +399,6 @@ export default function ReportsTab() {
         const d = normalizeDate(row.date);
         if (!d || d.getFullYear() < 2026) return false;
         if (!inPeriod(row.date)) return false;
-        // يُقرأ فقط السجلات التي بيانها يحتوي على "عهدة الداعي" أو "توفيق الداعي"
         return classifyCustodyRecord(row.description) === "tawfiq";
       })
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -369,9 +422,8 @@ export default function ReportsTab() {
     let sumCredit = tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0;
 
     matched.forEach((row) => {
-      // حسب طلبك: الدائن (المسدد) = مبلغ الحافظة، والمدين (المنصرف) = الإيرادات
-      const credit = amountValue(row.hafizaAmount);   // دائن (المسدد) من عمود مبلغ الحافظة
-      const debit  = amountValue(row.income);         // مدين (المنصرف) من عمود الإيرادات
+      const credit = amountValue(row.hafizaAmount);
+      const debit = amountValue(row.income);
       running += debit - credit;
       sumDebit += debit;
       sumCredit += credit;
@@ -395,7 +447,7 @@ export default function ReportsTab() {
       });
     });
 
-    // صف الإجمالي الكلي لكل الأعمدة فقط
+    // صف الإجمالي الكلي الملون لكل الأعمدة
     result.push({
       date: "—",
       docNo: "—",
@@ -407,7 +459,7 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
-    // صفوف ملخص العهدة (تُبنى كصفوف مدمجة ملوّنة في الطباعة/PDF)
+    // صفوف ملخص العهدة
     const paidForSummary = sumCredit - (tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0);
     const remainingForSummary = tawfiqOpeningBalance - paidForSummary;
 
@@ -640,8 +692,8 @@ export default function ReportsTab() {
           </div>
         </header>
 
-        {/* فلاتر واختيارات التقرير */}
-        <div className="grid gap-3 border-b border-slate-200 bg-slate-50 p-3 sm:grid-cols-4 sm:p-4">
+        {/* عناصر التحكم والتصفية */}
+        <div className="grid grid-cols-1 gap-3 border-b border-slate-200 bg-slate-50/70 p-3 sm:grid-cols-2 lg:grid-cols-4 sm:p-4">
           <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
             مصدر التقرير
             <select
@@ -655,7 +707,7 @@ export default function ReportsTab() {
             </select>
           </label>
 
-          {/* حقل الرصيد الافتتاحي اليدوي لسلفة د/يوسف وعهدة توفيق الداعي */}
+          {/* حقل الرصيد الافتتاحي اليدوي لسلفة د/يوسف */}
           {source === "youssefLoan" && (
             <label className="flex flex-col gap-1 text-xs font-black text-amber-900 bg-amber-50/80 p-1.5 rounded-xl border border-amber-200">
               <span className="flex items-center gap-1 font-black">
@@ -672,6 +724,7 @@ export default function ReportsTab() {
             </label>
           )}
 
+          {/* حقل الرصيد الافتتاحي اليدوي لعهدة توفيق الداعي */}
           {source === "tawfiqCustody" && (
             <label className="flex flex-col gap-1 text-xs font-black text-emerald-900 bg-emerald-50/80 p-1.5 rounded-xl border border-emerald-200">
               <span className="flex items-center gap-1 font-black">
@@ -824,7 +877,7 @@ export default function ReportsTab() {
             }
             numericKeys={numericKeys}
             pdfLayout="wide-centered"
-            pdfOrientation={isLoanOrCustody ? "landscape" : "landscape"}
+            pdfOrientation="landscape"
             pdfCss={reportsTabPrintCss}
             className="w-full sm:w-auto"
           />
@@ -833,7 +886,7 @@ export default function ReportsTab() {
         {/* جدول عرض التقرير */}
         <div className="overflow-x-auto p-3 sm:p-4">
           {displayRows.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-white">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-slate-600">
               <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
               لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
             </div>
@@ -851,28 +904,34 @@ export default function ReportsTab() {
               </thead>
               <tbody>
                 {displayRows.map((row, index) => {
-                  const isTotal = row.summaryLevel === "total";
+                  const isTotal = row.summaryLevel === "total" || row.description === "الإجمالي الكلي";
                   const isOpening = row.summaryLevel === "opening";
 
-                  let rowStyle = "bg-#00a592 text-white";
+                  let rowStyle = "hover:bg-sky-50/50";
                   if (isTotal) {
-                    rowStyle = "bg-[#0b9af4] text-white font-white";
+                    // تلوين خلفية صف الإجمالي الكلي بالأزرق الغامق الملوّن
+                    rowStyle = "bg-[#0437bb] text-white font-black text-sm sm:text-base";
                   } else if (isOpening) {
-                    rowStyle = "bg-amber-100/80 text-amber-950 font-white";
+                    rowStyle = "bg-amber-100/90 text-amber-950 font-bold";
                   } else if (row.summaryLevel === "fee") {
-                    rowStyle = "bg-sky-200 font-white text-sky-950";
+                    rowStyle = "bg-sky-100 font-bold text-sky-950";
                   } else if (row.summaryLevel === "period") {
-                    rowStyle = "bg-amber-200 font-white text-amber-950";
+                    rowStyle = "bg-amber-100 font-bold text-amber-950";
                   } else if (index % 2 === 1) {
                     rowStyle = "bg-slate-50/80 text-slate-900";
+                  } else {
+                    rowStyle = "bg-white text-slate-900";
                   }
 
                   return (
                     <tr
                       key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`}
-                      className={`transition-colors ${rowStyle}`}
+                      className={`transition-colors ${rowStyle} ${isTotal ? "total-row" : ""}`}
+                      data-summary={isTotal ? "total" : undefined}
                     >
-                      <td className="border border-slate-200 px-2 py-2 font-bold">
+                      <td className={`border px-2 py-2 font-bold ${
+                        isTotal ? "border-blue-900 text-white font-black" : "border-slate-200 text-slate-800"
+                      }`}>
                         {isTotal ? "★" : index + 1}
                       </td>
                       {sourceConfig.columns.map((column) => {
@@ -881,9 +940,11 @@ export default function ReportsTab() {
                         return (
                           <td
                             key={column.key}
-                            className={`border border-slate-200 text-white px-3 py-2 font-semibold ${
-                              isNum ? "font-mono" : ""
-                            }`}
+                            className={`border px-3 py-2 font-semibold ${
+                              isTotal
+                                ? "border-blue-900 text-white font-black"
+                                : "border-slate-200 text-slate-900"
+                            } ${isNum ? "font-mono" : ""}`}
                           >
                             {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
                           </td>
@@ -923,17 +984,17 @@ export default function ReportsTab() {
                             key={`summary-${i}`}
                             className={`summary-card-row ${style.cls} ${style.bg} ${style.text} font-black`}
                           >
-                            {/* خلية البيان: تدمج من عمود "م" حتى قبل عمود المبلغ (6 خلايا) */}
+                            {/* خلية البيان: تدمج من عمود "م" حتى قبل عمود الرصيد (5 خلايا) */}
                             <td
-                              colSpan={6}
-                              className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm`}
+                              colSpan={sourceConfig.columns.length - 1}
+                              className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm font-black`}
                             >
                               {style.label}
                             </td>
-                            {/* خلية المبلغ: تدمج عمودَي "دائن" و"الرصيد" (خليتان) */}
+                            {/* خلية المبلغ: تدمج العمودين الأخيرين */}
                             <td
                               colSpan={2}
-                              className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base`}
+                              className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base font-black`}
                             >
                               {value.toLocaleString()}
                             </td>
