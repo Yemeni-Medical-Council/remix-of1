@@ -1,4 +1,4 @@
-import { saveBlobToInternalStorage } from './nativeFileStorage';
+import { deliverBlobToUser, isNativeFileStorageAvailable } from './nativeFileStorage';
 import { escapeHtml, reportLetterheadHtml } from './printTableHtml';
 
 export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
@@ -251,7 +251,7 @@ export const reportContainmentCss = `
 
 const dimensions = (size: ReportPaperSize, orientation: ReportOrientation) => {
   const [short, long] = size === 'A3' ? [297, 420] : size === 'Letter' ? [215.9, 279.4] : [210, 297];
-  return orientation === 'portrait' ? [long, short] : [short, long];
+  return orientation === 'landscape' ? [long, short] : [short, long];
 };
 
 async function ready(doc: Document) {
@@ -278,7 +278,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   const holder = doc.createElement('div');
   holder.style.cssText = 'position:absolute;left:-20000px;top:0;pointer-events:none;';
   const paper = doc.createElement('div');
-  paper.style.cssText = `width:${widthMm}cm;min-height:${heightMm}cm;padding:${marginMm}cm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
+  paper.style.cssText = `width:${widthMm}mm;min-height:${heightMm}mm;padding:${marginMm}mm;box-sizing:border-box;background:var(--report-paper,#fff);display:flex;flex-direction:column;`;
   const content = source.cloneNode(true) as HTMLElement;
   content.classList.add('report-page-content');
   content.style.cssText = 'width:100%;max-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
@@ -336,7 +336,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       }
     }
     
-    const pdf = new JsPDF({ unit: 'cm', format: pageSize.toLowerCase(), orientation, compress: true });
+    const pdf = new JsPDF({ unit: 'mm', format: pageSize.toLowerCase(), orientation, compress: true });
     pdf.setProperties({ title: fileName.replace(/\.pdf$/i, ''), subject: 'تقرير مالي', creator: 'المجلس اليمني للاختصاصات الطبية' });
     
     for (let index = 0; index < groups.length; index++) {
@@ -370,19 +370,32 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     }
     
     const blob = pdf.output('blob');
-    try {
-      await saveBlobToInternalStorage(blob, fileName);
-    } catch (error) {
-      console.warn('[PDF] Internal storage save failed; using browser download', error);
-    }
     const downloadName = fileName.toLowerCase().endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+    if (!blob.size) throw new Error('تم إنشاء ملف PDF فارغ');
+
+    // Android WebView لا ينفذ تنزيل blob كمتصفح عادي؛ سلّم الملف للمشاركة.
+    if (isNativeFileStorageAvailable()) {
+      const delivered = await deliverBlobToUser(blob, downloadName);
+      if (!delivered) throw new Error('تعذر تسليم ملف PDF إلى Android');
+      return;
+    }
+
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
+    // أنشئ رابط التنزيل في النافذة العليا، لا داخل iframe إنشاء التقرير.
+    let downloadDocument = doc;
+    try {
+      downloadDocument = doc.defaultView?.top?.document ?? window.document;
+    } catch {
+      downloadDocument = window.document;
+    }
+    const anchor = downloadDocument.createElement('a');
     anchor.href = url;
     anchor.download = downloadName;
     anchor.rel = 'noopener';
-    anchor.style.display = 'none';
-    document.body.append(anchor);
+    anchor.style.position = 'fixed';
+    anchor.style.left = '-10000px';
+    anchor.style.top = '0';
+    downloadDocument.body.append(anchor);
     try {
       anchor.click();
     } catch (error) {
@@ -392,7 +405,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     } finally {
       anchor.remove();
     }
-    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   } finally {
     holder.remove();
   }

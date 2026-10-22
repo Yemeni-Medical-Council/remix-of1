@@ -96,7 +96,7 @@ export default function TabActions({
         orientation: pdfOrientation === "portrait" ? "portrait" : pdfOrientation === "landscape" || columns.length > 7 ? "landscape" : "portrait",
         marginMm: pdfMarginMm,
         css: pdfCss });
-      toast.success("تم تنزيل الملف بنجاح");
+      toast.success("تم تجهيز ملف PDF للحفظ أو المشاركة");
     } catch (err) {
       console.error("PDF export error:", err);
       toast.error("تعذّر تنزيل ملف PDF، حاول مرة أخرى");
