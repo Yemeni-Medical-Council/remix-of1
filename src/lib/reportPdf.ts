@@ -192,6 +192,8 @@ export const reportContainmentCss = `
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
+    border: 1px solid #000000 !important;
+
   }
   .report-page-content tbody td.desc-cell,
   .report-page-content tbody td.details-cell,
@@ -201,6 +203,7 @@ export const reportContainmentCss = `
   .report-page-content tbody td.details-cell .pdf-cell-text,
   .report-page-content tbody td.description-cell .pdf-cell-text,
   .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
+  border: 1px solid #000000 !important;
     white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: normal !important;
@@ -216,8 +219,9 @@ export const reportContainmentCss = `
     word-break: keep-all !important; 
   }
   .report-page-content .pdf-cell-text {
+  border: 1px solid #000000 !important;
     font-family: Cairo !important;
-    font-size: 13.5px !important;
+    font-size: 16.5px !important;
     text-align: center !important;
     vertical-align: middle !important;
   }
@@ -286,7 +290,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   const content = source.cloneNode(true) as HTMLElement;
   content.classList.add('report-page-content');
   content.style.cssText = fitToContent
-    ? 'width:100%;max-height:none;height:auto;min-height:0;padding:0;margin:0;border:0;box-shadow:none;transform:none;'
+    ? 'width:100%;max-height:none;height:auto;min-height:0;padding:0;margin:0;border: 1px solid #000;box-shadow:none;transform:none;'
     : 'width:100%;max-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
   footer.style.cssText = 'margin-top:8px;padding-top:6px;text-align:center;font-size:14px;color:#000000;direction:rtl;font-weight:700;';
