@@ -33,6 +33,7 @@ type Props = {
   pdfOrientation ? : string;
   pdfMarginMm ? : number;
   pdfCss ? : string;
+  includeTotalRow?: boolean;
   additionalWebActions ? : WebActionItem[];
   webClassName ? : string;
 };
@@ -50,6 +51,7 @@ export default function TabActions({
   pdfOrientation,
   pdfMarginMm,
   pdfCss,
+  includeTotalRow = true,
   additionalWebActions = [],
   webClassName = "",
 }: Props) {
@@ -57,7 +59,7 @@ export default function TabActions({
   const { reportDate, reportDateLabel } = useReportDate();
   
   // توليد كود الـ HTML الخاص بالجدول
-  const tableHtml = () => buildTableHtml({ title, columns, rows, numericKeys, reportDate });
+  const tableHtml = () => buildTableHtml({ title, columns, rows, numericKeys, reportDate, includeTotalRow });
   
   const handlePrint = () => {
     if (!rows.length) {
@@ -95,7 +97,8 @@ export default function TabActions({
       await exportTablePdf({ title, columns, rows, numericKeys, fileName, reportDate, pdfLayout,
         orientation: pdfOrientation === "portrait" ? "portrait" : pdfOrientation === "landscape" || columns.length > 7 ? "landscape" : "portrait",
         marginMm: pdfMarginMm,
-        css: pdfCss });
+        css: pdfCss,
+        includeTotalRow });
       toast.success("تم تجهيز ملف PDF للحفظ أو المشاركة");
     } catch (err) {
       console.error("PDF export error:", err);

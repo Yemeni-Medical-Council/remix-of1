@@ -305,6 +305,7 @@ export async function exportTablePdf(opts: {
   orientation?: 'portrait' | 'landscape';
   marginMm?: number;
   css?: string;
+  includeTotalRow?: boolean;
 }): Promise<void> {
   const {
     title,
@@ -313,6 +314,7 @@ export async function exportTablePdf(opts: {
     numericKeys = [],
     fileName,
     reportDate,
+    includeTotalRow = true,
     pdfLayout = 'default',
     orientation = 'portrait',
   } = opts;
@@ -320,7 +322,7 @@ export async function exportTablePdf(opts: {
 
   await downloadReportPdf({
     title,
-    body: buildTableHtml({ title, columns, rows, numericKeys, reportDate }),
+    body: buildTableHtml({ title, columns, rows, numericKeys, reportDate, includeTotalRow }),
     fileName: `${fileName}-${safeDate}.pdf`,
     orientation: opts.orientation ?? (columns.length > 7 || pdfLayout === 'wide-centered' ? 'landscape' : 'portrait'),
     marginMm: opts.marginMm,

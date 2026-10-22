@@ -138,16 +138,16 @@ const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "ot
 
 // أنماط طباعة مخصصة للتقارير متطابقة 100% مع نافذة معاينة المتصفح
 const reportsTabPrintCss = `
-  /* رؤوس الأعمدة: نفس أخضر المعاينة مع تمييز عمود البيان باللون البترولي */
+  /* رؤوس الأعمدة: مطابقة للرأس الكحلي في جدول التقارير */
   thead th {
-    background: #027d11 !important;
+    background: #0f283a !important;
     color: #ffffff !important;
     font-weight: 900 !important;
     font-size: 13.5px !important;
     padding: 6px 4px !important;
     white-space: normal !important;
     word-break: keep-all !important;
-    border: 1px solid #000000 !important;
+    border: 1px solid #1f5f7a !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -157,42 +157,41 @@ const reportsTabPrintCss = `
     color: #ffffff !important;
     font-weight: 900 !important;
   }
-  thead th.desc-cell,
-  thead th[data-col-key="description"] {
-    background: #174258 !important;
-    color: #ffffff !important;
-    white-space: normal !important;
-  }
-
   /* خلايا البيانات: خط Cairo عريض أسود */
   tbody td {
     color: #000000 !important;
     font-weight: 800 !important;
-    border: 1px solid #000000 !important;
+    border: 1px solid #e2e8f0 !important;
     font-size: 13.5px !important;
     padding: 4px 5px !important;
     text-align: center !important;
   }
+  tbody td .pdf-cell-text {
+    color: inherit !important;
+    background: transparent !important;
+  }
   tbody tr:nth-child(even) td {
     background: #f8fafc !important;
   }
+  tbody tr.report-row-plain td { background: #ffffff !important; color: #0f172a !important; }
+  tbody tr.report-row-striped td { background: #f8fafc !important; color: #0f172a !important; }
+  tbody tr.report-opening-row td,
+  tbody tr.report-period-row td { background: #fef3c7 !important; color: #451a03 !important; font-weight: 900 !important; }
+  tbody tr.report-fee-row td { background: #e0f2fe !important; color: #082f49 !important; font-weight: 900 !important; }
 
   /* صف الإجمالي الكلي الملون في تقارير العهد والتقارير العامة */
-  .total-row,
-  .total-row td,
-  tr.total-row td,
-  tr[data-summary="total"] td {
+  tbody tr.total-row td {
     background: #0437bb !important;
     color: #ffffff !important;
     font-weight: 900 !important;
-    border-top: 2px solid #000000 !important;
-    border-bottom: 2px solid #000000 !important;
+    border-color: #1e3a8a !important;
+    border-top: 2px solid #1e3a8a !important;
+    border-bottom: 2px solid #1e3a8a !important;
     white-space: nowrap !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .total-row td .pdf-cell-text,
-  tr.total-row td .pdf-cell-text {
+  tbody tr.total-row td .pdf-cell-text {
     color: #ffffff !important;
     font-weight: 900 !important;
     background: transparent !important;
@@ -218,33 +217,58 @@ const reportsTabPrintCss = `
   /* البطاقة 0: الرصيد الافتتاحي (كهرماني/أصفر) */
   .summary-card-0 td {
     background: #fde68a !important;
-    color: #78350f !important;
-    border: 1.5px solid #d97706 !important;
+    color: #451a03 !important;
+    border: 1.5px solid #f59e0b !important;
   }
   .summary-card-0 .pdf-cell-text {
-    color: #78350f !important;
+    color: #451a03 !important;
     background: transparent !important;
   }
   /* البطاقة 1: المنصرف خلال العام (وردي/أحمر) */
   .summary-card-1 td {
-    background: #fecaca !important;
-    color: #7f1d1d !important;
-    border: 1.5px solid #dc2626 !important;
+    background: #fecdd3 !important;
+    color: #4c0519 !important;
+    border: 1.5px solid #f43f5e !important;
   }
   .summary-card-1 .pdf-cell-text {
-    color: #7f1d1d !important;
+    color: #4c0519 !important;
     background: transparent !important;
   }
   /* البطاقة 2: المتبقي من العهدة (زمردي/أخضر فاتح) */
   .summary-card-2 td {
     background: #a7f3d0 !important;
-    color: #064e3b !important;
-    border: 1.5px solid #059669 !important;
+    color: #022c22 !important;
+    border: 1.5px solid #10b981 !important;
   }
   .summary-card-2 .pdf-cell-text {
-    color: #064e3b !important;
+    color: #022c22 !important;
     background: transparent !important;
   }
+  .report-page-content table thead th {
+    background: #0f283a !important;
+    border-color: #1f5f7a !important;
+  }
+  .report-page-content table tbody td { border-color: #e2e8f0 !important; }
+  .report-page-content table tbody td .pdf-cell-text { color: inherit !important; background: transparent !important; }
+  .report-page-content table tbody tr.report-row-plain td { background: #ffffff !important; color: #0f172a !important; }
+  .report-page-content table tbody tr.report-row-striped td { background: #f8fafc !important; color: #0f172a !important; }
+  .report-page-content table tbody tr.report-opening-row td,
+  .report-page-content table tbody tr.report-period-row td { background: #fef3c7 !important; color: #451a03 !important; font-weight: 900 !important; }
+  .report-page-content table tbody tr.report-fee-row td { background: #e0f2fe !important; color: #082f49 !important; font-weight: 900 !important; }
+  .report-page-content table tbody tr.report-grand-total-row td {
+    background: #0437bb !important;
+    color: #ffffff !important;
+    border-color: #1e3a8a !important;
+    border-top: 2px solid #1e3a8a !important;
+    border-bottom: 2px solid #1e3a8a !important;
+  }
+  .report-page-content table tbody tr.report-grand-total-row td .pdf-cell-text { color: #ffffff !important; }
+  .report-page-content table tbody tr.summary-card-0 td { background: #fde68a !important; color: #451a03 !important; border-color: #f59e0b !important; }
+  .report-page-content table tbody tr.summary-card-0 .pdf-cell-text { color: #451a03 !important; }
+  .report-page-content table tbody tr.summary-card-1 td { background: #fecdd3 !important; color: #4c0519 !important; border-color: #f43f5e !important; }
+  .report-page-content table tbody tr.summary-card-1 .pdf-cell-text { color: #4c0519 !important; }
+  .report-page-content table tbody tr.summary-card-2 td { background: #a7f3d0 !important; color: #022c22 !important; border-color: #10b981 !important; }
+  .report-page-content table tbody tr.summary-card-2 .pdf-cell-text { color: #022c22 !important; }
 `;
 
 export default function ReportsTab() {
@@ -879,6 +903,7 @@ export default function ReportsTab() {
             pdfLayout="wide-centered"
             pdfOrientation="landscape"
             pdfCss={reportsTabPrintCss}
+            includeTotalRow={false}
             className="w-full sm:w-auto"
           />
         </div>

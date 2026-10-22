@@ -479,8 +479,9 @@ export function buildTableHtml(opts: {
   numericKeys?: string[];
   subtitle?: string;
   reportDate?: string;
+  includeTotalRow?: boolean;
 }) {
-  const { title, columns, rows, numericKeys = [], subtitle, reportDate } = opts;
+  const { title, columns, rows, numericKeys = [], subtitle, reportDate, includeTotalRow = true } = opts;
 
   const isDescriptionColumn = (c: TableCol) =>
     c.key === "description" || /^(البيان|بيان|تفاصيل|وصف|الشرح)$/i.test(c.label.trim());
@@ -529,6 +530,23 @@ export function buildTableHtml(opts: {
       .join(" ");
   };
 
+  const getReportRowClass = (row: Record<string, any>, index: number) => {
+    const level = String(row?.summaryLevel || "");
+    return [
+      noteRowClass(row?.notes),
+      level === "opening" ? "report-opening-row" : "",
+      level === "fee" ? "report-fee-row" : "",
+      level === "period" ? "report-period-row" : "",
+      level === "total" || row?.description === "الإجمالي الكلي" ? "report-grand-total-row" : "",
+      index % 2 === 1 ? "report-row-striped" : "report-row-plain",
+    ].filter(Boolean).join(" ");
+  };
+
+  const formatCellContent = (value: any, isNumeric: boolean) => {
+    if (value === undefined || value === null || value === "") return "—";
+    return isNumeric ? escapeHtml(fmt(Number(value) || 0)) : escapeHtml(value);
+  };
+
   const reportDateLabel =
     formatReportDate(reportDate) || new Date().toLocaleDateString("ar-EG-u-nu-latn");
 
@@ -552,7 +570,7 @@ export function buildTableHtml(opts: {
     .join("")}</tr>`;
 
   // احتساب الإجماليات
-  const dataRowsForTotals = rows.filter((r) => r && !r.__summaryCard && r.summaryLevel !== "summary-card");
+  const dataRowsForTotals = rows.filter((r) => r && !r.__summaryCard && r.summaryLevel !== "summary-card" && r.summaryLevel !== "total");
   const totals: Record<string, number> = {};
   columns.forEach((c) => {
     if (numericKeys.includes(c.key)) {
@@ -560,7 +578,7 @@ export function buildTableHtml(opts: {
     }
   });
 
-  const totalRow = `<tr class="total-row"><td class="idx numeric-cell">الإجمالي</td>${columns
+  const totalRow = includeTotalRow ? `<tr class="total-row"><td class="idx numeric-cell">الإجمالي</td>${columns
     .map((c) =>
       numericKeys.includes(c.key)
         ? `<td class="num numeric-cell amount-cell" data-col-key="${escapeHtml(c.key)}"><span class="pdf-cell-text">${escapeHtml(
@@ -568,7 +586,7 @@ export function buildTableHtml(opts: {
           )}</span></td>`
         : `<td class="${isDateColumn(c) ? "date-cell" : ""}" data-col-key="${escapeHtml(c.key)}"><span class="pdf-cell-text"></span></td>`
     )
-    .join("")}</tr>`;
+    .join("")}</tr>` : "";
 
   // بناء صفوف البيانات مع دعم صفوف الملخص
   const body = rows
@@ -583,7 +601,7 @@ export function buildTableHtml(opts: {
         const valueSpan = 2;
 
         return `<tr class="summary-card-row ${colorClass}">
-          <td class="summary-label-cell" colspan="${labelSpan + 1}">
+          <td class="summary-label-cell" colspan="${labelSpan}">
             <span class="pdf-cell-text">${escapeHtml(label)}</span>
           </td>
           <td class="summary-value-cell" colspan="${Math.max(1, valueSpan)}">
@@ -592,8 +610,8 @@ export function buildTableHtml(opts: {
         </tr>`;
       }
 
-      return `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
-        i + 1
+      return `<tr class="${getReportRowClass(r, i)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
+        r.summaryLevel === "total" || r.description === "الإجمالي الكلي" ? "★" : i + 1
       }</span></td>${columns
         .map((c) => {
           const v = r[c.key];
@@ -602,9 +620,7 @@ export function buildTableHtml(opts: {
 
           return `<td class="${classes}" data-col-key="${escapeHtml(c.key)}" data-col-name="${escapeHtml(
             c.label
-          )}"><span class="pdf-cell-text">${
-            isNum ? escapeHtml(fmt(Number(v) || 0)) : escapeHtml(v)
-          }</span></td>`;
+          )}"><span class="pdf-cell-text">${formatCellContent(v, isNum)}</span></td>`;
         })
         .join("")}</tr>`;
     })
@@ -634,7 +650,7 @@ export function buildTableHtml(opts: {
           const valueSpan = 2;
 
           return `<tr class="summary-card-row ${colorClass}">
-            <td class="summary-label-cell" colspan="${labelSpan + 1}">
+            <td class="summary-label-cell" colspan="${labelSpan}">
               <span class="pdf-cell-text">${escapeHtml(label)}</span>
             </td>
             <td class="summary-value-cell" colspan="${Math.max(1, valueSpan)}">
@@ -643,8 +659,8 @@ export function buildTableHtml(opts: {
           </tr>`;
         }
 
-        return `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
-          globalIndex + 1
+        return `<tr class="${getReportRowClass(r, globalIndex)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
+          r.summaryLevel === "total" || r.description === "الإجمالي الكلي" ? "★" : globalIndex + 1
         }</span></td>${columns
           .map((c) => {
             const v = r[c.key];
@@ -653,9 +669,7 @@ export function buildTableHtml(opts: {
 
             return `<td class="${classes}" data-col-key="${escapeHtml(c.key)}" data-col-name="${escapeHtml(
               c.label
-            )}"><span class="pdf-cell-text">${
-              isNum ? escapeHtml(fmt(Number(v) || 0)) : escapeHtml(v)
-            }</span></td>`;
+            )}"><span class="pdf-cell-text">${formatCellContent(v, isNum)}</span></td>`;
           })
           .join("")}</tr>`;
       }).join("");
