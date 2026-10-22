@@ -35,6 +35,8 @@ const MONTHS: string[] = [
   "ديسمبر",
 ];
 
+const TRAINEE_REPORT_START_YEAR = 2021;
+
 const PERIODS: Array<{ value: PeriodType; label: string }> = [
   { value: "all", label: "كامل المدة (من 2026)" },
   { value: "year", label: "سنوي" },
@@ -559,7 +561,7 @@ export default function ReportsTab() {
       const trainee = String(row.name || "").trim();
       const category = canonicalFeeCategory(row.description);
       const amount = amountValue(row.hafizaAmount);
-      if (!date || date.getFullYear() < 2024 || !trainee || amount <= 0 || (selectedTrainee !== "all" && trainee !== selectedTrainee) || (selectedFee !== "all" && category !== selectedFee)) return [];
+      if (!date || date.getFullYear() < TRAINEE_REPORT_START_YEAR || !trainee || amount <= 0 || (selectedTrainee !== "all" && trainee !== selectedTrainee) || (selectedFee !== "all" && category !== selectedFee)) return [];
       const p = traineeGrouping === "year" ? String(date.getFullYear()) : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
       return [{ date: row.date, year: date.getFullYear(), period: p, trainee, category, description: String(row.description || "رسوم أخرى").trim(), source: "حوافظ التوريد", amount }];
     });
@@ -616,7 +618,7 @@ export default function ReportsTab() {
     hafiza.forEach((row) => {
       const name = String(row.name || "").trim();
       const amount = amountValue(row.hafizaAmount);
-      if (amount <= 0 || !normalizeDate(row.date) || normalizeDate(row.date)!.getFullYear() < 2024) return;
+      if (amount <= 0 || !normalizeDate(row.date) || normalizeDate(row.date)!.getFullYear() < TRAINEE_REPORT_START_YEAR) return;
       if (selectedTrainee !== "all" && name !== selectedTrainee) return;
       const category = canonicalFeeCategory(row.description);
       totals.set(category, (totals.get(category) || 0) + amount);
@@ -686,7 +688,7 @@ export default function ReportsTab() {
   const title = source === "trainee"
     ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "detail" ? "تفصيلي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي وإجمالي"} — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"}`
     : source === "feeTotals"
-    ? `إجماليات الرسوم حسب النوع — ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — من 2024`
+    ? `إجماليات الرسوم حسب النوع — ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — من ${TRAINEE_REPORT_START_YEAR}`
     : `${sourceConfig.title} — ${periodLabel(period, month, year)}`;
 
   const numericKeys =
