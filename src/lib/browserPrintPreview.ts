@@ -41,8 +41,8 @@ export function openBrowserPrintPreview({
   </style>
   <style>
     :root {
-      --print-cell-font-size: 13.5px;
-      --print-header-font-size: 14.5px;
+      --print-cell-font-size: 15.5px;
+      --print-header-font-size: 18.5px;
       --print-cell-padding: 4px 5px;
     }
 
@@ -327,7 +327,7 @@ export function openBrowserPrintPreview({
     }
 
     thead th {
-      background: #174258 !important;
+      background: #027d11 !important;
       color: #ffffff !important;
       font-weight: 900 !important;
       font-size: var(--print-header-font-size);
@@ -348,18 +348,23 @@ export function openBrowserPrintPreview({
       background: #174258 !important;
       color: #ffffff !important;
       white-space: normal !important;
+    min-width: 50%;
+
     }
 
     tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
+  min-width: 100px !important;
     }
 
     tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
-      white-space: nowrap !important;
+      white-space: normal !important;
       word-break: keep-all !important;
       overflow-wrap: normal !important;
+  min-width: 100px !important;
+
     }
 
     tbody td.desc-cell,
@@ -388,7 +393,7 @@ export function openBrowserPrintPreview({
     }
 
     .total-row td {
-      background: #174258 !important;
+      background: #0437bb !important;
       color: #ffffff !important;
       font-weight: 900 !important;
       border-top: 2px solid #000000 !important;

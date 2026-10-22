@@ -135,7 +135,7 @@ export const tablePrintStyles = `
 
   /* رؤوس الأعمدة: خلفية داكنة وخط أبيض عريض */
   thead th {
-    background: #174258 !important;
+    background: #028611 !important;
     color: #ffffff !important;
     font-weight: 800 !important;
     font-size: 14px !important;
@@ -175,6 +175,8 @@ export const tablePrintStyles = `
   }
 
   .pdf-cell-text {
+    background: #2ed6e7 !important;
+    color: #000000 !important;
     text-align: center !important;
     font-family: Cairo !important;
     font-weight: 800;
@@ -268,7 +270,7 @@ export const tablePrintStyles = `
 
   /* صف الإجمالي النهائي */
   .total-row td {
-    background: #174258 !important;
+    background: #067601 !important;
     color: #ffffff !important;
     font-weight: 900 !important;
     font-size: 13.5px !important;
@@ -438,22 +440,24 @@ export const tablePrintStyles = `
     white-space: nowrap !important;
   }
   .summary-card-row .summary-label-cell {
+  background: #51c4ec !important;
     text-align: center !important;
     font-weight: 900 !important;
   }
   .summary-card-row .summary-value-cell {
+  background: #51c4ec !important;
     text-align: center !important;
     font-family: Cairo !important;
     font-weight: 900 !important;
     direction: ltr !important;
   }
   .summary-card-0 td {
-    background: #fde68a !important;
-    color: #78350f !important;
+    background: #ffdd66 !important;
+    color: #000 !important;
     border: 1px solid #d97706 !important;
   }
   .summary-card-1 td {
-    background: #fecaca !important;
+    background: #ff5252 !important;
     color: #7f1d1d !important;
     border: 1px solid #dc2626 !important;
   }

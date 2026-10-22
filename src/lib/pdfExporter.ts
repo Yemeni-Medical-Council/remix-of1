@@ -43,11 +43,17 @@ background: #0f766e;
   color: white !important;
   font-size: 20px;
 }
+.num{
+font-size: 24px !important;
+border-bottom: solid 4px green;
+ text-align: center; 
+}
   .info {
+    text-align: center; 
     width: 100%; 
   height: 100%; 
  min-height: auto;
-    border: solid 1px black;
+    border: solid 1px #000;
     margin: 6px 0 10px;
   }
   .info td {
@@ -59,7 +65,9 @@ font-family: Cairo;
     font-weight: 900; 
   }
   .info td.lbl { 
-    background: #f1f5f9 !important; 
+    border: 1px solid #000; 
+    text-align: center; 
+    background: #2c96ff !important; 
     width: 100%; 
   max-width: auto;
  white-space: nowrap !important; 
@@ -527,12 +535,12 @@ color: #000 !important;
       text-align: center; 
     }
     tr.subtotal-row td { 
-      background: #cbd5e1; 
+      background: #067836; 
       font-weight: 900 !important;
       color: white !important;
     }
     tr.total-row td { 
-      background: #1f7fb8; 
+      background: #063f78; 
       color: white !important; 
       font-weight: 900 !important; 
       white-space: nowrap !important;

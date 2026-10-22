@@ -854,9 +854,9 @@ export default function ReportsTab() {
                   const isTotal = row.summaryLevel === "total";
                   const isOpening = row.summaryLevel === "opening";
 
-                  let rowStyle = "bg-#cad545 text-slate-900";
+                  let rowStyle = "bg-#00a592 text-white";
                   if (isTotal) {
-                    rowStyle = "bg-[#1f5f7a] text-white font-bold";
+                    rowStyle = "bg-[#0b9af4] text-white font-white";
                   } else if (isOpening) {
                     rowStyle = "bg-amber-100/80 text-amber-950 font-white";
                   } else if (row.summaryLevel === "fee") {
@@ -881,7 +881,7 @@ export default function ReportsTab() {
                         return (
                           <td
                             key={column.key}
-                            className={`border border-slate-200 px-3 py-2 font-semibold ${
+                            className={`border border-slate-200 text-white px-3 py-2 font-semibold ${
                               isNum ? "font-mono" : ""
                             }`}
                           >
