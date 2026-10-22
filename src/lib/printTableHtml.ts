@@ -7,16 +7,39 @@ export type TableCol = { key: string; label: string };
 
 export const REPORT_LETTERHEAD_SRC = reportLetterheadUrl;
 
+/**
+ * توليد ترويسة التقارير الرسمية كإطار نصي موحد بدلاً من الصورة
+ * الجانب الأيمن: البيانات بالعربية
+ * المنتصف: بسم الله الرحمن الرحيم
+ * الجانب الأيسر: البيانات بالإنجليزية
+ */
 export const reportLetterheadHtml = () => `
   <div class="report-letterhead-block">
-    <img class="report-letterhead-image" src="${REPORT_LETTERHEAD_SRC}" alt="ترويسة المجلس اليمني للاختصاصات الطبية" />
+    <div class="report-letterhead-frame">
+      <div class="report-letterhead-side report-letterhead-right">
+        <div class="letterhead-title-ar">الجمهورية اليمنية</div>
+        <div class="letterhead-sub-ar">وزارة الصحة والبيئة</div>
+        <div class="letterhead-sub-ar">المجلس اليمني للاختصاصات الطبية</div>
+        <div class="letterhead-branch-ar">فرع صعدة</div>
+      </div>
+      <div class="report-letterhead-center">
+        <div class="letterhead-bismillah">بسم الله الرحمن الرحيم</div>
+        <div class="letterhead-center-divider"></div>
+      </div>
+      <div class="report-letterhead-side report-letterhead-left">
+        <div class="letterhead-title-en">Republic of Yemen</div>
+        <div class="letterhead-sub-en">Ministry of Public Health &amp; Environment</div>
+        <div class="letterhead-sub-en">Yemeni Council for Medical Specializations</div>
+        <div class="letterhead-branch-en">Saada Branch</div>
+      </div>
+    </div>
   </div>
 `;
 
 export const reportLetterheadRowHtml = (columnCount: number) => `
   <tr class="report-letterhead-row">
     <th class="report-letterhead-cell" colspan="${Math.max(1, Math.floor(columnCount))}">
-      <img class="report-letterhead-image" src="${REPORT_LETTERHEAD_SRC}" alt="ترويسة المجلس اليمني للاختصاصات الطبية" />
+      ${reportLetterheadHtml()}
     </th>
   </tr>
 `;
@@ -27,18 +50,16 @@ export const reportLetterheadRowHtml = (columnCount: number) => `
 export const runningLetterheadCss = `
   @media print {
     .report-letterhead-block {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
+      display: block !important;
+      position: relative !important;
       width: 100% !important;
-      margin: 0 !important;
-      z-index: 9;
-      background: #fff;
+      margin: 0 auto 3mm !important;
+      background: #ffffff !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
     }
-    body { padding-top: 37mm !important; }
-    thead { display: table-header-group; }
-    tfoot { display: table-footer-group; }
+    thead { display: table-header-group !important; }
+    tfoot { display: table-footer-group !important; }
   }
 `;
 
@@ -51,13 +72,11 @@ export const escapeHtml = (s: any) =>
 
 /**
  * أنماط موحّدة للطباعة ومعاينة PDF وواجهة الجداول
- * تعتمد الاحتواء التلقائي الدقيق لأسماء أعمدة حوافظ التوريد والحساب الجاري:
- * رؤوس داكنة بخط أبيض، والتفاف النص فقط لعمود "البيان"، وثبات سطر الأسماء والتواريخ والأرقام.
  */
 export const tablePrintStyles = `
   @page {
     size: A4 portrait;
-    margin: 2mm;
+    margin: 3mm;
   }
   
   *, *::before, *::after {
@@ -67,7 +86,7 @@ export const tablePrintStyles = `
   }
 
   body {
-font-family: Cairo !important;
+    font-family: Cairo !important;
     padding: 3mm 4mm;
     color: #000000 !important;
     direction: rtl;
@@ -90,7 +109,7 @@ font-family: Cairo !important;
     text-align: center;
     color: #000000 !important;
     margin-bottom: 6px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     border-bottom: 1.5px solid #0f283a;
     padding-bottom: 4px;
@@ -107,21 +126,19 @@ font-family: Cairo !important;
   }
   
   th, td {
-  border: 1px solid #000 !important; 
-  
-
+    border: 1px solid #000000 !important; 
     padding: 4px 5px !important;
     text-align: center !important;
     vertical-align: middle !important;
     box-sizing: border-box;
   }
 
-  /* 1. رؤوس الأعمدة: خلفية كحلية غامقة وخط أبيض عريض */
+  /* رؤوس الأعمدة: خلفية داكنة وخط أبيض عريض */
   thead th {
-    background: #9e3513 !important;
-  color: #ffffff !important;
+    background: #174258 !important;
+    color: #ffffff !important;
     font-weight: 800 !important;
-    font-size: 14.5px !important;
+    font-size: 14px !important;
     padding: 6px 4px !important;
     white-space: normal !important;
     word-break: keep-all !important;
@@ -132,89 +149,92 @@ font-family: Cairo !important;
 
   thead th .pdf-cell-text,
   th .pdf-cell-text {
-    background: #267a94 !important;
+    background: transparent !important;
     color: #ffffff !important;
     font-weight: 800 !important;
     white-space: normal !important;
-    min-width: auto;
-
   }
 
-  /* الرأس الخاص بعمود البيان يسمح بالمرونة */
   thead th.desc-cell,
-  thead th[data-col-key="description"] 
-    background: #267a94 !important;
+  thead th[data-col-key="description"] {
+    background: #174258 !important;
     color: #ffffff !important;
-
     white-space: normal !important;
-min-width: auto;
-
   }
 
-  /* 2. القاعدة العامة لصفوف البيانات: منع الالتفاف كقاعدة أساسية */
+  /* القاعدة العامة لصفوف البيانات */
   tbody td {
-  color: #000 !important;
+    color: #000000 !important;
     white-space: normal !important;
-    font-weight: 1000 !important;
-    font-size: 15.5px !important;
+    font-weight: 800 !important;
+    font-size: 14.5px !important;
     padding: 3px 4px !important;
     text-align: center !important;
     line-height: 1.3 !important;
-word-break: break-word !important;
-    min-width: auto;
+    word-break: break-word !important;
   }
 
   .pdf-cell-text {
-text-align: center !important;
-  font-family: Cairo !important;
-    font-weight: 900;
-    line-height: 1.5 !important;
-white-space: nowrap !important;
-font-size: 13.5px !important;
-
+    text-align: center !important;
+    font-family: Cairo !important;
+    font-weight: 800;
+    line-height: 1.4 !important;
+    white-space: nowrap !important;
+    font-size: 13.5px !important;
   }
 
-  /* 3. استثناء خاص وحصري: عمود "البيان" يلتف تلقائياً دون كسر الكلمات الحسابية */
+  /* استثناء خاص: عمود البيان يلتف تلقائياً */
   td.desc-cell.pdf-cell-text,
   td.details-cell.pdf-cell-text,
-  td.description-cell.pdf-cell-text {
+  td.description-cell.pdf-cell-text,
+  tbody td.desc-cell,
+  tbody td.details-cell,
+  tbody td.description-cell,
+  tbody td[data-col-key="description"] {
     white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: normal !important;
     text-align: center !important;
     direction: rtl !important;
-    padding: 2px 2px !important;
-    line-height: 1.4 !important;
-    width: 330px;
+    padding: 2px 4px !important;
+    line-height: 1.35 !important;
+    min-width: 180px !important;
   }
 
-  /* 4. أعمدة الأسماء (الاسم / اسم المتدرب): تتسع لاحتواء الاسم كاملاً دون التفاف */
+  tbody td.desc-cell .pdf-cell-text,
+  tbody td.details-cell .pdf-cell-text,
+  tbody td.description-cell .pdf-cell-text,
+  tbody td[data-col-key="description"] .pdf-cell-text {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: normal !important;
+    display: inline-block;
+  }
+
+  /* أعمدة الأسماء: سطر واحد دون التفاف */
   tbody td.name-cell,
   tbody td[data-col-key="name"],
-  tbody td.name-cell .pdf-cell-text,
-  tbody td[data-col-key="date"] .pdf-cell-text {
-    font-weight: 900 !important;
-  color: #000 !important;
+  tbody td.name-cell .pdf-cell-text {
+    font-weight: 800 !important;
+    color: #000000 !important;
     white-space: nowrap !important;
- word-break: break-word !important;
+    word-break: keep-all !important;
     text-align: center !important;
     padding: 3px 6px !important;
-    min-width: 50px !important;
   }
 
-  /* 5. أعمدة التخصص والدفعة: سطر واحد واحتواء مباشر */
+  /* أعمدة التخصص والدفعة */
   tbody td.specialty-cell,
   tbody td.batch-cell,
   tbody td[data-col-key="specialty"],
   tbody td[data-col-key="batch"] {
-  color: #000 !important;
-    white-space: normal !important;
-      word-break: break-word !important;.
+    color: #000000 !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
     text-align: center !important;
-    min-width: 50px !important;
   }
 
-  /* 6. الأرقام والتواريخ والمبالغ والأكواد المرجعية: سطر واحد ثابت بخط أوضح */
+  /* الأرقام والتواريخ والمبالغ والأكواد: سطر واحد */
   .num,
   .numeric-cell,
   .date-cell,
@@ -224,7 +244,7 @@ font-size: 13.5px !important;
     font-family: Cairo !important;
     direction: ltr !important;
     font-weight: 800 !important;
-    font-size: 14.5px !important;
+    font-size: 14px !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;
@@ -242,56 +262,140 @@ font-size: 13.5px !important;
     text-align: center !important;
   }
 
-  /* تلوين الصفوف الفردية والزوجية لسهولة القراءة */
   tbody tr:nth-child(even) td {
     background: #f8fafc !important;
   }
 
   /* صف الإجمالي النهائي */
   .total-row td {
-    background: #1d5e07 !important;
-    color: #fff !important;
+    background: #174258 !important;
+    color: #ffffff !important;
     font-weight: 900 !important;
-    font-size: 13px !important;
+    font-size: 13.5px !important;
     border-top: 2px solid #000000 !important;
     white-space: nowrap !important;
     padding: 5px 4px !important;
   }
+  .total-row td .pdf-cell-text {
+    color: #ffffff !important;
+  }
 
-  /* ترويسة التقرير */
+  /* ===== إطار الترويسة الموحّد والنصوص الرسمية ===== */
   .report-letterhead-block {
-    display: flex;
-    position: relative;
-    top: 0;
-    width: 100%;
-    height: 26mm;
-    min-height: 26mm;
-    max-height: 26mm;
-    align-items: stretch;
-    justify-content: center;
-    margin: 0 auto 3mm;
-    page-break-before: avoid;
-    page-break-after: avoid;
-    break-before: avoid;
-    break-after: avoid;
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 auto 3mm !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    break-before: avoid !important;
+    break-after: avoid !important;
   }
 
-  .report-letterhead-image {
-    display: flex;
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    object-fit: fill;
-    object-position: top;
-    margin: 0;
+  .report-letterhead-frame {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 4px !important;
+    padding: 5px 12px !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    color: #000000 !important;
   }
 
-  @media print and (orientation: portrait) {
-    .report-letterhead-block { height: 26mm; min-height: 26mm; max-height: 26mm; }
+  .report-letterhead-side {
+    flex: 1 1 36% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    color: #000000 !important;
   }
 
-  @media print and (orientation: landscape) {
-    .report-letterhead-block { height: 30mm; min-height: 30mm; max-height: 30mm; }
+  .report-letterhead-right {
+    text-align: right !important;
+    direction: rtl !important;
+  }
+
+  .letterhead-title-ar {
+    font-family: Cairo, sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 900 !important;
+    line-height: 1.3 !important;
+    color: #000000 !important;
+  }
+
+  .letterhead-sub-ar {
+    font-family: Cairo, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
+    color: #000000 !important;
+  }
+
+  .letterhead-branch-ar {
+    font-family: Cairo, sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 900 !important;
+    line-height: 1.3 !important;
+    color: #000000 !important;
+  }
+
+  .report-letterhead-center {
+    flex: 0 0 28% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 0 4px !important;
+  }
+
+  .letterhead-bismillah {
+    font-family: Cairo, sans-serif !important;
+    font-size: 14.5px !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  .letterhead-center-divider {
+    width: 75px !important;
+    height: 1.5px !important;
+    background: #000000 !important;
+    margin: 3px auto 0 !important;
+  }
+
+  .report-letterhead-left {
+    text-align: left !important;
+    direction: ltr !important;
+  }
+
+  .letterhead-title-en {
+    font-family: Arial, Cairo, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+    color: #000000 !important;
+  }
+
+  .letterhead-sub-en {
+    font-family: Arial, Cairo, sans-serif !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+    color: #000000 !important;
+  }
+
+  .letterhead-branch-en {
+    font-family: Arial, Cairo, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+    color: #000000 !important;
   }
 
   .report-letterhead-row,
@@ -307,70 +411,18 @@ font-size: 13.5px !important;
   }
 
   .report-letterhead-row .report-letterhead-cell {
-    height: 26mm !important;
-    min-height: 26mm !important;
     padding: 0 !important;
     border: 0 !important;
     background: #ffffff !important;
-  }
-
-  .report-letterhead-row .report-letterhead-image {
-    height: 26mm !important;
-    max-height: 26mm !important;
   }
 
   thead { display: table-header-group; }
   tfoot { display: table-footer-group; }
   tr { page-break-inside: avoid; }
 
-  /* ملاءمة أعمدة تقارير الحوافظ والحساب الجاري: عمود البيان وحده يلتف */
-  table {
-    width: 100% !important;
-    max-width: 100% !important;
-    table-layout: auto !important;
-  }
-  tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) {
-    white-space: nowrap !important;
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
-    min-width: 0 !important;
-  }
-  tbody td.desc-cell,
-  tbody td.details-cell,
-  tbody td.description-cell,
-  tbody td[data-col-key="description"] {
-    white-space: normal !important;
-    word-break: normal !important;
-    overflow-wrap: anywhere !important;
-    min-width: 200px !important;
-    text-align: center !important;
-  }
-  tbody td.desc-cell .pdf-cell-text,
-  tbody td.details-cell .pdf-cell-text,
-  tbody td.description-cell .pdf-cell-text,
-  tbody td[data-col-key="description"] .pdf-cell-text {
-    display: block;
-    white-space: normal !important;
-    word-break: normal !important;
-    overflow-wrap: anywhere !important;
-    min-width: 0 !important;
-    text-align: center !important;
-  }
-  tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
-    white-space: nowrap !important;
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
-  }
-  thead th {
-  color: #ffffff !important;
-    white-space: normal !important;
-    word-break: normal !important;
-    overflow-wrap: anywhere !important;
-  }
-
-  /* ===== صفوف ملخص العهدة (المدمجة) ===== */
+  /* صفوف ملخص العهدة */
   .summary-spacer-row td {
-    height: 14px !important;
+    height: 12px !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
@@ -380,7 +432,7 @@ font-size: 13.5px !important;
     vertical-align: middle !important;
     font-weight: 900 !important;
     font-size: 13px !important;
-    padding: 7px 6px !important;
+    padding: 6px 5px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     white-space: nowrap !important;
@@ -426,7 +478,6 @@ export function buildTableHtml(opts: {
 }) {
   const { title, columns, rows, numericKeys = [], subtitle, reportDate } = opts;
 
-  // فحص نوع العمود بدقة بالاعتماد على أسماء رؤوس الأعمدة المعتمدة ومفاتيحها
   const isDescriptionColumn = (c: TableCol) =>
     c.key === "description" || /^(البيان|بيان|تفاصيل|وصف|الشرح)$/i.test(c.label.trim());
 
@@ -486,7 +537,7 @@ export function buildTableHtml(opts: {
     <div class="sub">${escapeHtml(sub)}</div>
   </td></tr>`;
 
-  // بناء صف الرؤوس مع تضمين أسماء ومفاتيح الأعمدة
+  // بناء صف الرؤوس
   const head = `${titleRow}<tr><th class="idx numeric-cell" data-col-key="idx" data-col-name="م">م</th>${columns
     .map(
       (c) =>
@@ -496,7 +547,7 @@ export function buildTableHtml(opts: {
     )
     .join("")}</tr>`;
 
-  // احتساب الإجماليات للأعمدة المالية — يُستثنى صفوف الملخص من الحساب
+  // احتساب الإجماليات
   const dataRowsForTotals = rows.filter((r) => r && !r.__summaryCard && r.summaryLevel !== "summary-card");
   const totals: Record<string, number> = {};
   columns.forEach((c) => {
@@ -515,18 +566,16 @@ export function buildTableHtml(opts: {
     )
     .join("")}</tr>`;
 
-  // بناء صفوف البيانات (مع دعم صفوف الملخص المدمجة)
+  // بناء صفوف البيانات مع دعم صفوف الملخص
   const body = rows
     .map((r, i) => {
-      // ===== صفوف ملخص العهدة: تُبنى كصف مدمج ملوّن =====
       if (r && (r.__summaryCard || r.summaryLevel === "summary-card")) {
         const cardIndex = Number(r.__summaryCard?.index ?? r.summaryCardIndex ?? 0) || 0;
         const label = String(r.__summaryCard?.label ?? r.description ?? "");
         const value = Number(r.__summaryCard?.value ?? r.credit ?? 0) || 0;
         const colorClass = `summary-card-${cardIndex % 3}`;
 
-        // دمج البيان: كل الأعمدة ما عدا آخر عمودين (دائن + رصيد)
-        const labelSpan = Math.max(1, columns.length - 1); // +1 لعمود "م" داخل الخلية الأولى
+        const labelSpan = Math.max(1, columns.length - 1);
         const valueSpan = 2;
 
         return `<tr class="summary-card-row ${colorClass}">
@@ -539,7 +588,6 @@ export function buildTableHtml(opts: {
         </tr>`;
       }
 
-      // ===== صف عادي =====
       return `<tr class="${noteRowClass((r as any).notes)}"><td class="idx numeric-cell" data-col-key="idx"><span class="pdf-cell-text">${
         i + 1
       }</span></td>${columns
@@ -558,7 +606,7 @@ export function buildTableHtml(opts: {
     })
     .join("");
 
-  // إدراج صف فاصل قبل صفوف الملخص (يظهر قبل أول صف __summaryCard)
+  // إدراج فاصل قبل صفوف الملخص إن وُجدت
   const bodyWithSpacer = (() => {
     const hasSummary = rows.some((r) => r && (r.__summaryCard || r.summaryLevel === "summary-card"));
     if (!hasSummary) return body;
@@ -567,7 +615,6 @@ export function buildTableHtml(opts: {
     if (summaryIndex <= 0) return body;
 
     const spacerHtml = `<tr class="summary-spacer-row"><td colspan="${columns.length + 1}"></td></tr>`;
-    // نقسم body على أول صف ملخص (لا يمكن بسهولة بسبب string) — نبني يدوياً:
     const beforeRows = rows.slice(0, summaryIndex);
     const afterRows = rows.slice(summaryIndex);
 

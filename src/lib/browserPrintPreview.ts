@@ -1,184 +1,174 @@
-import { downloadRenderedReportPdf, reportContainmentCss } from "@/lib/reportPdf";
-import { escapeHtml, REPORT_LETTERHEAD_SRC } from "@/lib/printTableHtml";
+import { REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
+import { downloadRenderedReportPdf } from "./reportPdf";
 
-export interface BrowserPreviewOptions {
+interface OpenBrowserPrintPreviewOptions {
   title: string;
-  reportDateLabel?: string;
   tableHtml: string;
-  contentCss?: string;
   defaultOrientation?: "portrait" | "landscape";
-  defaultPageSize?: "A4" | "A3" | "Letter";
-  defaultMarginMm?: number;
+  paperSize?: "A4" | "A3" | "Letter";
+  margin?: "minimal" | "normal";
 }
 
 export function openBrowserPrintPreview({
   title,
-  reportDateLabel = "",
   tableHtml,
-  contentCss = "",
-  defaultOrientation = "portrait",
-  defaultPageSize = "A4",
-  defaultMarginMm = 3,
-}: BrowserPreviewOptions): boolean {
+  defaultOrientation = "landscape",
+  paperSize = "A4",
+  margin = "minimal"
+}: OpenBrowserPrintPreviewOptions) {
   const newWin = window.open("", "_blank");
   if (!newWin) {
+    alert("يرجى السماح بالنوافذ المنبثقة لمعاينة الطباعة");
     return false;
   }
 
+  const defaultMargin = margin === "minimal" ? "3mm" : "8mm";
   const hasEmbeddedLetterhead = tableHtml.includes("report-letterhead");
-  const html = `<!doctype html>
+
+  const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>معاينة طباعة: ${escapeHtml(title)} - ${escapeHtml(reportDateLabel)}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>معاينة الطباعة - ${title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style id="dynamic-page-rule">
+    @page {
+      size: ${paperSize} ${defaultOrientation};
+      margin: ${defaultMargin};
+    }
+  </style>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 0;
-      background: #e2e8f0;
-      font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
-      color: #0f172a;
-      direction: rtl;
+    :root {
+      --print-cell-font-size: 13.5px;
+      --print-header-font-size: 14.5px;
+      --print-cell-padding: 4px 5px;
     }
 
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Cairo, Tahoma, Arial, sans-serif !important;
+      direction: rtl;
+      background: #525659;
+      color: #000000 !important;
+      padding: 0;
+      margin: 0;
+      font-weight: 700;
+      -webkit-font-smoothing: antialiased;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* شريط الأدوات العلوي */
     .preview-toolbar {
-width: 100%;
-max-width: auto;
       position: sticky;
       top: 0;
-      z-index: 9999;
-      background: #0f283a;
-      color: #fff;
+      left: 0;
+      right: 0;
+      z-index: 1000;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 8px 14px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-      border-bottom: 2px solid #1f5f7a;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #323639;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      user-select: none;
     }
 
-    .preview-toolbar .title-box {
-    width: auto;
-      display: block;
+    .toolbar-left, .toolbar-center, .toolbar-right {
+      display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #e0f2fe;
-    }
-
-    .preview-toolbar .controls-group {
-      display: block;
       flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
     }
 
-    .preview-toolbar select, .preview-toolbar input[type="date"], .preview-toolbar button {
-      font-family: inherit;
-      font-size: 12px;
+    .toolbar-title {
+      font-size: 14px;
       font-weight: 700;
-      padding: 5px 8px;
-      border-radius: 6px;
-      border: 1px solid #336d88;
-      background: #173b50;
-      color: #fff;
-      cursor: pointer;
-      outline: none;
-      transition: all 0.15s ease;
+      color: #e8eaed;
+      white-space: nowrap;
     }
 
-    .preview-toolbar input[type="date"] {
-      cursor: text;
-      background: #0b1f2d;
-      border-color: #38bdf8;
-      color: #f8fafc;
-      padding: 3px 6px;
-      font-family: monospace, 'Cairo';
-    }
-
-    .preview-toolbar select:hover, .preview-toolbar button:hover {
-      background: #1e4b65;
-      border-color: #38bdf8;
-    }
-
-    .filter-box {
-    width:100%;
-   max-width: auto;
-      display: inline-block;
+    .toolbar-control {
+      display: flex;
       align-items: center;
-      gap: 13px;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 4px 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      gap: 4px;
+      font-size: 12px;
+      color: #bdc1c6;
     }
 
-    .preview-toolbar button.btn-apply-filter {
-      background: #0284c7;
-      border-color: #38bdf8;
-      padding: 4px 10px;
-    }
-    .preview-toolbar button.btn-reset-filter {
-      background: #475569;
-      border-color: #64748b;
+    .toolbar-control select,
+    .toolbar-control input[type="date"] {
+      background: #202124;
+      color: #e8eaed;
+      border: 1px solid #5f6368;
+      border-radius: 4px;
       padding: 4px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
     }
 
-    .preview-toolbar button.btn-print {
-      background: #059669;
-      border-color: #10b981;
+    .btn-action {
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
       padding: 6px 14px;
       font-size: 13px;
-      color: #ffffff;
-      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
     }
-    .preview-toolbar button.btn-print:hover {
-      background: #10b981;
-    }
-
-    .preview-toolbar button.btn-download-pdf {
-      background: #0284c7;
-      border-color: #38bdf8;
+    .btn-action:hover { background: #1557b0; }
+    .btn-filter { background: #0d9488; }
+    .btn-filter:hover { background: #0f766e; }
+    .btn-reset { background: #6b7280; }
+    .btn-reset:hover { background: #4b5563; }
+    .btn-download { background: #059669; }
+    .btn-download:hover { background: #047857; }
+    .btn-close {
+      background: transparent;
+      color: #bdc1c6;
+      border: 1px solid #5f6368;
+      border-radius: 4px;
       padding: 6px 12px;
-      font-size: 13px;
-      color: #ffffff;
-      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
     }
-    .preview-toolbar button.btn-download-pdf:hover {
-      background: #0369a1;
-    }
+    .btn-close:hover { background: #202124; color: #fff; }
 
-    .preview-toolbar button.btn-close {
-      background: #dc2626;
-      border-color: #ef4444;
-    }
-    .preview-toolbar button.btn-close:hover {
-      background: #ef4444;
-    }
-
+    /* مساحة عرض الورقة */
     .sheet-viewport {
       display: flex;
       justify-content: center;
-      padding: 10px 10px 20px;
+      padding: 16px 8px 40px;
       overflow-x: auto;
     }
 
     .sheet-paper {
       background: #ffffff;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      border: 1px solid #000;
+      color: #000000 !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
       border-radius: 2px;
-      box-sizing: border-box;
-      transition: all 0.2s ease;
+      position: relative;
       transform-origin: top center;
+      box-sizing: border-box;
+      transition: width 0.15s ease, min-height 0.15s ease, padding 0.15s ease;
     }
 
     .sheet-paper.portrait {
@@ -193,214 +183,230 @@ max-width: auto;
       padding: 3mm;
     }
 
+    /* ===== إطار الترويسة الموحّد والنصوص الرسمية ===== */
     .report-letterhead-block {
-      display: flex;
-      width: 100%;
-      height: 26mm;
-      max-height: 26mm;
-      align-items: stretch;
-      justify-content: center;
-      margin: 0 auto 3mm;
+      display: block !important;
+      position: relative !important;
+      width: 100% !important;
+      margin: 0 auto 3mm !important;
+      page-break-before: avoid !important;
+      page-break-after: avoid !important;
+      break-before: avoid !important;
+      break-after: avoid !important;
     }
 
-    .report-letterhead-image {
-      width: 100%;
-      max-width: 100%;
-      height: 100%;
-      object-fit: fill;
-      object-position: top;
+    .report-letterhead-frame {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      border: 1.5px solid #000000 !important;
+      border-radius: 4px !important;
+      padding: 5px 12px !important;
+      background: #ffffff !important;
+      box-sizing: border-box !important;
+      color: #000000 !important;
+    }
+
+    .report-letterhead-side {
+      flex: 1 1 36% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      color: #000000 !important;
+    }
+
+    .report-letterhead-right {
+      text-align: right !important;
+      direction: rtl !important;
+    }
+
+    .letterhead-title-ar {
+      font-family: Cairo, sans-serif !important;
+      font-size: 13.5px !important;
+      font-weight: 900 !important;
+      line-height: 1.3 !important;
+      color: #000000 !important;
+    }
+
+    .letterhead-sub-ar {
+      font-family: Cairo, sans-serif !important;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      line-height: 1.3 !important;
+      color: #000000 !important;
+    }
+
+    .letterhead-branch-ar {
+      font-family: Cairo, sans-serif !important;
+      font-size: 12.5px !important;
+      font-weight: 900 !important;
+      line-height: 1.3 !important;
+      color: #000000 !important;
+    }
+
+    .report-letterhead-center {
+      flex: 0 0 28% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+      padding: 0 4px !important;
+    }
+
+    .letterhead-bismillah {
+      font-family: Cairo, sans-serif !important;
+      font-size: 14.5px !important;
+      font-weight: 900 !important;
+      color: #000000 !important;
+      white-space: nowrap !important;
+      text-align: center !important;
+    }
+
+    .letterhead-center-divider {
+      width: 75px !important;
+      height: 1.5px !important;
+      background: #000000 !important;
+      margin: 3px auto 0 !important;
+    }
+
+    .report-letterhead-left {
+      text-align: left !important;
+      direction: ltr !important;
+    }
+
+    .letterhead-title-en {
+      font-family: Arial, Cairo, sans-serif !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      line-height: 1.25 !important;
+      color: #000000 !important;
+    }
+
+    .letterhead-sub-en {
+      font-family: Arial, Cairo, sans-serif !important;
+      font-size: 10.5px !important;
+      font-weight: 800 !important;
+      line-height: 1.25 !important;
+      color: #000000 !important;
+    }
+
+    .letterhead-branch-en {
+      font-family: Arial, Cairo, sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      line-height: 1.25 !important;
+      color: #000000 !important;
     }
 
     table {
-      width: 100%;
+      width: 100% !important;
       max-width: auto;
       border-collapse: collapse;
       table-layout: auto;
       margin: 0 auto;
-      color: #000;
-  text-align: center !important;
-
+      color: #000000 !important;
+      text-align: center !important;
     }
 
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
     tr { page-break-inside: avoid; break-inside: avoid; }
 
-    /* تنسيق الخلايا العام: منع الالتفاف كقاعدة عامة */
     th, td {
-  border: 1px solid #000 !important; 
+      border: 1px solid #000000 !important; 
       text-align: center;
       vertical-align: middle;
-      padding: 4px 5px;
+      padding: var(--print-cell-padding);
       box-sizing: border-box;
-word-break: break-word !important;
-
+      color: #000000 !important;
+      font-weight: 800;
+      font-size: var(--print-cell-font-size);
     }
 
-    /* رؤوس الأعمدة: خلفية غامقة بخط أبيض عريض */
     thead th {
-  min-width: auto;
-      background: gold !important;
-      color: #000 !important;
-      font-weight: 800 !important;
-      font-size: 14.5px !important;
-      padding: 6px 4px !important;
+      background: #174258 !important;
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      font-size: var(--print-header-font-size);
+      padding: 6px 4px;
       white-space: normal !important;
-      word-break: break-word !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
+      word-break: keep-all;
     }
 
     thead th .pdf-cell-text, th .pdf-cell-text {
-        min-width: auto;
-  font-weight: 800 !importat;
-      font-size: 16.5px !important;
-      padding: 6px 4px !important;
+      color: #ffffff !important;
+      font-weight: 900;
       white-space: normal !important;
-  word-break: break-word !important;
--webkit-print-color-adjust: exact!important;
-print-color-adjust: exact!important;
-
+      background: transparent !important;
     }
 
-    /* عمود البيان فقط: التفاف تلقائي للنص ومحاذاة لليمين */
-      tbody td.specialty-cell,
-    tbody td.batch-cell,
-    tbody td[data-col-key = "specialty"],
-    tbody td[data-col-key = "batch"] {
+    thead th.desc-cell,
+    thead th[data-col-key="description"] {
+      background: #174258 !important;
+      color: #ffffff !important;
       white-space: normal !important;
-      word-break: break-word !important;
+    }
+
+    tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) {
+      white-space: nowrap !important;
+      word-break: keep-all !important;
       overflow-wrap: normal !important;
-    text-align: center !important;
-    width: 100px !important;
-
     }
 
-    td.desc-cell .pdf-cell-text,
-    td.details-cell .pdf-cell-text,
-    td.description-cell .pdf-cell-text {
+    tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      overflow-wrap: normal !important;
+    }
+
+    tbody td.desc-cell,
+    tbody td.details-cell,
+    tbody td.description-cell,
+    tbody td[data-col-key="description"],
+    tbody td.desc-cell .pdf-cell-text,
+    tbody td.details-cell .pdf-cell-text,
+    tbody td.description-cell .pdf-cell-text,
+    tbody td[data-col-key="description"] .pdf-cell-text {
       white-space: normal !important;
       word-break: break-word !important;
       overflow-wrap: normal !important;
       text-align: center !important;
-    width: 500px !important;
-
+      direction: rtl;
+      min-width: 180px;
     }
 
-    /* الأرقام والتواريخ والمعرفات: تظل في سطر واحد دون التفاف */
-    .num, .numeric-cell, .date-cell, .idx, [data-numeric="true"],
-    td.compact-cell, td.text-cell {
-  text-align: center !important;
- white-space: nowrap !important;
-      word-break: keep-all !important;
-      overflow-wrap: nowrap !important;
-      font-family: Cairo !important;
+    .num, .numeric-cell, .date-cell, .compact-cell, .ref-cell, .idx {
       direction: ltr !important;
+      font-family: Cairo !important;
       font-weight: 800 !important;
-      font-size: 12px;
-      color: #000;
-      padding: 3px 5px !important;
-    }
-
-    .num .pdf-cell-text,
-    .numeric-cell .pdf-cell-text,
-    .date-cell .pdf-cell-text,
-    .idx .pdf-cell-text,
-    .compact-cell .pdf-cell-text,
-    td.text-cell .pdf-cell-text {
       white-space: nowrap !important;
       word-break: keep-all !important;
-      font-weight: 800 !important;
-text-align: center !important;
+      text-align: center !important;
     }
 
-    /* صف الإجمالي */
     .total-row td {
-      background: #52ff00 !important;
+      background: #174258 !important;
+      color: #ffffff !important;
       font-weight: 900 !important;
-      font-size: 12px !important;
-      border-top: 2px solid #000 !important;
-      color: #000 !important;
+      border-top: 2px solid #000000 !important;
       white-space: nowrap !important;
     }
-
-    ${contentCss}
-    ${reportContainmentCss}
-
-    /* قواعد نهائية موحدة في المعاينة والطباعة: التفاف البيان دون سواه */
-    .sheet-paper table { width:100% !important; max-width:auto !important; table-layout:auto !important; }
-    .sheet-paper tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
-    .sheet-paper tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
-      white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important;
-      min-width: auto !important;
-    }
-    .sheet-paper tbody td.desc-cell,
-    .sheet-paper tbody td.details-cell,
-    .sheet-paper tbody td.description-cell,
-    .sheet-paper tbody td[data-col-key="description"],
-    .sheet-paper tbody td.desc-cell .pdf-cell-text,
-    .sheet-paper tbody td.details-cell .pdf-cell-text,
-    .sheet-paper tbody td.description-cell .pdf-cell-text,
-    .sheet-paper tbody td[data-col-key="description"] .pdf-cell-text {
-      white-space: normal !important; word-break:normal !important; overflow-wrap: normal !important;
-      min-width:0 !important; text-align: center !important;
-    }
-    .sheet-paper thead th {
-white-space: normal !important;
-    overflow-wrap: anywhere !important; }
-    /* تحسين وضوح النسخة المطبوعة مع الحفاظ على المساحة المتاحة للجدول */
-    .sheet-paper .report-page-content table {
-      width:100% !important;
-      max-width:100% !important;
-      table-layout:auto !important;
-  font-family: Cairo !important;
-    }
-    .sheet-paper .report-page-content th,
-    .sheet-paper .report-page-content td,
-    .sheet-paper .report-page-content .pdf-cell-text {
-      font-family:'Cairo',sans-serif !important;
-      text-align:center !important;
-      vertical-align:middle !important;
-  font-size: 14px !important;
-      line-height:1.4 !important;
-    }
-    .sheet-paper .report-page-content th,
-    .sheet-paper .report-page-content td {
-      padding: 5px 6px !important;
-    }
-    .sheet-paper .report-page-content thead th {
-      font-size: 15px !important;
-      font-weight:800 !important;
-      padding:6px 5px !important;
-    }
-    .sheet-paper .report-page-content tbody td[data-col-key="description"],
-    .sheet-paper .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
-      text-align:center !important;
+    .total-row td .pdf-cell-text {
+      color: #ffffff !important;
     }
 
-    .sheet-paper, .sheet-paper * {
-      max-width: 100%;
-    }
-    .sheet-paper table {
-      width: 100% !important;
-    }
-
+    /* أنماط خاصة عند تنفيذ أمر الطباعة المباشر */
     @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
       .preview-toolbar {
         display: none !important;
-      }
-      body {
-font-family: Cairo !important;
-        background: #ffffff !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-
-      }
-      thead th, th {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
       }
       .sheet-viewport {
         padding: 0 !important;
@@ -408,86 +414,95 @@ font-family: Cairo !important;
         overflow: visible !important;
       }
       .sheet-paper {
-        border: none !important;
         box-shadow: none !important;
+        border-radius: 0 !important;
         width: 100% !important;
-    min-height: auto !important;
+        min-height: auto !important;
         padding: 0 !important;
-        margin: 0 !important;
         transform: none !important;
       }
-    }
-  </style>
-
-  <style id="dynamic-page-rule">
-    @page {
-      size: ${defaultPageSize} ${defaultOrientation};
-      margin: ${defaultMarginMm}mm;
+      .report-letterhead-block {
+        display: block !important;
+        position: relative !important;
+        width: 100% !important;
+        margin: 0 auto 3mm !important;
+        background: #ffffff !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      thead { display: table-header-group !important; }
+      tfoot { display: table-footer-group !important; }
     }
   </style>
 </head>
 <body>
-
   <div class="preview-toolbar">
-    <div class="title-box">
-      <span>📄 ${escapeHtml(title)}</span>
-      ${reportDateLabel ? `<span style="opacity:0.8; font-size:12px;">(${escapeHtml(reportDateLabel)})</span>` : ""}
-    </div>
+    <div class="toolbar-left">
+      <span class="toolbar-title">🖨️ ${title}</span>
 
-    <div class="controls-group">
-      <div class="filter-box">
-        <span style="font-size:11px; font-weight:bold; color:#7dd3fc;">الفترة:</span>
-        <label style="font-size:11px;">من <input type="date" id="dateFrom" /></label>
-        <label style="font-size:11px;">إلى <input type="date" id="dateTo" /></label>
-        <button type="button" class="btn-apply-filter" id="btnFilter">تطبيق</button>
-        <button type="button" class="btn-reset-filter" id="btnResetFilter" title="إلغاء الفلترة">إلغاء</button>
+      <div class="toolbar-control">
+        <label>الاتجاه:</label>
+        <select id="selOrientation">
+          <option value="landscape" ${defaultOrientation === "landscape" ? "selected" : ""}>أفقي (Landscape)</option>
+          <option value="portrait" ${defaultOrientation === "portrait" ? "selected" : ""}>طولي (Portrait)</option>
+        </select>
       </div>
 
-      <label style="font-size: 11px; font-weight: bold;">
-        الاتجاه:
-        <select id="selOrientation">
-          <option value="portrait" ${defaultOrientation === "portrait" ? "selected" : ""}>طولي</option>
-          <option value="landscape" ${defaultOrientation === "landscape" ? "selected" : ""}>عرضي</option>
-        </select>
-      </label>
-
-      <label style="font-size: 11px; font-weight: bold;">
-        الحجم:
+      <div class="toolbar-control">
+        <label>الحجم:</label>
         <select id="selPageSize">
-          <option value="A4" ${defaultPageSize === "A4" ? "selected" : ""}>A4</option>
-          <option value="A3" ${defaultPageSize === "A3" ? "selected" : ""}>A3</option>
-          <option value="Letter" ${defaultPageSize === "Letter" ? "selected" : ""}>Letter</option>
+          <option value="A4" ${paperSize === "A4" ? "selected" : ""}>A4</option>
+          <option value="A3" ${paperSize === "A3" ? "selected" : ""}>A3</option>
+          <option value="Letter" ${paperSize === "Letter" ? "selected" : ""}>Letter</option>
         </select>
-      </label>
+      </div>
 
-      <label style="font-size: 11px; font-weight: bold;">
-        الهوامش:
+      <div class="toolbar-control">
+        <label>الهامش:</label>
         <select id="selMargin">
-          <option value="0mm"${defaultMarginMm === 0 ? " selected" : ""}>بدون</option>
-          <option value="3mm"${defaultMarginMm === 3 ? " selected" : ""}>3 مم</option>
-          <option value="5mm"${defaultMarginMm === 5 ? " selected" : ""}>5 مم</option>
-          <option value="8mm">8 مم</option>
-          <option value="12mm">12 مم</option>
+          <option value="2mm">ضيق جداً (2 مم)</option>
+          <option value="3mm" ${defaultMargin === "3mm" ? "selected" : ""}>ضيق (3 مم)</option>
+          <option value="6mm">متوسط (6 مم)</option>
+          <option value="10mm">عادي (10 مم)</option>
         </select>
-      </label>
+      </div>
 
-      <label style="font-size: 11px; font-weight: bold;">
-        الملاءمة:
+      <div class="toolbar-control">
+        <label>الملاءمة:</label>
         <select id="selScale">
-          <option value="1">100%</option>
+          <option value="1">100% (تلقائي)</option>
           <option value="0.95">95%</option>
-          <option value="0.90">90%</option>
+          <option value="0.9">90%</option>
           <option value="0.85">85%</option>
-          <option value="0.80">80%</option>
+          <option value="0.8">80%</option>
           <option value="0.75">75%</option>
         </select>
-      </label>
+      </div>
+    </div>
 
-      <button type="button" class="btn-print" id="btnPrint">
+    <div class="toolbar-center">
+      <div class="toolbar-control">
+        <label>من:</label>
+        <input type="date" id="dateFrom" />
+      </div>
+      <div class="toolbar-control">
+        <label>إلى:</label>
+        <input type="date" id="dateTo" />
+      </div>
+      <button type="button" class="btn-action btn-filter" id="btnFilter">
+        🔍 تطبيق
+      </button>
+      <button type="button" class="btn-action btn-reset" id="btnResetFilter" title="إعادة تعيين الفترة">
+        ↺
+      </button>
+    </div>
+
+    <div class="toolbar-right">
+      <button type="button" class="btn-action" id="btnPrint">
         🖨️ طباعة
       </button>
 
-      <button type="button" class="btn-download-pdf" id="btnDownloadPdf">
+      <button type="button" class="btn-action btn-download" id="btnDownloadPdf">
         📥 تنزيل PDF
       </button>
 
@@ -499,9 +514,7 @@ font-family: Cairo !important;
 
   <div class="sheet-viewport">
     <div id="paperContainer" class="sheet-paper ${defaultOrientation}">
-      ${hasEmbeddedLetterhead ? "" : `<div class="report-letterhead-block">
-        <img class="report-letterhead-image" src="${REPORT_LETTERHEAD_SRC}" alt="الترويسة الرسمية" />
-      </div>`}
+      ${hasEmbeddedLetterhead ? "" : reportLetterheadHtml()}
       <div id="tableContainer" class="preview-report-content report-page-content">
         ${tableHtml}
       </div>
@@ -556,7 +569,6 @@ font-family: Cairo !important;
 
       function findDateColumnIndex(table) {
         const ths = Array.from(table.querySelectorAll('thead th'));
-        // المرحلة 1: مطابقة دقيقة على نص الرأس (مع تجاهل المسافات والزخارف)
         const exactPatterns = [
           /^التاريخ$/,
           /^تاريخ$/,
@@ -569,14 +581,12 @@ font-family: Cairo !important;
             return idx;
           }
         }
-        // المرحلة 2: مطابقة مرنة (يحتوي على كلمة تاريخ/date)
         for (let idx = 0; idx < ths.length; idx++) {
           const clean = (ths[idx].textContent || '').replace(/\\s+/g, ' ').trim();
           if (/التاريخ|تاريخ|date/i.test(clean)) {
             return idx;
           }
         }
-        // المرحلة 3: فحص بيانات أول صف لاكتشاف العمود الذي يحتوي على تواريخ
         const firstBodyRow = table.querySelector('tbody tr:not(.total-row)');
         if (firstBodyRow) {
           for (let idx = 0; idx < firstBodyRow.cells.length; idx++) {
@@ -591,13 +601,11 @@ font-family: Cairo !important;
 
       function readCellDate(cell) {
         if (!cell) return null;
-        // أولوية 1: data-date / datetime
         const dataAttr = cell.getAttribute('data-date') || cell.getAttribute('datetime');
         if (dataAttr) {
           const d = parseRowDate(dataAttr);
           if (d) return d;
         }
-        // أولوية 2: نص الخلية (يدعم .pdf-cell-text)
         const textEl = cell.querySelector('.pdf-cell-text') || cell;
         return parseRowDate((textEl.textContent || '').trim());
       }
@@ -648,7 +656,6 @@ font-family: Cairo !important;
               if (fromVal && rowDate < fromVal) show = false;
               if (toVal && rowDate > toVal) show = false;
             } else {
-              // إذا طُلب نطاق زمني والصف لا يحتوي على تاريخ في عمود التاريخ نعتبره خارج النطاق
               show = false;
             }
           }
@@ -725,23 +732,27 @@ font-family: Cairo !important;
         const heights = pageSize === 'A3' ? [420, 297] : pageSize === 'Letter' ? [279.4, 215.9] : [297, 210];
         paperContainer.style.minHeight = heights[orientation === 'portrait' ? 0 : 1] + 'mm';
         paperContainer.style.transform = 'none';
+
+        const table = paperContainer.querySelector('table');
+        const headerRow = table && table.tHead && table.tHead.rows[table.tHead.rows.length - 1];
+        const columnCount = headerRow ? headerRow.cells.length : 1;
         const pageWidthMm = pageSize === 'A3'
           ? (orientation === 'portrait' ? 297 : 420)
           : pageSize === 'Letter'
             ? (orientation === 'portrait' ? 215.9 : 279.4)
             : (orientation === 'portrait' ? 210 : 297);
-        const table = paperContainer.querySelector('table');
-        const headerRow = table && table.tHead && table.tHead.rows[table.tHead.rows.length - 1];
-        const columnCount = headerRow ? headerRow.cells.length : 1;
         const pageFactor = pageWidthMm >= 290 ? 1 : 0;
-        const fontSize = Math.max(12, 15 + pageFactor - Math.max(0, columnCount - 8) * 0.28);
-        const horizontalPadding = columnCount > 12 ? 4 : 6;
+        const fontSize = Math.max(12, 14.5 + pageFactor - Math.max(0, columnCount - 8) * 0.28);
+        const horizontalPadding = columnCount > 12 ? 4 : 5;
+
         paperContainer.style.setProperty('--print-cell-font-size', fontSize.toFixed(1) + 'px');
         paperContainer.style.setProperty('--print-header-font-size', (fontSize + 1).toFixed(1) + 'px');
-        paperContainer.style.setProperty('--print-cell-padding', '5px ' + horizontalPadding + 'px');
+        paperContainer.style.setProperty('--print-cell-padding', '4px ' + horizontalPadding + 'px');
+
         const tableContainer = document.getElementById('tableContainer');
         tableContainer.style.zoom = String(scale);
         dynamicRule.innerHTML = '@page { size: ' + pageSize + ' ' + orientation + '; margin: ' + margin + '; }';
+
         window.requestAnimationFrame(function() {
           const table = tableContainer.querySelector('table');
           if (!table) return;

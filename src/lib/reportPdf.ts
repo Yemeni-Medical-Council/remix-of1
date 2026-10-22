@@ -6,72 +6,192 @@ export type ReportOrientation = 'portrait' | 'landscape';
 
 export const reportDocumentCss = `
   :root { 
-  --report-paper: #ffffff; --report-ink: #172b35; --report-muted: #526773;
-    --report-rule:#000; --report-stripe: gold;
-    --report-total: #776807; --report-accent: #176b74; }
-  * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  body { margin:0; padding:0; direction:rtl; background:var(--report-paper);
-    color:#000; 
-font-family: Cairo !important; font-size: 16px; 
-line-height: 1.5; 
-font-weight: 1000;
+    --report-paper: #ffffff; 
+    --report-ink: #000000; 
+    --report-muted: #334155;
+    --report-rule: #000000; 
+    --report-stripe: #f8fafc;
+    --report-total: #174258; 
+    --report-accent: #174258; 
+  }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { 
+    margin: 0; 
+    padding: 0; 
+    direction: rtl; 
+    background: var(--report-paper);
+    color: #000000; 
+    font-family: Cairo !important; 
+    font-size: 15px; 
+    line-height: 1.4; 
+    font-weight: 800;
     width: 100% !important;
- height: auto !important;
-
+    height: auto !important;
   }
-  h1,h2 { text-align:center; color:#000; font-size:22px; margin:0 0 6px; }
-  .sub,.meta { text-align:center; color:#000; font-size:20px; margin-bottom:10px; }
+  h1, h2 { text-align: center; color: #000000; font-size: 22px; margin: 0 0 6px; font-weight: 900; }
+  .sub, .meta { text-align: center; color: #000000; font-size: 18px; margin-bottom: 8px; font-weight: 700; }
   table {
-width:100%; 
+    width: 100%; 
     max-width: auto;
-border-collapse:collapse; table-layout:auto; text-align:center; 
- font-weight: 1000;
+    border-collapse: collapse; 
+    table-layout: auto; 
+    text-align: center; 
+    font-weight: 800;
   }
-  th,td { padding:5px 6px; text-align:center; vertical-align:middle; }
+  th, td { padding: 4px 5px; text-align: center; vertical-align: middle; border: 1px solid #000000 !important; }
   thead th { 
-  background: gold; 
-color:#000; 
-font-weight:800;
-}
-  tbody tr:nth-child(even) td { background: #ffffff; }
-  .total-row td { background:var(--report-total); font-weight:800; border-top:2px solid var(--report-accent);
-  color:#fff; 
+    background: #174258 !important; 
+    color: #ffffff !important; 
+    font-weight: 900;
   }
-  .doc-title-cell { border:0; background:var(--report-paper); padding:0 0 8px; }
-  .report-letterhead-block { width:100%; height:26mm; margin:0 0 3mm; }
-  .report-letterhead-image { display:flex; width:100%; min-height:auto; object-fit:fill; }
-  .num,.numeric-cell,.date-cell,.idx { direction:ltr; unicode-bidi:isolate; font-variant-numeric:tabular-nums; }
+  tbody tr:nth-child(even) td { background: #f8fafc; }
+  .total-row td { 
+    background: var(--report-total) !important; 
+    font-weight: 900; 
+    border-top: 2px solid #000000;
+    color: #ffffff !important; 
+  }
+  .doc-title-cell { border: 0 !important; background: var(--report-paper); padding: 0 0 6px; }
+
+  /* ===== إطار الترويسة الموحّد للتقارير الرسمية ===== */
+  .report-letterhead-block {
+    display: block;
+    width: 100%;
+    margin: 0 0 3mm;
+  }
+  .report-letterhead-frame {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: 1.5px solid #000000;
+    border-radius: 4px;
+    padding: 5px 12px;
+    background: #ffffff;
+    box-sizing: border-box;
+    color: #000000;
+  }
+  .report-letterhead-side {
+    flex: 1 1 36%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #000000;
+  }
+  .report-letterhead-right {
+    text-align: right;
+    direction: rtl;
+  }
+  .letterhead-title-ar {
+    font-family: Cairo !important;
+    font-size: 13.5px;
+    font-weight: 900;
+    line-height: 1.3;
+    color: #000000;
+  }
+  .letterhead-sub-ar {
+    font-family: Cairo !important;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.3;
+    color: #000000;
+  }
+  .letterhead-branch-ar {
+    font-family: Cairo !important;
+    font-size: 12.5px;
+    font-weight: 900;
+    line-height: 1.3;
+    color: #000000;
+  }
+  .report-letterhead-center {
+    flex: 0 0 28%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 4px;
+  }
+  .letterhead-bismillah {
+    font-family: Cairo !important;
+    font-size: 14.5px;
+    font-weight: 900;
+    color: #000000;
+    white-space: nowrap;
+  }
+  .letterhead-center-divider {
+    width: 75px;
+    height: 1.5px;
+    background: #000000;
+    margin: 3px auto 0;
+  }
+  .report-letterhead-left {
+    text-align: left;
+    direction: ltr;
+  }
+  .letterhead-title-en {
+    font-family: Arial, Cairo !important;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: #000000;
+  }
+  .letterhead-sub-en {
+    font-family: Arial, Cairo !important;
+    font-size: 10.5px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #000000;
+  }
+  .letterhead-branch-en {
+    font-family: Arial, Cairo !important;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: #000000;
+  }
+
+  .num, .numeric-cell, .date-cell, .idx { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
 `;
 
 export const reportContainmentCss = `
   .report-page-content { 
-  width:100%; 
-  max-width: auto; 
+    width: 100%; 
+    max-width: auto; 
   }
-.report-page-content th,.report-page-content td {
-min-width:auto !important; padding:5px 6px !important;
-    margin:0 !important;
-  text-align:center !important;
-vertical-align:middle !important; 
-white-space: nowrap !important;
-overflow-wrap: normal !important;
-word-break: break-word !important; 
-font-family: Cairo !important;
-    font-size: 18px !important;
-    font-weight:700 !important;
-  line-height:1.4 !important;
+  .report-page-content th, .report-page-content td {
+    min-width: auto !important; 
+    padding: 4px 5px !important;
+    margin: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important; 
+    font-family: Cairo !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+    border: 1px solid #000000 !important;
   }
   .report-page-content thead th { 
-  font-size: 16px !important; padding:6px 5px !important; font-weight:800 !important; }
+    font-size: 14.5px !important; 
+    padding: 6px 5px !important; 
+    font-weight: 900 !important; 
+    background: #174258 !important;
+    color: #ffffff !important;
+  }
+  .report-page-content thead th .pdf-cell-text {
+    color: #ffffff !important;
+  }
   .report-page-content table {
-  width: 100% !important; 
-  max-width: auto !important;
-table-layout: auto !important; }
+    width: 100% !important; 
+    max-width: auto !important;
+    table-layout: auto !important; 
+  }
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]),
   .report-page-content tbody td:not(.desc-cell):not(.details-cell):not(.description-cell):not([data-col-key="description"]) .pdf-cell-text {
-white-space: normal !important;
-word-break: keep-all !important;
-overflow-wrap: normal !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
   }
   .report-page-content tbody td.desc-cell,
   .report-page-content tbody td.details-cell,
@@ -81,29 +201,52 @@ overflow-wrap: normal !important;
   .report-page-content tbody td.details-cell .pdf-cell-text,
   .report-page-content tbody td.description-cell .pdf-cell-text,
   .report-page-content tbody td[data-col-key="description"] .pdf-cell-text {
-white-space: normal !important;
-word-break: normal !important;
-overflow-wrap: anywhere !important;
-min-width: 400px !important; 
-text-align:center !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: normal !important;
+    min-width: 180px !important; 
+    text-align: center !important;
   }
-  .report-page-content .num,.report-page-content .numeric-cell,.report-page-content .date-cell,
-  .report-page-content .idx,.report-page-content .cell-number { 
-  direction:ltr !important; unicode-bidi:isolate;
-white-space:nowrap !important; overflow-wrap:normal !important; 
-word-break:keep-all !important; }
+  .report-page-content .num, .report-page-content .numeric-cell, .report-page-content .date-cell,
+  .report-page-content .idx, .report-page-content .cell-number { 
+    direction: ltr !important; 
+    unicode-bidi: isolate;
+    white-space: nowrap !important; 
+    overflow-wrap: normal !important; 
+    word-break: keep-all !important; 
+  }
   .report-page-content .pdf-cell-text {
-white-space: normal !important; font-family: Cairo !important;
-font-size:14px !important;
-  text-align:center !important
-vertical-align:middle !important;
-    width: 100%  !important;
-min-width: auto  !important;
+    font-family: Cairo !important;
+    font-size: 13.5px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
   }
-  .report-page-content thead { display:table-header-group; }
-  .report-page-content tr { break-inside:avoid; }
-  .report-page-content .report-letterhead-cell { background:var(--report-paper) !important; border:solid 1px #000 !important; }
-  .report-page-content .report-letterhead-cell img { width: 100%; max-height:auto; object-fit:fill; }
+  .report-page-content thead { display: table-header-group; }
+  .report-page-content tr { break-inside: avoid; }
+  .report-page-content .report-letterhead-cell { 
+    background: var(--report-paper) !important; 
+    border: none !important; 
+    padding: 0 !important;
+  }
+
+  /* تنسيق إطار الترويسة داخل المحتوى المحول إلى PDF */
+  .report-page-content .report-letterhead-block {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto 3mm !important;
+  }
+  .report-page-content .report-letterhead-frame {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 4px !important;
+    padding: 5px 12px !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+  }
 `;
 
 const dimensions = (size: ReportPaperSize, orientation: ReportOrientation) => {
@@ -115,7 +258,7 @@ async function ready(doc: Document) {
   const fontReady = doc.fonts?.ready ?? Promise.resolve();
   await Promise.race([
     fontReady,
-    new Promise < void > ((resolve) => window.setTimeout(resolve, 1500)),
+    new Promise<void>((resolve) => window.setTimeout(resolve, 1500)),
   ]);
   await Promise.all(Array.from(doc.images).map(image => {
     if (image.complete) return Promise.resolve();
@@ -124,9 +267,9 @@ async function ready(doc: Document) {
 }
 
 export async function downloadRenderedReportPdf(source: HTMLElement, options: {
-  fileName: string;pageSize ? : ReportPaperSize;orientation ? : ReportOrientation;marginMm ? : number;
+  fileName: string; pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
 }) {
-  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 4 } = options;
+  const { fileName, pageSize = 'A4', orientation = 'portrait', marginMm = 3 } = options;
   const doc = source.ownerDocument;
   await ready(doc);
   const [{ default: html2canvas }, { default: JsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
@@ -140,7 +283,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
   content.classList.add('report-page-content');
   content.style.cssText = 'width:100%;max-height:auto;height:100%;padding:0;margin:0;border:0;box-shadow:none;transform:none;';
   const footer = doc.createElement('div');
-  footer.style.cssText = 'margin-top:10px;padding-top:10px;text-align:center;font-size:22px;color:#000;direction:rtl;background:31f5ff;';
+  footer.style.cssText = 'margin-top:8px;padding-top:6px;text-align:center;font-size:14px;color:#000000;direction:rtl;font-weight:700;';
   paper.append(content, footer);
   holder.append(paper);
   doc.body.append(holder);
@@ -149,7 +292,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     const table = Array.from(content.querySelectorAll('table')).sort((a, b) => b.rows.length - a.rows.length)[0];
     const body = table?.tBodies[0];
     
-    // استخراج الصفوف الظاهرة فقط (استبعاد المخفية بسبب فلترة التاريخ)
+    // استخراج الصفوف الظاهرة فقط
     const allRows = body ? Array.from(body.rows).filter(r => (r as HTMLElement).style.display !== 'none') : [];
     const totalRow = allRows.find(r => r.classList.contains('total-row'));
     const rows = allRows.filter(r => !r.classList.contains('total-row')).map(r => r.cloneNode(true) as HTMLTableRowElement);
@@ -198,7 +341,6 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     
     for (let index = 0; index < groups.length; index++) {
       const currentRows = [...groups[index]];
-      // إدراج صف الإجمالي في الصفحة الأخيرة قبل صفوف الملخص (إن وُجدت)
       if (index === groups.length - 1 && totalRow) {
         const clonedTotal = totalRow.cloneNode(true) as HTMLTableRowElement;
         const firstSummaryIdx = currentRows.findIndex((r) => r.classList.contains("summary-card-row"));
@@ -257,8 +399,8 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
 }
 
 export async function downloadReportPdf(options: {
-  title: string;body: string;css ? : string;fileName: string;
-  pageSize ? : ReportPaperSize;orientation ? : ReportOrientation;marginMm ? : number;
+  title: string; body: string; css?: string; fileName: string;
+  pageSize?: ReportPaperSize; orientation?: ReportOrientation; marginMm?: number;
 }) {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');
@@ -268,7 +410,7 @@ export async function downloadReportPdf(options: {
     const doc = frame.contentDocument;
     if (!doc) throw new Error('تعذر تجهيز التقرير');
     doc.open();
-    doc.write(`<!doctype html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\"><title>${escapeHtml(options.title)}</title>
+    doc.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(options.title)}</title>
       <style>${reportDocumentCss}
       ${options.css || ''}
       ${reportContainmentCss}</style></head><body><div id="report-source" class="report-page-content">
@@ -276,7 +418,7 @@ export async function downloadReportPdf(options: {
     doc.close();
     const source = doc.getElementById('report-source');
     if (!source) throw new Error('تعذر تحديد محتوى التقرير');
-    await new Promise < void > ((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
     await downloadRenderedReportPdf(source, options);
   } finally {
     frame.remove();
