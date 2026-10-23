@@ -47,6 +47,20 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: >-
+            cmdline-tools;latest
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.0
+
+      - name: Install required Android SDK packages
+        shell: bash
+        run: |
+          export ANDROID_SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          echo "Using Android SDK root: $ANDROID_SDK_ROOT"
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" \
+            --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" "cmdline-tools;latest"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
