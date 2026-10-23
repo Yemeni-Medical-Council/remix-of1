@@ -1,4 +1,4 @@
-import { localCairoFontCss, REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
+import { localCairoFontCss, localCairoTextCss, REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
 import { downloadRenderedReportPdf } from "./reportPdf";
 
 interface OpenBrowserPrintPreviewOptions {
@@ -449,7 +449,7 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
       tfoot { display: table-footer-group !important; }
     }
   </style>
-  <style>${contentCss}</style>
+  <style>${contentCss}${localCairoTextCss}</style>
 </head>
 <body>
   <div class="preview-toolbar">
@@ -726,8 +726,20 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
       function printOnce() {
         if (printInProgress) return;
         printInProgress = true;
-        window.print();
-        window.setTimeout(function() { printInProgress = false; }, 1000);
+        var fontSet = document.fonts;
+        var cairoReady = fontSet && fontSet.load
+          ? Promise.all([
+              fontSet.load('400 16px Cairo', 'اللغة العربية 123'),
+              fontSet.load('700 16px Cairo', 'اللغة العربية 123'),
+              fontSet.load('900 16px Cairo', 'اللغة العربية 123')
+            ]).then(function() { return fontSet.ready; })
+          : Promise.resolve();
+        Promise.race([cairoReady, new Promise(function(resolve) { window.setTimeout(resolve, 10000); })])
+          .catch(function() {})
+          .then(function() {
+            window.print();
+            window.setTimeout(function() { printInProgress = false; }, 1000);
+          });
       }
 
       function updatePageSettings() {

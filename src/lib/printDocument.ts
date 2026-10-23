@@ -1,5 +1,6 @@
 import {
   localCairoFontCss,
+  localCairoTextCss,
   REPORT_LETTERHEAD_SRC,
   reportLetterheadHtml,
 } from "@/lib/printTableHtml";
@@ -100,7 +101,7 @@ font-size: 19px !important;
     word-break: keep-all !important; 
     overflow-wrap: normal !important; 
     hyphens: none !important;
-    font-family: 'Times New Roman', Times, serif !important; 
+    font-family: 'Cairo', sans-serif !important;
     color: #000 !important; 
     font-weight: 900 !important; 
     direction: ltr; 
@@ -213,9 +214,13 @@ export async function openPrintDocument(options: PrintDocumentOptions): Promise<
           try { window.focus(); } catch (e) {}
           setTimeout(function () { window.print(); }, 150);
         }
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(go).catch(go);
-          setTimeout(go, 2500);
+        if (document.fonts && document.fonts.load) {
+          Promise.all([
+            document.fonts.load('400 16px Cairo', 'اللغة العربية 123'),
+            document.fonts.load('700 16px Cairo', 'اللغة العربية 123'),
+            document.fonts.load('900 16px Cairo', 'اللغة العربية 123')
+          ]).then(function () { return document.fonts.ready; }).then(go).catch(go);
+          setTimeout(go, 10000);
         } else {
           window.onload = go;
           setTimeout(go, 1500);
@@ -230,7 +235,7 @@ export async function openPrintDocument(options: PrintDocumentOptions): Promise<
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
-  <style>${localCairoFontCss()}${baseCss(pageSize, orientation, margin)}${css}</style>
+  <style>${localCairoFontCss()}${baseCss(pageSize, orientation, margin)}${css}${localCairoTextCss}</style>
 </head>
 <body>
 ${letterheadPlacement === "top" ? reportLetterheadHtml() : ""}

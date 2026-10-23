@@ -4,6 +4,7 @@ name: Build Mizan Android APK
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - ".github/workflows/android-apk.yml"
       - "src/**"
@@ -53,8 +54,8 @@ jobs:
         run: |
           sdkmanager --install \
             "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
+            "platforms;android-36" \
+            "build-tools;36.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -65,13 +66,23 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
 
-      - name: Build release APK
-        run: pnpm run build:android
+      - name: Build installable APK
+        run: pnpm run build:android:debug
 
-      - name: Upload APK
+      - name: Verify APK signature
+        run: |
+          APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          APKSIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          test -s "$APK"
+          test -x "$APKSIGNER"
+          "$APKSIGNER" verify --verbose "$APK"
+          mkdir -p artifacts
+          cp "$APK" artifacts/Mizan-Android.apk
+
+      - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
           name: Mizan-Android-APK
-          path: android/app/build/outputs/apk/release/*.apk
+          path: artifacts/Mizan-Android.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 90

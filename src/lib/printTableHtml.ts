@@ -16,9 +16,15 @@ export const localCairoFontCss = () => {
     src: url("${fontUrl}") format("truetype");
     font-style: normal;
     font-weight: 200 1000;
-    font-display: swap;
+    font-display: block;
   }`;
 };
+
+export const localCairoTextCss = `
+  html, body, body * {
+    font-family: "Cairo", sans-serif !important;
+  }
+`;
 
 /**
  * توليد ترويسة التقارير الرسمية كإطار نصي موحد بدلاً من الصورة

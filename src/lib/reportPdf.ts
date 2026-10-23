@@ -1,5 +1,5 @@
 import { deliverBlobToUser, isNativeFileStorageAvailable } from './nativeFileStorage';
-import { escapeHtml, localCairoFontCss, reportLetterheadHtml } from './printTableHtml';
+import { escapeHtml, localCairoFontCss, localCairoTextCss, reportLetterheadHtml } from './printTableHtml';
 
 export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
 export type ReportOrientation = 'portrait' | 'landscape';
@@ -259,10 +259,17 @@ const dimensions = (size: ReportPaperSize, orientation: ReportOrientation) => {
 };
 
 async function ready(doc: Document) {
-  const fontReady = doc.fonts?.ready ?? Promise.resolve();
+  const fontSet = doc.fonts;
+  const fontReady = fontSet
+    ? Promise.all([
+        fontSet.load('400 16px Cairo', 'اللغة العربية 123'),
+        fontSet.load('700 16px Cairo', 'اللغة العربية 123'),
+        fontSet.load('900 16px Cairo', 'اللغة العربية 123'),
+      ]).then(() => fontSet.ready)
+    : Promise.resolve();
   await Promise.race([
     fontReady,
-    new Promise<void>((resolve) => window.setTimeout(resolve, 2500)),
+    new Promise<void>((resolve) => window.setTimeout(resolve, 10000)),
   ]);
   await Promise.all(Array.from(doc.images).map(image => {
     if (image.complete) return Promise.resolve();
@@ -461,7 +468,8 @@ export async function downloadReportPdf(options: {
       <style>${localCairoFontCss()}
       ${reportDocumentCss}
       ${reportContainmentCss}
-      ${options.css || ''}</style></head><body><div id="report-source" class="report-page-content">
+      ${options.css || ''}
+      ${localCairoTextCss}</style></head><body><div id="report-source" class="report-page-content">
       ${options.body.includes('report-letterhead') ? '' : reportLetterheadHtml()}${options.body}</div></body></html>`);
     doc.close();
     const source = doc.getElementById('report-source');

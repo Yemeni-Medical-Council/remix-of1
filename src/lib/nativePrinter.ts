@@ -1,6 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { registerReportWindow } from "@/lib/capacitorNavigation";
-import { REPORT_LETTERHEAD_SRC } from "@/lib/printTableHtml";
+import { localCairoFontCss, localCairoTextCss, REPORT_LETTERHEAD_SRC } from "@/lib/printTableHtml";
 
 const PRINT_LETTERHEAD_ALT = "ترويسة المجلس اليمني للاختصاصات الطبية";
 
@@ -17,7 +17,7 @@ function ensurePrintLetterhead(html: string, forceTable: boolean = true): string
 
   const letterheadRow = (columnCount: number) => `<tr class="report-letterhead-row" data-report-letterhead-injected="true"><th class="report-letterhead-cell" colspan="${Math.max(1, columnCount)}"><img class="report-letterhead-image" src="${REPORT_LETTERHEAD_SRC}" alt="${PRINT_LETTERHEAD_ALT}" /></th></tr>`;
   const standaloneLetterhead = `<div class="report-letterhead-block" data-report-letterhead-injected="true"><img class="report-letterhead-image" src="${REPORT_LETTERHEAD_SRC}" alt="${PRINT_LETTERHEAD_ALT}" /></div>`;
-  const printCss = `<style data-report-letterhead-styles="true">
+  const printCss = `<style data-local-cairo-font="true">${localCairoFontCss()}${localCairoTextCss}</style><style data-report-letterhead-styles="true">
     thead { display: table-header-group !important; }
     .report-letterhead-row { break-inside: avoid; page-break-inside: avoid; }
     .report-letterhead-cell { border: 0 !important; background: #fff !important; padding: 0 0 2mm !important; height: 30mm !important; }
@@ -102,10 +102,17 @@ function printViaIframe(html: string): boolean {
     const imgs = Array.from(doc.images).map((img) =>
       img.complete ? Promise.resolve() : new Promise<void>((r) => { img.onload = img.onerror = () => r(); }),
     );
-    const fontsReady = (doc as any).fonts?.ready ?? Promise.resolve();
+    const fontSet = (doc as any).fonts;
+    const fontsReady = fontSet?.load
+      ? Promise.all([
+          fontSet.load("400 16px Cairo", "اللغة العربية 123"),
+          fontSet.load("700 16px Cairo", "اللغة العربية 123"),
+          fontSet.load("900 16px Cairo", "اللغة العربية 123"),
+        ]).then(() => fontSet.ready)
+      : Promise.resolve();
     Promise.race([
       Promise.all([fontsReady, ...imgs]),
-      new Promise((r) => setTimeout(r, 2500)),
+      new Promise((r) => setTimeout(r, 10000)),
     ]).then(() => setTimeout(trigger, 200));
     return true;
   } catch (err) {

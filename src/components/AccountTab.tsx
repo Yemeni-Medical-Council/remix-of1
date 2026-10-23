@@ -183,7 +183,7 @@ const PRINT_STYLES = `
   .accounts-print-area th.date-cell,
   .accounts-print-area td.font-mono,
   .accounts-print-area th.font-mono {
-    font-family: 'Times New Roman', Times, serif !important;
+    font-family: 'Cairo', sans-serif !important;
     font-size: 16px !important;
     line-height: 1.05 !important;
     white-space: nowrap !important;
