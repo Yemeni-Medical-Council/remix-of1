@@ -1,5 +1,5 @@
 import { deliverBlobToUser, isNativeFileStorageAvailable } from './nativeFileStorage';
-import { escapeHtml, reportLetterheadHtml } from './printTableHtml';
+import { escapeHtml, localCairoFontCss, reportLetterheadHtml } from './printTableHtml';
 
 export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
 export type ReportOrientation = 'portrait' | 'landscape';
@@ -458,10 +458,8 @@ export async function downloadReportPdf(options: {
     if (!doc) throw new Error('تعذر تجهيز التقرير');
     doc.open();
     doc.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(options.title)}</title>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-      <style>${reportDocumentCss}
+      <style>${localCairoFontCss()}
+      ${reportDocumentCss}
       ${reportContainmentCss}
       ${options.css || ''}</style></head><body><div id="report-source" class="report-page-content">
       ${options.body.includes('report-letterhead') ? '' : reportLetterheadHtml()}${options.body}</div></body></html>`);

@@ -5,7 +5,7 @@ import {
 import * as XLSX from "xlsx";
 import { useReportDate } from "@/lib/reportDate";
 import { toast } from "sonner";
-import { reportLetterheadHtml, runningLetterheadCss } from "@/lib/printTableHtml";
+import { localCairoFontCss, reportLetterheadHtml, runningLetterheadCss } from "@/lib/printTableHtml";
 import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 import { downloadReportDocumentPdf } from "@/lib/reportPdf";
 import { importUsageInWorker } from "@/lib/excelImportWorkerClient";
@@ -656,9 +656,8 @@ const AppTabs: React.FC = () => {
 
     return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
     <title>سجل مفردات الاستخدامات والنفقات العامة - ${reportDateLabel}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&display=swap">
     <style>
+      ${localCairoFontCss()}
       @page { size: A4 landscape; margin: 3mm; }
       * { box-sizing: border-box; }
       html, body { margin:0; padding:0; }

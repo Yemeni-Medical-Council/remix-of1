@@ -39,7 +39,7 @@ import PrintSettingsModal, {
 import { openPrintDocument } from "@/lib/printDocument";
 import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 import { useReportDate } from "@/lib/reportDate";
-import { REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "@/lib/printTableHtml";
+import { localCairoFontCss, REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "@/lib/printTableHtml";
 import { downloadReportPdf } from "@/lib/reportPdf";
 import {
   addReportHeader,
@@ -2187,7 +2187,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
 
     // تنسيقات CSS لقص الصفحة على حدود كشف المتدرب وتوحيد خط Cairo
     const statementCss = `
-      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+      ${localCairoFontCss()}
       * { 
         box-sizing: border-box; 
         font-family: 'Cairo', sans-serif !important; 

@@ -2,6 +2,7 @@ import { fmt } from './format';
 import {
   buildTableHtml,
   escapeHtml,
+  localCairoFontCss,
   reportLetterheadHtml,
   tablePrintStyles,
 } from './printTableHtml';
@@ -438,10 +439,8 @@ export function revenuePdf(revenue: Record<string, number>, year: number, month:
 
   const head = `<meta charset="utf-8"><title>${REV_SCHEMA.title} - ${MONTHS_PDF[month - 1]} ${year}م</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Cairo
-  :wght@400;500;700;900&display=swap">
   <style>
+    ${localCairoFontCss()}
     * { margin: 0; padding: 0; box-sizing: border-box; }
     @page { size: A4 landscape; margin: 5mm; padding: 0; }
     @page :first { margin-top: 5mm; }

@@ -7,6 +7,19 @@ export type TableCol = { key: string; label: string };
 
 export const REPORT_LETTERHEAD_SRC = reportLetterheadUrl;
 
+export const localCairoFontCss = () => {
+  const fontUrl = typeof window === "undefined"
+    ? "/Cairo-Variable.ttf"
+    : new URL("/Cairo-Variable.ttf", window.location.origin).href;
+  return `@font-face {
+    font-family: "Cairo";
+    src: url("${fontUrl}") format("truetype");
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+  }`;
+};
+
 /**
  * توليد ترويسة التقارير الرسمية كإطار نصي موحد بدلاً من الصورة
  * الجانب الأيمن: البيانات بالعربية

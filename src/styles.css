@@ -2,6 +2,46 @@
 @source "../src";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "Cairo";
+  src: url("/Cairo-Variable.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Arabic";
+  src: url("/NotoSansArabic-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Sans Arabic";
+  src: url("/NotoSansArabic-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Kufi Arabic";
+  src: url("/NotoKufiArabic-Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Kufi Arabic";
+  src: url("/NotoKufiArabic-ExtraBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 800 900;
+  font-display: swap;
+}
+
 /* تحديد مقاس وإتجاه الصفحة ليكون A4 أفقي (Landscape) عند المعاينة والطباعة */
 @page{
   size:A4 portrait;

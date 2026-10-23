@@ -1,4 +1,4 @@
-import { REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
+import { localCairoFontCss, REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
 import { downloadRenderedReportPdf } from "./reportPdf";
 
 interface OpenBrowserPrintPreviewOptions {
@@ -42,9 +42,7 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
 <head>
   <meta charset="UTF-8">
   <title>معاينة الطباعة - ${title}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>${localCairoFontCss()}</style>
   <style id="dynamic-page-rule">
     @page {
       size: ${paperSize} ${defaultOrientation};

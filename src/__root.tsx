@@ -94,13 +94,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "حسابات" },
       {
         property: "og:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/6c7998d6-30eb-43ef-ba5a-44d267b39f88",
+        content: "/icon-512.png",
       },
       {
         name: "twitter:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/6c7998d6-30eb-43ef-ba5a-44d267b39f88",
+        content: "/icon-512.png",
       },
     ],
     links: [
