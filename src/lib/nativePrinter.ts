@@ -1,6 +1,7 @@
 import { Capacitor } from "@capacitor/core";
 import { registerReportWindow } from "@/lib/capacitorNavigation";
 import { localCairoFontCss, localCairoTextCss, REPORT_LETTERHEAD_SRC } from "@/lib/printTableHtml";
+import { NATIVE_DOCUMENT_PRINT_PREVIEW_EVENT } from "@/lib/nativePrintPreviewEvents";
 
 const PRINT_LETTERHEAD_ALT = "ترويسة المجلس اليمني للاختصاصات الطبية";
 
@@ -145,13 +146,11 @@ export function printReportHtml(html: string, name: string): boolean {
 
 export async function printReportHtmlAsync(html: string, name: string): Promise<boolean> {
   if (isNativePrintingAvailable()) {
-    try {
-      await printWithNativePrinter(name, stripAutoPrintScripts(ensurePrintLetterhead(html)));
-      return true;
-    } catch (error) {
-      console.error("[Print] Native Android printing failed", error);
-      return false;
-    }
+    const previewHtml = stripAutoPrintScripts(ensurePrintLetterhead(html));
+    window.dispatchEvent(new CustomEvent(NATIVE_DOCUMENT_PRINT_PREVIEW_EVENT, {
+      detail: { title: name, html: previewHtml },
+    }));
+    return true;
   }
   return printReportHtml(html, name);
 }

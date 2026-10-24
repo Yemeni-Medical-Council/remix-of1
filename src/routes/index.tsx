@@ -29,6 +29,7 @@ const AppTabs = lazy(() => import("@/components/AppTabs"));
 // استيراد وظائف الـ PWA
 import { canInstall, onInstallAvailability, promptInstall } from "@/lib/pwa";
 import { installAndroidBackButton } from "@/lib/capacitorNavigation";
+import NativePrintPreviewHost from "@/components/NativePrintPreviewHost";
 
 // إعداد مسار التوجيه والبيانات التعريفية للمتصفح
 export const Route = createFileRoute("/")({
@@ -350,6 +351,7 @@ function Index() {
       </nav>
 
       <Toaster position="top-center" richColors />
+      <NativePrintPreviewHost />
     </div>
   );
 }
