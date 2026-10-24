@@ -1,8 +1,7 @@
 /* ملف: src/components/InstallmentsTab.tsx
-   ملاحظة: التغييرات تنسيقية فقط (CSS / classNames / ثوابت أحجام)
+   تحسينات عرض الهاتف وأداء الجداول مع إبقاء البيانات والتصدير كما هما.
 */
-import React, { useMemo,
-  useState } from "react";
+import React, { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { useStore,
   type InstallmentCustomColumn } from "@/lib/store";
 import { fmt } from "@/lib/format";
@@ -81,6 +80,9 @@ const MONTHS_2026 = [
   "نوفمبر",
   "ديسمبر",
 ];
+
+const INSTALLMENTS_PAGE_SIZE = 40;
+const EMPTY_INSTALLMENT_CUSTOM_COLUMNS: InstallmentCustomColumn[] = [];
 
 // دالة تنظيف الأرقام واستخراج القيم العددية
 const cleanNumber = (val: any):
@@ -167,6 +169,53 @@ className={`${stat.bgClass} relative overflow-hidden min-h-[46px] sm:min-h-[56px
 );
 };
 
+const InstallmentsPagination = ({
+  itemCount,
+  page,
+  pageSize,
+  onPageChange,
+}: {
+  itemCount: number;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) => {
+  const pageCount = Math.max(1, Math.ceil(itemCount / pageSize));
+  if (pageCount <= 1) return null;
+
+  const firstItem = page * pageSize + 1;
+  const lastItem = Math.min(firstItem + pageSize - 1, itemCount);
+
+  return (
+    <nav className="my-2 flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs" aria-label="صفحات جدول الأقساط">
+      <span className="whitespace-nowrap text-slate-600">
+        عرض {firstItem}–{lastItem} من {itemCount}
+      </span>
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => onPageChange(page - 1)}
+          disabled={page <= 0}
+          className="rounded-md border px-2 py-1 disabled:opacity-40"
+        >
+          السابق
+        </button>
+        <span className="whitespace-nowrap text-slate-600">
+          {page + 1} / {pageCount}
+        </span>
+        <button
+          type="button"
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= pageCount - 1}
+          className="rounded-md border px-2 py-1 disabled:opacity-40"
+        >
+          التالي
+        </button>
+      </div>
+    </nav>
+  );
+};
+
 // مكوّن النافذة المنبثقة العامة
 const Modal = ({
   title,
@@ -218,15 +267,13 @@ const SortIcon = ({
 };
 
 export default function InstallmentsTab() {
-  const {
-    installments,
-    installments2025,
-    clearInstallments,
-    installmentCustomColumns2026,
-    installmentConditionalRules2026,
-    setInstallmentCustomColumns2026,
-    setInstallmentConditionalRules2026,
-  } = useStore() as any;
+  const installments = useStore((state) => state.installments);
+  const installments2025 = useStore((state) => state.installments2025);
+  const clearInstallments = useStore((state) => state.clearInstallments);
+  const installmentCustomColumns2026 = useStore((state) => state.installmentCustomColumns2026);
+  const installmentConditionalRules2026 = useStore((state) => state.installmentConditionalRules2026);
+  const setInstallmentCustomColumns2026 = useStore((state) => state.setInstallmentCustomColumns2026);
+  const setInstallmentConditionalRules2026 = useStore((state) => state.setInstallmentConditionalRules2026);
   const { reportDate,
     reportDateLabel } = useReportDate();
   
@@ -263,8 +310,6 @@ export default function InstallmentsTab() {
   const [showSuggestions,
     setShowSuggestions
   ] = useState(false);
-  const [, setHoveredCell] = useState <
-    string | null > (null);
   const [importError, setImportError] =
   useState < string | null > (null);
   const [printSettingsYear,
@@ -278,6 +323,8 @@ export default function InstallmentsTab() {
   useState("");
   const [search2026, setSearch2026] =
   useState("");
+  const [page2025, setPage2025] = useState(0);
+  const [page2026, setPage2026] = useState(0);
   
   const [sortConfig2025,
     setSortConfig2025
@@ -301,9 +348,7 @@ export default function InstallmentsTab() {
   const [editRowData, setEditRowData] =
   useState < any > ({});
   
-  const extraCols2026 = (
-    installmentCustomColumns2026 || []
-    ) as InstallmentCustomColumn[];
+  const extraCols2026 = installmentCustomColumns2026 || EMPTY_INSTALLMENT_CUSTOM_COLUMNS;
   const [newColModal, setNewColModal] =
   useState(false);
   const [newColName, setNewColName] =
@@ -373,7 +418,7 @@ export default function InstallmentsTab() {
       "remaining",
     ]);
   
-  const evaluateFormula = (formula:
+  const evaluateFormula = useCallback((formula:
     string, row: any) => {
     if (!formula) return "";
     try {
@@ -417,7 +462,20 @@ export default function InstallmentsTab() {
     } catch (e) {
       return "صيغة غير صالحة";
     }
-  };
+  }, [extraCols2026]);
+
+  const rows2026ForActions = useMemo(
+    () => (installments || []).map((row: any) => {
+      const customValues: any = { ...row.customData };
+      extraCols2026.forEach((col) => {
+        if (col.type === "formula") {
+          customValues[col.name] = evaluateFormula(col.formula || "", row);
+        }
+      });
+      return { ...row, ...customValues };
+    }),
+    [installments, extraCols2026, evaluateFormula],
+  );
   
   const getConditionalRowClass = (row:
     any) => {
@@ -474,12 +532,15 @@ export default function InstallmentsTab() {
         i) => i !== index));
   };
   
+  const deferredSearch2025 = useDeferredValue(search2025);
+  const deferredSearch2026 = useDeferredValue(search2026);
+
   const filteredRows2025 = useMemo(
 () => {
     let result = controls2025
       .rows || [];
-    if (search2025) {
-      const term = search2025
+    if (deferredSearch2025) {
+      const term = deferredSearch2025
         .toLowerCase();
       result = result.filter(
         (r: any) =>
@@ -531,7 +592,7 @@ export default function InstallmentsTab() {
       });
     }
     return result;
-  }, [controls2025.rows, search2025,
+  }, [controls2025.rows, deferredSearch2025,
     sortConfig2025
   ]);
   
@@ -539,8 +600,8 @@ export default function InstallmentsTab() {
 () => {
     let result = controls2026
       .rows || [];
-    if (search2026) {
-      const term = search2026
+    if (deferredSearch2026) {
+      const term = deferredSearch2026
         .toLowerCase();
       result = result.filter(
         (r: any) =>
@@ -598,12 +659,45 @@ export default function InstallmentsTab() {
       });
     }
     return result;
-  }, [controls2026.rows, search2026,
+  }, [controls2026.rows, deferredSearch2026,
     sortConfig2026
   ]);
+
+  const originalIndexByRow2025 = useMemo(
+    () => new Map((installments2025 || []).map((row, index) => [row, index] as const)),
+    [installments2025],
+  );
+  const originalIndexByRow2026 = useMemo(
+    () => new Map((installments || []).map((row, index) => [row, index] as const)),
+    [installments],
+  );
+
+  const activePage2025 = Math.min(
+    page2025,
+    Math.max(0, Math.ceil(filteredRows2025.length / INSTALLMENTS_PAGE_SIZE) - 1),
+  );
+  const activePage2026 = Math.min(
+    page2026,
+    Math.max(0, Math.ceil(filteredRows2026.length / INSTALLMENTS_PAGE_SIZE) - 1),
+  );
+  const visibleRows2025 = useMemo(
+    () => filteredRows2025.slice(
+      activePage2025 * INSTALLMENTS_PAGE_SIZE,
+      (activePage2025 + 1) * INSTALLMENTS_PAGE_SIZE,
+    ),
+    [filteredRows2025, activePage2025],
+  );
+  const visibleRows2026 = useMemo(
+    () => filteredRows2026.slice(
+      activePage2026 * INSTALLMENTS_PAGE_SIZE,
+      (activePage2026 + 1) * INSTALLMENTS_PAGE_SIZE,
+    ),
+    [filteredRows2026, activePage2026],
+  );
   
   const handleSort2025 = (key:
     string) => {
+      setPage2025(0);
       let direction: "asc" | "desc" =
         "asc";
       if (sortConfig2025 &&
@@ -617,6 +711,7 @@ export default function InstallmentsTab() {
   
   const handleSort2026 = (key:
     string) => {
+      setPage2026(0);
       let direction: "asc" | "desc" =
         "asc";
       if (sortConfig2026 &&
@@ -2601,7 +2696,10 @@ async () => {
                 type="text"
                 placeholder="بحث (الاسم، الدفعة، المساق)..."
                 value={search2025}
-                onChange={(e) => setSearch2025(e.target.value)}
+                onChange={(e) => {
+                  setPage2025(0);
+                  setSearch2025(e.target.value);
+                }}
  className="pl-3 pr-8 py-2 rounded-lg text-sm border border-sky-300 outline-none focus:ring-2 focus:ring-sky-300 w-full sm:w-48 text-slate-800 shadow-sm"
               />
             </div>
@@ -2664,8 +2762,14 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
           </div>
         )}
 
- <div className="p-1 sm:p-3">
+<div className="p-1 sm:p-3">
 <StatsGrid stats={stats2025} columns={3} />
+<InstallmentsPagination
+  itemCount={filteredRows2025.length}
+  page={activePage2025}
+  pageSize={INSTALLMENTS_PAGE_SIZE}
+  onPageChange={setPage2025}
+/>
 <div className="overflow-auto max-h-[72vh] rounded-lg border border-slate-200 shadow-sm relative">
             <table className="installments-table min-w-max table-auto text-sm sm:text-base font-semibold">
               <thead className="bg-gradient-to-b from-sky-700 to-sky-800 font-bold border-b-2 border-sky-900  [&>tr>th]:!text-white sticky top-0 z-20 shadow-md">
@@ -2739,17 +2843,15 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
                   </tr>
                 ) : (
                   <>
-                    {filteredRows2025.map((r: any, i: number) => {
-                      const originalIndex = (installments2025 || []).findIndex(
-                        (orig: any) => orig.name === r.name,
-                      );
+                    {visibleRows2025.map((r: any, i: number) => {
+                      const originalIndex = originalIndexByRow2025.get(r) ?? -1;
                       return (
                         <tr
-                          key={i}
+                          key={originalIndex}
                           className="border-t border-slate-200 hover:bg-slate-50/80 transition-colors"
                         >
                           <td className="text-center text-black whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base">
-                            {i + 1}
+                            {activePage2025 * INSTALLMENTS_PAGE_SIZE + i + 1}
                           </td>
                           <td className="text-center font-semibold text-black whitespace-nowrap bg-sky-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base">
                             {r.name}
@@ -2869,7 +2971,10 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
           type="text"
           placeholder="بحث (الاسم، الدفعة، المساق)..."
           value={search2026}
-          onChange={(e) => setSearch2026(e.target.value)}
+          onChange={(e) => {
+            setPage2026(0);
+            setSearch2026(e.target.value);
+          }}
           className="pl-3 pr-8 py-1.5 rounded-lg text-sm border border-black outline-none focus:ring-2 focus:ring-sky-300 w-full text-white shadow-sm placeholder:text-white/70"
         />
       </div>
@@ -2946,14 +3051,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
       {/* السطر 5: مكون TabActions (يمتد على العمودين مع تنسيق الأزرار الداخلية 2 في كل سطر) */}
       <TabActions
         title="أقساط العام 2026"
-        rows={(installments || []).map((r: any) => {
-          const customValues: any = { ...r.customData };
-          extraCols2026.forEach((col) => {
-            if (col.type === "formula")
-              customValues[col.name] = evaluateFormula(col.formula || "", r);
-          });
-          return { ...r, ...customValues };
-        })}
+        rows={rows2026ForActions}
         columns={[
           { key: "name", label: "اسم المتدرب" },
           { key: "batch", label: "الدفعة" },
@@ -3002,6 +3100,12 @@ className="grid grid-cols-3 border border-1-black gap-2 w-full flex
 
 <div className="p-1 sm:p-3">
           <StatsGrid stats={stats2026} columns={3} />
+          <InstallmentsPagination
+            itemCount={filteredRows2026.length}
+            page={activePage2026}
+            pageSize={INSTALLMENTS_PAGE_SIZE}
+            onPageChange={setPage2026}
+          />
   
           <div className="overflow-auto max-h-[72vh] rounded-lg border border-slate-200 shadow-sm relative">
 <table className="installments-table w-auto min-w-auto table-auto text-xs sm:text-base font-semibold">
@@ -3114,20 +3218,18 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                   </tr>
                 ) : (
                   <>
-                    {filteredRows2026.map((r: any, i: number) => {
+                    {visibleRows2026.map((r: any, i: number) => {
                       const status = getStatusText(r.remaining);
-                      const originalIndex = (installments || []).findIndex(
-                        (orig: any) => orig.name === r.name,
-                      );
+                      const originalIndex = originalIndexByRow2026.get(r) ?? -1;
                       const rowBgClass = getConditionalRowClass(r);
 
                       return (
                         <tr
-                          key={i}
+                          key={originalIndex}
                           className={`border-t border-slate-200 transition-colors ${rowBgClass}`}
                         >
 <td className="text-center text-black font-mono whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            {i + 1}
+                            {activePage2026 * INSTALLMENTS_PAGE_SIZE + i + 1}
                           </td>
 <td className="text-center font-bold text-black whitespace-nowrap bg-fuchsia-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
                             <input
@@ -3182,13 +3284,10 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                           </td>
                           {MONTHS_2026.map((m) => {
                             const paid = Number(r.payments?.[m]) || 0;
-                            const cellId = `${r.name}-${m}`;
                             return (
                               <td
                                 key={m}
                                 className="numeric-cell text-center relative bg-white/40 border-l border-slate-200 hover:bg-yellow-50 cursor-pointer group transition-colors whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base"
-                                onMouseEnter={() => setHoveredCell(cellId)}
-                                onMouseLeave={() => setHoveredCell(null)}
                               >
                                 <input
                                   type="text"
