@@ -716,47 +716,54 @@ table td > * {
 @media screen and (max-width: 640px) {
   .apk-tabs-ui,
   .sheet-tabs-ui {
-    font-size: 13px !important;
+    font-size: 12px !important;
   }
 
-  .apk-tabs-ui h1 { font-size: 1rem !important; }
-  .apk-tabs-ui h2 { font-size: 0.92rem !important; }
-  .apk-tabs-ui h3 { font-size: 0.86rem !important; }
-  .apk-tabs-ui h4 { font-size: 0.82rem !important; }
+  .apk-tabs-ui h1 { font-size: 0.94rem !important; }
+  .apk-tabs-ui h2 { font-size: 0.86rem !important; }
+  .apk-tabs-ui h3 { font-size: 0.8rem !important; }
+  .apk-tabs-ui h4 { font-size: 0.76rem !important; }
 
-  .apk-tabs-ui :where(.text-5xl, .text-4xl) { font-size: 1.3rem !important; }
-  .apk-tabs-ui .text-3xl { font-size: 1.18rem !important; }
-  .apk-tabs-ui .text-2xl { font-size: 1.08rem !important; }
-  .apk-tabs-ui .text-xl { font-size: 0.98rem !important; }
-  .apk-tabs-ui .text-lg { font-size: 0.9rem !important; }
-  .apk-tabs-ui .text-base { font-size: 0.84rem !important; }
-  .apk-tabs-ui .text-sm { font-size: 0.78rem !important; }
+  .apk-tabs-ui :where(.text-5xl, .text-4xl) { font-size: 1.15rem !important; }
+  .apk-tabs-ui .text-3xl { font-size: 1.05rem !important; }
+  .apk-tabs-ui .text-2xl { font-size: 0.98rem !important; }
+  .apk-tabs-ui .text-xl { font-size: 0.9rem !important; }
+  .apk-tabs-ui .text-lg { font-size: 0.84rem !important; }
+  .apk-tabs-ui .text-base { font-size: 0.8rem !important; }
+  .apk-tabs-ui .text-sm { font-size: 0.74rem !important; }
   .apk-tabs-ui :where(.text-xs, .text-\\[10px\\], .text-\\[11px\\], .text-\\[12px\\]) {
-    font-size: 0.72rem !important;
+    font-size: 0.68rem !important;
   }
 
   .apk-tabs-ui :where(button, [role="button"], label.cursor-pointer),
   .sheet-tabs-ui :where(button, [role="button"], label.cursor-pointer) {
-    min-height: 2.35rem !important;
-    padding: 0.3rem 0.5rem !important;
-    gap: 0.25rem !important;
-    font-size: 0.76rem !important;
-    line-height: 1.15 !important;
-    border-radius: 0.6rem !important;
+    min-height: 2.1rem !important;
+    height: auto !important;
+    padding: 0.24rem 0.4rem !important;
+    gap: 0.2rem !important;
+    font-size: 0.7rem !important;
+    line-height: 1.1 !important;
+    border-radius: 0.55rem !important;
   }
 
   .apk-tabs-ui table :where(button, [role="button"]) {
-    min-height: 2.1rem !important;
-    padding: 0.2rem 0.35rem !important;
-    font-size: 0.7rem !important;
+    min-height: 1.85rem !important;
+    padding: 0.15rem 0.3rem !important;
+    font-size: 0.64rem !important;
   }
 
-  .apk-tabs-ui :where(input, select, textarea),
-  .sheet-tabs-ui :where(input, select, textarea) {
-    min-height: 2.25rem !important;
-    padding: 0.3rem 0.45rem !important;
-    font-size: 0.8rem !important;
-    line-height: 1.2 !important;
+  .apk-tabs-ui :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+  .sheet-tabs-ui :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    min-height: 2.05rem !important;
+    height: auto !important;
+    padding: 0.24rem 0.4rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .apk-tabs-ui :where(input:not([type="checkbox"]):not([type="radio"]), select),
+  .sheet-tabs-ui :where(input:not([type="checkbox"]):not([type="radio"]), select) {
+    height: 2.05rem !important;
   }
 
   .apk-tabs-ui table th,
@@ -764,17 +771,18 @@ table td > * {
   .sheet-tabs-ui table th,
   .sheet-tabs-ui table td {
     padding: 2px 3px !important;
-    font-size: 12px !important;
-    line-height: 1.25 !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
   }
 
-  .apk-tabs-ui table input,
+  .apk-tabs-ui table input:not([type="checkbox"]):not([type="radio"]),
   .apk-tabs-ui table select,
-  .sheet-tabs-ui table input,
+  .sheet-tabs-ui table input:not([type="checkbox"]):not([type="radio"]),
   .sheet-tabs-ui table select {
-    min-height: 1.9rem !important;
+    min-height: 1.8rem !important;
+    height: 1.8rem !important;
     padding: 2px 3px !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
   }
 
   .apk-tabs-ui .app-main-nav .app-tab-nav-items {
@@ -788,17 +796,17 @@ table td > * {
   }
 
   .apk-tabs-ui .app-tab-nav-item svg {
-    width: 0.95rem !important;
-    height: 0.95rem !important;
+    width: 0.88rem !important;
+    height: 0.88rem !important;
   }
 
   .apk-tabs-ui .app-tab-nav-item span {
-    font-size: 0.68rem !important;
+    font-size: 0.62rem !important;
     line-height: 1 !important;
   }
 
   .sheet-tabs-ui :where(table th, table td) {
-    padding: 3px 5px !important;
-    font-size: 12px !important;
+    padding: 3px 4px !important;
+    font-size: 11px !important;
   }
 }
