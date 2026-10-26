@@ -55,7 +55,7 @@ const SOURCES: Array<{ value: ReportSource; label: string }> = [
   { value: "revenue", label: "الإيرادات" },
   { value: "combined", label: "تقرير مجمّع لكل التبويبات" },
   { value: "trainee", label: "كشف مدفوعات المتدربين" },
-  { value: "feeTotals", label: "إجماليات ��لرسوم حسب النوع" },
+  { value: "feeTotals", label: "إجماليات الرسوم حسب النوع" },
 ];
 
 const normalizeDate = (value: unknown): Date | null => {
@@ -117,7 +117,7 @@ const canonicalFeeCategory = (value: unknown) => {
     .replace(/[\"ًٌٍُِْـ]/g, "")
     .replace(/[إأآ]/g, "ا")
     .replace(/\s+/g, " ");
-  if (!text) return "رسو�� أخرى";
+  if (!text) return "رسوم أخرى";
   if (/(امتحان|اختبار)/.test(text)) return "رسوم الامتحانات";
   if (/(تسجيل|قيد|دراس|دراسه|قسط)/.test(text)) return "أقساط الدراسة والتسجيل";
   return String(value).trim() || "رسوم أخرى";
@@ -343,7 +343,7 @@ export default function ReportsTab() {
 
     if (value === null || value === undefined || value === "") return null;
     if (typeof value === "number") return value;
-    const normalized = String(value).replace(/[,\s]/g, "");
+    const normalized = String(value).replace(/[,\\s]/g, "");
     if (!Number.isNaN(Number(normalized)) && normalized !== "") return Number(normalized);
     if (key === "date" || key === "notifyDate") {
       const date = normalizeDate(value);
