@@ -1,14 +1,14 @@
-# المجلس الطبي
+# مجلس طبي
 
 قم بتحويل الي تطبيق اندرويد يتناسب مع شاشات هواتف شاومي اندرويد
 
 This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://xiaomi-android-charm.lovable.app
+**Live app**: https://dyatwfyf-domix-of.lovable.app
 
 ## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/499fd109-c619-49e5-b084-51057d814aa1).
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/993f6739-8be5-4131-85d5-13b3be00c7d8).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
 - **Stay in sync**: every change made in Lovable is committed straight to this repository.

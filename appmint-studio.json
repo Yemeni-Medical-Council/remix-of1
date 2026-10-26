@@ -9,5 +9,18 @@
     "versionName": "1.0.0",
     "color": "#0B1220"
   },
-  "chat": []
+  "chat": [
+    {
+      "role": "user",
+      "text": "https://dyatwfyf-domix-of.lovable.app/",
+      "at": 1792873192866
+    },
+    {
+      "role": "assistant",
+      "kind": "result",
+      "ok": false,
+      "text": "You're out of Mints. Get more Mints to keep going.",
+      "at": 1792873194113
+    }
+  ]
 }
