@@ -84,20 +84,33 @@ function printViaIframe(html: string): boolean {
     document.body.appendChild(iframe);
     const win = iframe.contentWindow;
     const doc = win?.document;
-    if (!win || !doc) return false;
+    if (!win || !doc) {
+      iframe.remove();
+      return false;
+    }
     doc.open();
     doc.write(stripAutoPrintScripts(html));
     doc.close();
 
     let done = false;
+    let cleanupTimer: ReturnType<typeof setTimeout> | null = null;
+    const cleanup = () => {
+      if (cleanupTimer) clearTimeout(cleanupTimer);
+      cleanupTimer = null;
+      win.removeEventListener("afterprint", cleanup);
+      iframe.remove();
+    };
     const trigger = () => {
       if (done) return;
       done = true;
       try {
         win.focus();
+        win.addEventListener("afterprint", cleanup, { once: true });
+        cleanupTimer = setTimeout(cleanup, 60_000);
         win.print();
       } catch (err) {
         console.error("[Print] iframe print error:", err);
+        cleanup();
       }
     };
     const imgs = Array.from(doc.images).map((img) =>

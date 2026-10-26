@@ -171,7 +171,7 @@ export default function TraineeAccountStatement({
                 تاريخ التقرير
               </p>
               <p className="text-sm sm:text-base font-bold text-slate-900">
-                {new Date().toLocaleDateString("ar-EG")}
+                {new Date().toLocaleDateString("ar-EG-u-nu-latn")}
               </p>
             </div>
             <div className="text-center">

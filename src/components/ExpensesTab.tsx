@@ -57,11 +57,28 @@ type Store = Record < string, Cell > ;
 const emptyCell: Cell = { f: 0, r: 0 };
 
 function loadStore(): Store {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  } catch {
-    return {};
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw === null) return {};
+
+  const parsed: unknown = JSON.parse(raw);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("Expenses storage is not an object");
   }
+
+  const result: Store = {};
+  for (const [key, value] of Object.entries(parsed)) {
+    if (!value || typeof value !== "object") {
+      throw new Error(`Invalid expense cell: ${key}`);
+    }
+    const cell = value as Partial<Cell>;
+    const f = Number(cell.f);
+    const r = Number(cell.r);
+    if (!Number.isFinite(f) || !Number.isFinite(r)) {
+      throw new Error(`Invalid expense values: ${key}`);
+    }
+    result[key] = { f, r };
+  }
+  return result;
 }
 
 function saveStore(s: Store) {
@@ -343,15 +360,36 @@ const TD = ({
 
 // ============================================================
 export default function ExpensesTab() {
-  const [store, setStore] = useState < Store > (() => loadStore());
+  const [store, setStore] = useState<Store>({});
+  const [storageReady, setStorageReady] = useState(false);
+  const [storageBlocked, setStorageBlocked] = useState(false);
   const accounts = useStore((state) => state.accounts);
   const { reportDate, reportDateLabel } = useReportDate();
   const [year] = useState < number > (YEAR_DEFAULT);
   const [view, setView] = useState < string > ("cover");
   
   useEffect(() => {
-    saveStore(store);
-  }, [store]);
+    try {
+      setStore(loadStore());
+    } catch (error) {
+      console.error("[Storage] Unable to load expense data; preserving stored data", error);
+      setStorageBlocked(true);
+      toast.error("تعذرت قراءة بيانات المصروفات المحفوظة؛ تم إيقاف الحفظ لتجنب استبدالها.");
+    } finally {
+      setStorageReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady || storageBlocked) return;
+    try {
+      saveStore(store);
+    } catch (error) {
+      console.error("[Storage] Failed to persist expense data", error);
+      setStorageBlocked(true);
+      toast.error("تعذر حفظ بيانات المصروفات؛ التعديلات الحالية لن تُحفظ.");
+    }
+  }, [store, storageReady, storageBlocked]);
   
   const monthlyLeaves: Cell[][] = useMemo(
     () => {
@@ -609,9 +647,10 @@ export default function ExpensesTab() {
                         <>
  <td className={`border border-black p-0.5 align-middle text-center numeric-cell whitespace-nowrap ${CUR_C}`}>
                             <input
-                              type="number"
+                              type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                               min={0}
                               value={cur.f || ""}
+                              disabled={storageBlocked}
                               onChange={(e) =>
                                 updateCell(opts.editMonthIdx!, idx, "f", Number(e.target.value) || 0)
                               }
@@ -620,9 +659,10 @@ export default function ExpensesTab() {
                           </td>
                           <td className={`border border-black p-0.5 align-middle text-center numeric-cell whitespace-nowrap ${CUR_C}`}>
                             <input
-                              type="number"
+                              type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                               min={0}
                               value={cur.r || ""}
+                              disabled={storageBlocked}
                               onChange={(e) =>
                                 updateCell(opts.editMonthIdx!, idx, "r", Number(e.target.value) || 0)
                               }
@@ -823,6 +863,11 @@ export default function ExpensesTab() {
   
   return (
     <div className="sheet-tabs-ui space-y-3" dir="rtl">
+      {storageBlocked && (
+        <div role="alert" className="rounded-lg border border-amber-500 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          تعذرت قراءة بيانات المصروفات؛ أوقفنا الإدخال والحفظ لحماية البيانات الموجودة. استخدم زر «مسح» فقط إذا كنت تريد بدء سجل جديد بعد التأكيد.
+        </div>
+      )}
       {/* شريط التبويبات + أزرار */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto flex-1 min-w-0">
@@ -1026,9 +1071,16 @@ export default function ExpensesTab() {
             id="expenses-clear-action"
             onClick={() => {
               if (!confirm("هل أنت متأكد من مسح جميع بيانات المصروفات؟")) return;
-              setStore({});
-              localStorage.removeItem(STORAGE_KEY);
-              toast.success("تم مسح البيانات");
+              try {
+                localStorage.removeItem(STORAGE_KEY);
+                setStore({});
+                setStorageBlocked(false);
+                setStorageReady(true);
+                toast.success("تم مسح البيانات");
+              } catch (error) {
+                console.error("[Storage] Failed to clear expense data", error);
+                toast.error("تعذر مسح بيانات المصروفات من التخزين المحلي.");
+              }
             }}
             className="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-rose-700"
           >

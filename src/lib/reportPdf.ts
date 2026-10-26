@@ -4,6 +4,9 @@ import { escapeHtml, localCairoFontCss, localCairoTextCss, reportLetterheadHtml 
 export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
 export type ReportOrientation = 'portrait' | 'landscape';
 
+const MAX_PDF_ROWS = 4000;
+const MAX_PDF_PAGES = 150;
+
 export const reportDocumentCss = `
   :root { 
     --report-paper: #ffffff; 
@@ -331,6 +334,10 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       return h > maxHeight;
     };
     
+    if (rows.length > MAX_PDF_ROWS) {
+      throw new Error(`يتجاوز التقرير الحد الآمن لتصدير PDF (${MAX_PDF_ROWS} صف). قلّل نطاق التقرير أو استخدم Excel.`);
+    }
+
     const groups: HTMLTableRowElement[][] = [];
     let group: HTMLTableRowElement[] = [];
     
@@ -345,7 +352,8 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     } else if (rows.length === 0) {
       groups.push([]);
     } else {
-      for (const row of rows) {
+      for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
+        const row = rows[rowIndex];
         body?.append(row);
         fitWidth();
         if (overflows() && group.length > 0) {
@@ -356,10 +364,17 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
           fitWidth();
         }
         group.push(row);
+        if ((rowIndex + 1) % 24 === 0) {
+          await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+        }
       }
       if (group.length > 0) {
         groups.push(group);
       }
+    }
+
+    if (groups.length > MAX_PDF_PAGES) {
+      throw new Error(`يتجاوز التقرير الحد الآمن للطباعة على الهاتف (${MAX_PDF_PAGES} صفحة). قلّل نطاق التقرير أو استخدم Excel.`);
     }
     
     const pdf = new JsPDF({

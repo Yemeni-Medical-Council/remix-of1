@@ -269,6 +269,8 @@ function Field({
   placeholder = "",
   icon,
   className = "",
+  lang,
+  dir,
 }: {
   label: string;
   v: string;
@@ -277,6 +279,8 @@ function Field({
   placeholder?: string;
   icon?: React.ReactNode;
   className?: string;
+  lang?: string;
+  dir?: React.ComponentProps<"input">["dir"];
 }) {
   return (
     <div className="w-full">
@@ -287,6 +291,8 @@ function Field({
         {icon && <span className="absolute right-3 z-10">{icon}</span>}
         <input
           type={type}
+          lang={lang ?? (type === "number" || type === "date" ? "ar-EG-u-nu-latn" : undefined)}
+          dir={dir ?? (type === "number" || type === "date" ? "ltr" : undefined)}
           value={v}
           onChange={(e) => on(e.target.value)}
           placeholder={placeholder}
@@ -822,7 +828,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
       <label className="text-xs font-black text-[#1a2a3a]">
         السنة
         <input
-          type="number"
+          type="number" lang="ar-EG-u-nu-latn" dir="ltr"
           value={accountReportYear}
           onChange={(e) => setAccountReportYear(Number(e.target.value) || accountReportYear)}
           className="block mt-1 w-24 px-2 py-2 border border-black bg-[#1a2a3a] text-[#d2b48c] text-xs font-bold font-mono text-center rounded-lg outline-none focus:border-[#c5a059]"
@@ -908,7 +914,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
   <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3 items-end">
       <Field
         label="التاريخ"
-        type="date"
+        type="date" lang="ar-EG-u-nu-latn" dir="ltr"
         icon={<Calendar className={`${ICON_MOBILE} text-[#1a2a3a]`} />}
         v={form.date}
         on={(v) => setForm({ ...form, date: v })}
@@ -932,7 +938,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
       />
       <Field
         label="تاريخ التوريد"
-        type="date"
+        type="date" lang="ar-EG-u-nu-latn" dir="ltr"
         icon={<Calendar className={`${ICON_MOBILE} text-[#ffffff]`} />}
         v={form.notifyDate}
         on={(v) => setForm({ ...form, notifyDate: v })}
@@ -949,7 +955,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
       />
       <Field
         label="تاريخ الشيك"
-        type="date"
+        type="date" lang="ar-EG-u-nu-latn" dir="ltr"
         icon={<Calendar className={`${ICON_MOBILE} text-[#c5a059]`} />}
         v={form.checkDate}
         on={(v) => setForm({ ...form, checkDate: v })}
@@ -1007,7 +1013,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
       {/* السطر السادس */}
       <Field
         label="مبلغ الحافظة"
-        type="number"
+        type="number" lang="ar-EG-u-nu-latn" dir="ltr"
         icon={<span className="text-xs text-[#ffffff] font-black">ر.ي</span>}
         v={form.hafizaAmount}
         on={(v) => setForm({ ...form, hafizaAmount: v })}
@@ -1015,7 +1021,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
       />
       <Field
         label="الإيرادات"
-        type="number"
+        type="number" lang="ar-EG-u-nu-latn" dir="ltr"
         icon={<span className="text-xs text-[#c5a059] font-black">ر.ي</span>}
         v={form.income}
         on={(v) => setForm({ ...form, income: v })}
@@ -1026,7 +1032,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
       {/* السطر السابع */}
       <Field
         label="المصروفات"
-        type="number"
+        type="number" lang="ar-EG-u-nu-latn" dir="ltr"
         icon={<span className="text-xs text-[#722f37] font-black">ر.ي</span>}
         v={form.expense}
         on={(v) => setForm({ ...form, expense: v })}
@@ -1277,7 +1283,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
               <div>
                 <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">التاريخ</label>
                 <input
-                  type="date"
+                  type="date" lang="ar-EG-u-nu-latn" dir="ltr"
                   value={editingRow.date}
                   onChange={(e) => setEditingRow({ ...editingRow, date: e.target.value })}
                   className="w-full p-2 text-[15px] border rounded-xl outline-none bg-white text-[#0f2f44] font-bold focus:border-[#0f2f44]"
@@ -1303,7 +1309,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
               <div>
                 <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">تاريخ التوريد</label>
                 <input
-                  type="date"
+                  type="date" lang="ar-EG-u-nu-latn" dir="ltr"
                   value={editingRow.notifyDate}
                   onChange={(e) => setEditingRow({ ...editingRow, notifyDate: e.target.value })}
                   className="w-full p-2 text-[15px] border rounded-xl outline-none bg-white text-[#0f2f44] font-bold focus:border-[#0f2f44]"
@@ -1328,7 +1334,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
               <div>
                 <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">مبلغ الحافظة</label>
                 <input
-                  type="number"
+                  type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                   value={editingRow.hafizaAmount}
                   onChange={(e) => setEditingRow({ ...editingRow, hafizaAmount: e.target.value })}
                   className="w-full p-2 text-[15px] border rounded-xl outline-none bg-white text-[#0f2f44] font-bold focus:border-[#0f2f44] font-mono tabular-nums numeric-cell"
@@ -1337,7 +1343,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
               <div>
                 <label className="block text-sm font-black text-[#1E8E5A] mb-1 tracking-wide">الإيرادات</label>
                 <input
-                  type="number"
+                  type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                   value={editingRow.income}
                   onChange={(e) => setEditingRow({ ...editingRow, income: e.target.value })}
                   className="w-full p-2 text-[15px] border rounded-xl bg-[#1E8E5A]/5 text-[#1E8E5A] font-black outline-none focus:border-[#1E8E5A] font-mono tabular-nums numeric-cell"
@@ -1346,7 +1352,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
               <div>
                 <label className="block text-sm font-black text-[#D14343] mb-1 tracking-wide">المصروفات</label>
                 <input
-                  type="number"
+                  type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                   value={editingRow.expense}
                   onChange={(e) => setEditingRow({ ...editingRow, expense: e.target.value })}
                   className="w-full p-2 text-[15px] border rounded-xl bg-[#D14343]/5 text-[#D14343] font-black outline-none focus:border-[#D14343] font-mono tabular-nums numeric-cell"

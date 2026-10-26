@@ -4,7 +4,7 @@
 import React, { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { useStore,
   type InstallmentCustomColumn } from "@/lib/store";
-import { fmt } from "@/lib/format";
+import { fmt, normalizeNumericText } from "@/lib/format";
 import { importInstallmentsInWorker } from "@/lib/excelImportWorkerClient";
 import { toast } from "sonner";
 import { useTableControls } from "@/hooks/useTableControls";
@@ -84,14 +84,46 @@ const MONTHS_2026 = [
 const INSTALLMENTS_PAGE_SIZE = 40;
 const EMPTY_INSTALLMENT_CUSTOM_COLUMNS: InstallmentCustomColumn[] = [];
 
+type DeferredCommitInputProps = Omit<React.ComponentProps<"input">, "value" | "onChange"> & {
+  value: string;
+  onCommit: (value: string) => void;
+};
+
+const DeferredCommitInput = React.memo(({
+  value,
+  onCommit,
+  onBlur,
+  onKeyDown,
+  ...props
+}: DeferredCommitInputProps) => {
+  const [draft, setDraft] = useState(value);
+
+  React.useEffect(() => setDraft(value), [value]);
+
+  return (
+    <input
+      {...props}
+      value={draft}
+      onChange={(event) => setDraft(event.currentTarget.value)}
+      onBlur={(event) => {
+        onBlur?.(event);
+        if (draft !== value) onCommit(draft);
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.key === "Enter" && !event.defaultPrevented) event.currentTarget.blur();
+      }}
+    />
+  );
+});
+DeferredCommitInput.displayName = "DeferredCommitInput";
+
 // دالة تنظيف الأرقام واستخراج القيم العددية
 const cleanNumber = (val: any):
   number => {
-    if (!val || isNaN(Number(String(val)
-        .replace(/[^0-9.-]/g, ""))))
-      return 0;
-    return Number(String(val).replace(
-      /[^0-9.-]/g, "")) || 0;
+    const normalized = normalizeNumericText(String(val ?? "")).replace(/[^0-9.-]/g, "");
+    const parsed = Number(normalized);
+    return normalized && Number.isFinite(parsed) ? parsed : 0;
   };
 
 const escapeHtml = (value: any):
@@ -2185,6 +2217,18 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         toast.error(msg);
         return;
       }
+      const currentYearRows = year === 2025
+        ? useStore.getState().installments2025
+        : useStore.getState().installments;
+      if (
+        currentYearRows.length > 0 &&
+        !window.confirm(
+          `سيتم استبدال ${currentYearRows.length} سجلاً محفوظاً للعام ${year} بـ ${formattedData.length} سجلاً من الملف. هل تريد المتابعة؟`,
+        )
+      ) {
+        return;
+      }
+
       if (year === 2025) {
         useStore
       .setState({ installments2025: formattedData });
@@ -3231,54 +3275,48 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
 <td className="text-center text-black font-mono whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
                             {activePage2026 * INSTALLMENTS_PAGE_SIZE + i + 1}
                           </td>
-<td className="text-center font-bold text-black whitespace-nowrap bg-fuchsia-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <input
+                          <td className="text-center font-bold text-black whitespace-nowrap bg-fuchsia-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
+                            <DeferredCommitInput
                               value={r.name || ""}
-                              onChange={(e) =>
-                                update2026CellValue(originalIndex, "name", e.target.value)
-                              }
+                              onCommit={(value) => update2026CellValue(originalIndex, "name", value)}
                               className="w-auto min-w-max bg-transparent text-center text-black font-bold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                             />
                           </td>
                           <td className="text-center text-black whitespace-nowrap bg-sky-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <input
+                            <DeferredCommitInput
                               value={r.batch || ""}
-                              onChange={(e) =>
-                                update2026CellValue(originalIndex, "batch", e.target.value)
-                              }
+                              onCommit={(value) => update2026CellValue(originalIndex, "batch", value)}
                               className="w-full min-w-0 bg-transparent text-center text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                               placeholder="—"
                             />
                           </td>
                           <td className="text-center text-black whitespace-nowrap bg-sky-50/60 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <input
+                            <DeferredCommitInput
                               value={r.specialty || ""}
-                              onChange={(e) =>
-                                update2026CellValue(originalIndex, "specialty", e.target.value)
-                              }
+                              onCommit={(value) => update2026CellValue(originalIndex, "specialty", value)}
                               className="w-full min-w-0 bg-transparent text-center text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                               placeholder="—"
                             />
                           </td>
                           <td className="text-center numeric-cell font-mono text-black font-semibold bg-sky-50/40 whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <input
+                            <DeferredCommitInput
                               type="text"
                               inputMode="decimal"
                               value={fmt(cleanNumber(r.prevDue))}
-                              onChange={(e) =>
-                                update2026CellValue(originalIndex, "prevDue", e.target.value)
-                              }
+                              lang="ar-EG-u-nu-latn"
+                              dir="ltr"
+                              onCommit={(value) => update2026CellValue(originalIndex, "prevDue", value)}
                               className="w-full min-w-0 bg-transparent text-center font-mono text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                             />
                           </td>
                           <td className="text-center numeric-cell font-mono text-black font-semibold whitespace-nowrap bg-sky-50/50 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <input
+                            <DeferredCommitInput
                               type="text"
                               inputMode="decimal"
                               value={fmt(cleanNumber(r.fees))}
-                              onChange={(e) =>
-                                update2026CellValue(originalIndex, "fees", e.target.value)
-                              }
+                              lang="ar-EG-u-nu-latn"
+                              dir="ltr"
+                              onCommit={(value) => update2026CellValue(originalIndex, "fees", value)}
                               className="w-full min-w-0 bg-transparent text-center font-mono text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                             />
                           </td>
@@ -3289,13 +3327,13 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                                 key={m}
                                 className="numeric-cell text-center relative bg-white/40 border-l border-slate-200 hover:bg-yellow-50 cursor-pointer group transition-colors whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base"
                               >
-                                <input
+                                <DeferredCommitInput
                                   type="text"
                                   inputMode="decimal"
                                   value={paid > 0 ? fmt(paid) : ""}
-                                  onChange={(e) =>
-                                    update2026PaymentValue(originalIndex, m, e.target.value)
-                                  }
+                                  lang="ar-EG-u-nu-latn"
+                                  dir="ltr"
+                                  onCommit={(value) => update2026PaymentValue(originalIndex, m, value)}
                                   className="w-full min-w-0 bg-transparent text-center numeric-cell font-mono text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                                   placeholder="—"
                                 />
@@ -3325,13 +3363,11 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                                   {fmt(Number(evaluateFormula(col.formula || "", r) || 0))}
                                 </div>
                               ) : (
-                                <input
+                                <DeferredCommitInput
                                   type="text"
                                   className="w-full min-w-0 text-center text-black font-semibold bg-transparent outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1 !text-sm sm:!text-base"
                                   value={r.customData?.[col.name] || ""}
-                                  onChange={(e) =>
-                                    updateCustomColValue(originalIndex, col.name, e.target.value)
-                                  }
+                                  onCommit={(value) => updateCustomColValue(originalIndex, col.name, value)}
                                   placeholder="—"
                                 />
                               )}
@@ -3345,12 +3381,10 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                             {fmt(Number(r.remaining || 0))}
                           </td>
                           <td className="text-center bg-amber-50/40 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200 whitespace-nowrap">
-                            <input
+                            <DeferredCommitInput
                               type="text"
                               value={r.notes || ""}
-                              onChange={(e) =>
-                                update2026CellValue(originalIndex, "notes", e.target.value)
-                              }
+                              onCommit={(value) => update2026CellValue(originalIndex, "notes", value)}
                               className="w-full min-w-0 bg-transparent text-center text-black font-medium !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                               placeholder="—"
                             />
@@ -3678,7 +3712,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                 الرسوم الكلية
               </label>
               <input
-                type="number"
+                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                 value={editRowData?.fees || 0}
                 onChange={(e) => setEditRowData({ ...editRowData, fees: e.target.value })}
                 className="w-full p-2 border rounded-md text-sm"
@@ -3691,7 +3725,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                 المتبقي من 2025 (المدور)
               </label>
               <input
-                type="number"
+                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                 value={editRowData?.prevDue || 0}
                 onChange={(e) => setEditRowData({ ...editRowData, prevDue: e.target.value })}
                 className="w-full p-2 border rounded-md text-sm"
@@ -3840,7 +3874,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                 الرسوم الكلية
               </label>
               <input
-                type="number"
+                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                 value={newRowData2026.fees}
                 onChange={(e) =>
                   setNewRowData2026({ ...newRowData2026, fees: Number(e.target.value) })
@@ -3853,7 +3887,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                 المتبقي من 2025
               </label>
               <input
-                type="number"
+                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                 value={newRowData2026.prevDue}
                 onChange={(e) =>
                   setNewRowData2026({ ...newRowData2026, prevDue: Number(e.target.value) })
@@ -3916,7 +3950,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
               المبلغ المالي *
             </label>
             <input
-              type="number"
+              type="number" lang="ar-EG-u-nu-latn" dir="ltr"
               required
               value={newStudentAmount}
               onChange={(e) => setNewStudentAmount(e.target.value)}
@@ -3982,7 +4016,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                   المبلغ المدفوع *
                 </label>
                 <input
-                  type="number"
+                  type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                   required
                   value={payAmount}
                   onChange={(e) => setPayAmount(e.target.value)}
@@ -4029,7 +4063,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                   المبلغ المعدل *
                 </label>
                 <input
-                  type="number"
+                  type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                   required
                   value={editAmount}
                   onChange={(e) => setEditAmount(e.target.value)}

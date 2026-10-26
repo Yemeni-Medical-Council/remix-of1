@@ -504,11 +504,11 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
     <div class="toolbar-center">
       <div class="toolbar-control">
         <label>من:</label>
-        <input type="date" id="dateFrom" />
+        <input type="date" lang="ar-EG-u-nu-latn" dir="ltr" id="dateFrom" />
       </div>
       <div class="toolbar-control">
         <label>إلى:</label>
-        <input type="date" id="dateTo" />
+        <input type="date" lang="ar-EG-u-nu-latn" dir="ltr" id="dateTo" />
       </div>
       <button type="button" class="btn-action btn-filter" id="btnFilter">
         🔍 تطبيق

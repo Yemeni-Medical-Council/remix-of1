@@ -407,7 +407,7 @@ export default function MonthlyStatementTab() {
               </div>
             </div>
             <div className="text-xl sm:text-2xl font-black text-sky-800 tracking-tight font-mono">
-              {totals.curDebit.toLocaleString()}
+              {totals.curDebit.toLocaleString("en-US")}
             </div>
             <span className="text-[10px] text-sky-600 font-medium mt-1 block">إجمالي حركة الجانب المدين</span>
           </div>
@@ -421,7 +421,7 @@ export default function MonthlyStatementTab() {
               </div>
             </div>
             <div className="text-xl sm:text-2xl font-black text-amber-800 tracking-tight font-mono">
-              {totals.curCredit.toLocaleString()}
+              {totals.curCredit.toLocaleString("en-US")}
             </div>
             <span className="text-[10px] text-amber-600 font-medium mt-1 block">إجمالي حركة الجانب الدائن</span>
           </div>
@@ -439,7 +439,7 @@ export default function MonthlyStatementTab() {
                 netBalance >= 0 ? "text-indigo-800" : "text-rose-700"
               }`}
             >
-              {netBalance.toLocaleString()}
+              {netBalance.toLocaleString("en-US")}
             </div>
             <span className="text-[10px] text-indigo-600 font-medium mt-1 block">
               {netBalance >= 0 ? "رصيد مدين للفترة" : "رصيد دائن للفترة"}
@@ -660,31 +660,31 @@ export default function MonthlyStatementTab() {
                         </td>
                         {/* سابق */}
                         <td className="px-2 py-1.5 border-l border-slate-100 font-mono text-slate-600">
-                          {rowData.prevDebit ? rowData.prevDebit.toLocaleString() : "-"}
+                          {rowData.prevDebit ? rowData.prevDebit.toLocaleString("en-US") : "-"}
                         </td>
                         <td className="px-2 py-1.5 border-l border-slate-100 font-mono text-slate-600">
-                          {rowData.prevCredit ? rowData.prevCredit.toLocaleString() : "-"}
+                          {rowData.prevCredit ? rowData.prevCredit.toLocaleString("en-US") : "-"}
                         </td>
                         {/* حالي */}
                         <td className="px-2 py-1.5 border-l border-slate-100 font-mono text-sky-800 font-bold bg-sky-50/50">
-                          {rowData.curDebit ? rowData.curDebit.toLocaleString() : "-"}
+                          {rowData.curDebit ? rowData.curDebit.toLocaleString("en-US") : "-"}
                         </td>
                         <td className="px-2 py-1.5 border-l border-slate-100 font-mono text-amber-800 font-bold bg-amber-50/50">
-                          {rowData.curCredit ? rowData.curCredit.toLocaleString() : "-"}
+                          {rowData.curCredit ? rowData.curCredit.toLocaleString("en-US") : "-"}
                         </td>
                         {/* جملة */}
                         <td className="px-2 py-1.5 border-l border-slate-100 font-extrabold text-black bg-indigo-90/30">
-                          {totD ? totD.toLocaleString() : "-"}
+                          {totD ? totD.toLocaleString("en-US") : "-"}
                         </td>
                         <td className="px-2 py-1.5 border-l border-slate-100 font-mono text-slate-800 bg-indigo-50/30">
-                          {totC ? totC.toLocaleString() : "-"}
+                          {totC ? totC.toLocaleString("en-US") : "-"}
                         </td>
                         {/* رصيد */}
                         <td className="px-2 py-1.5 border-l border-slate-100 font-mono text-emerald-700 font-bold bg-emerald-50/40">
-                          {balD ? balD.toLocaleString() : "-"}
+                          {balD ? balD.toLocaleString("en-US") : "-"}
                         </td>
                         <td className="px-2 py-1.5 font-mono text-emerald-700 font-bold bg-emerald-50/40">
-                          {balC ? balC.toLocaleString() : "-"}
+                          {balC ? balC.toLocaleString("en-US") : "-"}
                         </td>
                       </tr>
                     );
@@ -696,28 +696,28 @@ export default function MonthlyStatementTab() {
                       جملة {group.title}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-slate-700">
-                      {gPrevD ? gPrevD.toLocaleString() : "-"}
+                      {gPrevD ? gPrevD.toLocaleString("en-US") : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-slate-700">
-                      {gPrevC ? gPrevC.toLocaleString() : "-"}
+                      {gPrevC ? gPrevC.toLocaleString("en-US") : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-sky-800 font-black">
-                      {gCurD ? gCurD.toLocaleString() : "-"}
+                      {gCurD ? gCurD.toLocaleString("en-US") : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-amber-800 font-black">
-                      {gCurC ? gCurC.toLocaleString() : "-"}
+                      {gCurC ? gCurC.toLocaleString("en-US") : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-indigo-800">
-                      {(gPrevD + gCurD) ? (gPrevD + gCurD).toLocaleString() : "-"}
+                      {(gPrevD + gCurD) ? (gPrevD + gCurD).toLocaleString("en-US") : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-indigo-800">
-                      {(gPrevC + gCurC) ? (gPrevC + gCurC).toLocaleString() : "-"}
+                      {(gPrevC + gCurC) ? (gPrevC + gCurC).toLocaleString("en-US") : "-"}
                     </td>
                     <td className="px-2 py-2 border-l border-slate-200 font-mono text-emerald-800 font-bold">
-                      {gBalD ? gBalD.toLocaleString() : "-"}
+                      {gBalD ? gBalD.toLocaleString("en-US") : "-"}
                     </td>
                     <td className="px-2 py-2 font-mono text-emerald-800 font-bold">
-                      {gBalC ? gBalC.toLocaleString() : "-"}
+                      {gBalC ? gBalC.toLocaleString("en-US") : "-"}
                     </td>
                   </tr>
                 </React.Fragment>
@@ -732,28 +732,28 @@ export default function MonthlyStatementTab() {
                 الإجمالي العام لكافة الحسابات
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-sky-100">
-                {totals.prevDebit.toLocaleString()}
+                {totals.prevDebit.toLocaleString("en-US")}
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-sky-100">
-                {totals.prevCredit.toLocaleString()}
+                {totals.prevCredit.toLocaleString("en-US")}
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-yellow-300 font-black text-sm">
-                {totals.curDebit.toLocaleString()}
+                {totals.curDebit.toLocaleString("en-US")}
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-amber-200 font-black text-sm">
-                {totals.curCredit.toLocaleString()}
+                {totals.curCredit.toLocaleString("en-US")}
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-white font-black">
-                {(totals.prevDebit + totals.curDebit).toLocaleString()}
+                {(totals.prevDebit + totals.curDebit).toLocaleString("en-US")}
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-white font-black">
-                {(totals.prevCredit + totals.curCredit).toLocaleString()}
+                {(totals.prevCredit + totals.curCredit).toLocaleString("en-US")}
               </td>
               <td className="px-2 py-3.5 border-l border-white/10 font-mono text-emerald-300 font-black">
-                {totals.balDebit.toLocaleString()}
+                {totals.balDebit.toLocaleString("en-US")}
               </td>
               <td className="px-2 py-3.5 font-mono text-emerald-300 font-black">
-                {totals.balCredit.toLocaleString()}
+                {totals.balCredit.toLocaleString("en-US")}
               </td>
             </tr>
           </tfoot>

@@ -765,7 +765,7 @@ export default function ReportsTab() {
                 الرصيد الافتتاحي لسلفة د/ يوسف (ريال)
               </span>
               <input
-                type="number"
+                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                 value={youssefOpeningBalance || ""}
                 onChange={(e) => handleYoussefOpeningChange(Number(e.target.value) || 0)}
                 placeholder="0"
@@ -782,7 +782,7 @@ export default function ReportsTab() {
                 الرصيد الافتتاحي لعهدة توفيق الداعي (ريال)
               </span>
               <input
-                type="number"
+                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
                 value={tawfiqOpeningBalance || ""}
                 onChange={(e) => handleTawfiqOpeningChange(Number(e.target.value) || 0)}
                 placeholder="0"
@@ -997,7 +997,7 @@ export default function ReportsTab() {
                                 : "border-slate-200 text-slate-900"
                             } ${isNum ? "font-mono" : ""}`}
                           >
-                            {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
+                            {typeof val === "number" ? val.toLocaleString("en-US") : (val ?? "—")}
                           </td>
                         );
                       })}
@@ -1047,7 +1047,7 @@ export default function ReportsTab() {
                               colSpan={2}
                               className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base font-black`}
                             >
-                              {value.toLocaleString()}
+                              {value.toLocaleString("en-US")}
                             </td>
                           </tr>
                         );

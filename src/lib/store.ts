@@ -194,23 +194,57 @@ const getToday = () => new Date().toISOString().split("T")[0];
 
 let pendingStorageWrite: { name: string; value: string } | null = null;
 let storageWriteTimer: ReturnType<typeof setTimeout> | null = null;
+let storageIsNewerVersion = false;
+let storageReadFailed = false;
+
+const reportStorageError = (error: unknown) => {
+  console.error("[Storage] Failed to access application data", error);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("mizan:storage-error"));
+  }
+};
 
 const flushStorageWrite = () => {
   if (!pendingStorageWrite || typeof window === "undefined") return;
   const pending = pendingStorageWrite;
-  pendingStorageWrite = null;
   storageWriteTimer = null;
   try {
     window.localStorage.setItem(pending.name, pending.value);
+    if (pendingStorageWrite === pending) pendingStorageWrite = null;
   } catch (error) {
-    console.error("[Storage] Failed to persist application data", error);
+    reportStorageError(error);
   }
 };
 
 const deferredStorage: StateStorage = {
-  getItem: (name) =>
-    typeof window === "undefined" ? null : window.localStorage.getItem(name),
+  getItem: (name) => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(name);
+      if (raw === null) return null;
+      const decoded: unknown = JSON.parse(raw);
+      if (
+        !decoded ||
+        typeof decoded !== "object" ||
+        Array.isArray(decoded) ||
+        !("state" in decoded) ||
+        !(decoded as { state?: unknown }).state ||
+        typeof (decoded as { state?: unknown }).state !== "object"
+      ) {
+        throw new Error("Persisted state envelope has an invalid shape");
+      }
+      return raw;
+    } catch (error) {
+      storageReadFailed = true;
+      reportStorageError(error);
+      return null;
+    }
+  },
   setItem: (name, value) => {
+    if (storageReadFailed || storageIsNewerVersion) {
+      reportStorageError(new Error("Stored data is unreadable or was written by a newer application version"));
+      return;
+    }
     pendingStorageWrite = { name, value };
     if (storageWriteTimer) clearTimeout(storageWriteTimer);
     storageWriteTimer = setTimeout(flushStorageWrite, 80);
@@ -221,7 +255,13 @@ const deferredStorage: StateStorage = {
       clearTimeout(storageWriteTimer);
       storageWriteTimer = null;
     }
-    if (typeof window !== "undefined") window.localStorage.removeItem(name);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem(name);
+      } catch (error) {
+        reportStorageError(error);
+      }
+    }
   },
 };
 
@@ -732,6 +772,15 @@ export const useStore = create<State>()(
       name: "majlis-yemen-v1",
       version: 2,
       storage: createJSONStorage(() => deferredStorage),
+      migrate: (persistedState, storedVersion) => {
+        if (storedVersion > 2) {
+          storageIsNewerVersion = true;
+          reportStorageError(new Error(`Stored data was written by newer version ${storedVersion}`));
+        }
+        return (persistedState && typeof persistedState === "object"
+          ? persistedState
+          : {}) as State;
+      },
       partialize: (state) => ({
         trainees: state.trainees,
         hafiza: state.hafiza,

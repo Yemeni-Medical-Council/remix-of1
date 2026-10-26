@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 import type { Installment } from "./store";
+import { normalizeNumericText } from "./format";
 
 const MONTHS_2025 = [
   "يونيو 2024",
@@ -33,7 +34,7 @@ const MONTHS_2026 = [
 ];
 
 const cleanNumber = (value: unknown): number => {
-  const normalized = String(value ?? "").replace(/[^0-9.-]/g, "");
+  const normalized = normalizeNumericText(String(value ?? "")).replace(/[^0-9.-]/g, "");
   return normalized && Number.isFinite(Number(normalized)) ? Number(normalized) : 0;
 };
 
@@ -91,9 +92,19 @@ export function parseInstallmentsExcel(buffer: ArrayBuffer, year: 2025 | 2026): 
   const months = year === 2025 ? MONTHS_2025 : MONTHS_2026;
   const keys = rows.length ? Object.keys(rows[0]) : [];
 
-  const monthKeys = months.map((month) => findKeyExact(keys, month, month));
+  const monthKeys = months.map((month) => findKeyExact(keys, month, ""));
 
-  const nameKey = findKeyAny(keys, ["اسم المتدرب", "اسم الطالب", "الاسم", "اسم"], "name");
+  const nameKey = findKeyAny(
+    keys,
+    ["اسم المتدرب", "اسم الطالب", "الاسم", "اسم", "trainee name", "student name", "name"],
+    "name",
+  );
+  if (!keys.includes(nameKey)) {
+    throw new Error("ملف الأقساط لا يحتوي على عمود اسم المتدرب");
+  }
+  if (!monthKeys.some((key) => key && keys.includes(key))) {
+    throw new Error(`ملف الأقساط لا يحتوي على أي عمود دفعة شهري معروف للعام ${year}`);
+  }
   const batchKey = findKeyAny(keys, ["رقم الدفعة", "الدفعة"], "batch");
   const specialtyKey = findKeyAny(keys, ["المساق", "التخصص"], "specialty");
   const feesKey = findKeyAny(keys, ["مبلغ الرسوم", "الرسوم"], "fees");
@@ -114,7 +125,8 @@ export function parseInstallmentsExcel(buffer: ArrayBuffer, year: 2025 | 2026): 
     const payments: Record<string, number> = {};
     let totalPaid = 0;
     months.forEach((month, index) => {
-      const amount = cleanNumber(row[monthKeys[index]]);
+      const monthKey = monthKeys[index];
+      const amount = monthKey ? cleanNumber(row[monthKey]) : 0;
       payments[month] = amount;
       totalPaid += amount;
     });

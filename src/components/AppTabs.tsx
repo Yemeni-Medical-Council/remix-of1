@@ -184,10 +184,9 @@ const EditableCell: React.FC<{
   if (isDate) {
     return (
       <input
-        type="date"
+        type="date" lang="ar-EG-u-nu-latn" dir="ltr"
         value={str}
         onChange={(e) => onCommit(rowId, field, e.target.value)}
-        dir="ltr"
         className="u-input w-full min-w-[128px] rounded-md px-1 py-1 text-center text-[11px] leading-tight"
       />
     );
@@ -340,17 +339,43 @@ const USAGE_UI_CSS = `
 
 const AppTabs: React.FC = () => {
   const { reportDate, reportDateLabel } = useReportDate();
-  const [dataRows, setDataRows] = useState<any[]>(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
-    catch { return []; }
-  });
+  const [dataRows, setDataRows] = useState<any[]>([]);
+  const [storageReady, setStorageReady] = useState(false);
+  const [storageBlocked, setStorageBlocked] = useState(false);
   const [importMonthId, setImportMonthId] = useState<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const latestDataRows = useRef(dataRows);
   const storageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const storageErrorNotified = useRef(false);
 
   useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw !== null) {
+        const parsed: unknown = JSON.parse(raw);
+        const validRows = Array.isArray(parsed) && parsed.every((row) =>
+          row &&
+          typeof row === "object" &&
+          typeof (row as any).id === "string" &&
+          Number.isInteger(Number((row as any).monthId)) &&
+          Number((row as any).monthId) >= 1 &&
+          Number((row as any).monthId) <= 12,
+        );
+        if (!validRows) throw new Error("Stored usage rows have an invalid shape");
+        setDataRows(parsed as any[]);
+      }
+    } catch (error) {
+      console.error("[Storage] Unable to load usage rows; preserving stored data", error);
+      setStorageBlocked(true);
+      toast.error("تعذرت قراءة بيانات الاستخدامات المحفوظة. استورد ملف Excel صالحاً للاستعادة قبل التعديل.");
+    } finally {
+      setStorageReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady || storageBlocked) return;
     latestDataRows.current = dataRows;
     if (storageTimer.current) clearTimeout(storageTimer.current);
     storageTimer.current = setTimeout(() => {
@@ -358,15 +383,20 @@ const AppTabs: React.FC = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(latestDataRows.current));
       } catch (error) {
         console.error("[Storage] Failed to persist usage rows", error);
+        if (!storageErrorNotified.current) {
+          toast.error("تعذر حفظ بيانات الاستخدامات؛ تحقق من مساحة التخزين ثم أعد المحاولة.");
+          storageErrorNotified.current = true;
+        }
       }
       storageTimer.current = null;
     }, 80);
     return () => {
       if (storageTimer.current) clearTimeout(storageTimer.current);
     };
-  }, [dataRows]);
+  }, [dataRows, storageReady, storageBlocked]);
 
   useEffect(() => {
+    if (!storageReady || storageBlocked) return;
     const flush = () => {
       if (storageTimer.current) clearTimeout(storageTimer.current);
       try {
@@ -381,7 +411,7 @@ const AppTabs: React.FC = () => {
       window.removeEventListener("pagehide", flush);
       flush();
     };
-  }, []);
+  }, [storageReady, storageBlocked]);
 
   const rowsOfMonth = useCallback(
     (id: number) => dataRows.filter((r) => r.monthId === id),
@@ -396,6 +426,7 @@ const AppTabs: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!storageReady || storageBlocked) return;
     setDataRows((prev) => {
       const counts: Record<number, number> = {};
       prev.forEach((r) => (counts[r.monthId] = (counts[r.monthId] || 0) + 1));
@@ -403,22 +434,40 @@ const AppTabs: React.FC = () => {
       MONTHS.forEach((m) => { if (!counts[m.id]) additions.push(makeEmptyRow(m.id), makeEmptyRow(m.id)); });
       return additions.length ? [...prev, ...additions] : prev;
     });
-  }, []);
+  }, [storageReady, storageBlocked]);
 
   const updateCell = useCallback((rowId: string, key: string, rawValue: string) => {
+    if (storageBlocked) {
+      toast.error("استعد بيانات الاستخدامات من ملف Excel قبل التعديل.");
+      return;
+    }
     setDataRows((prev) =>
       prev.map((row) => (row.id === rowId ? recomputeRow({ ...row, [key]: rawValue }) : row))
     );
-  }, []);
+  }, [storageBlocked]);
 
-  const handleAddRow = (monthId: number) => setDataRows((prev) => [...prev, makeEmptyRow(monthId)]);
+  const handleAddRow = (monthId: number) => {
+    if (storageBlocked) {
+      toast.error("استعد بيانات الاستخدامات من ملف Excel قبل التعديل.");
+      return;
+    }
+    setDataRows((prev) => [...prev, makeEmptyRow(monthId)]);
+  };
 
   const handleDeleteRow = (rowId: string) => {
+    if (storageBlocked) {
+      toast.error("استعد بيانات الاستخدامات من ملف Excel قبل التعديل.");
+      return;
+    }
     if (!window.confirm("هل تريد حذف هذا السطر؟")) return;
     setDataRows((prev) => prev.filter((row) => row.id !== rowId));
   };
 
   const handleClearAll = () => {
+    if (storageBlocked) {
+      toast.error("لا يمكن مسح التخزين المتعذر قراءته؛ استخدم استيراد ملف صالح للاستعادة.");
+      return;
+    }
     if (!window.confirm("سيتم حذف جميع بيانات كل الأشهر نهائياً. هل أنت متأكد؟")) return;
     const fresh: any[] = [];
     MONTHS.forEach((m) => fresh.push(makeEmptyRow(m.id), makeEmptyRow(m.id)));
@@ -452,6 +501,26 @@ const AppTabs: React.FC = () => {
         return;
       }
       const importedMonths = new Set(imported.map((row: any) => row.monthId));
+      if (storageBlocked) {
+        if (!window.confirm("تعذر قراءة التخزين السابق. هل تريد استعادة سجل الاستخدامات من هذا الملف؟")) return;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+          latestDataRows.current = imported;
+          setDataRows(imported);
+          setStorageBlocked(false);
+          storageErrorNotified.current = false;
+          toast.success(`تمت استعادة ${imported.length} صف من ملف Excel`);
+        } catch (error) {
+          console.error("[Storage] Failed to recover usage rows from import", error);
+          toast.error("تعذر حفظ ملف الاستعادة؛ لم يتم استبدال البيانات المحفوظة.");
+        }
+        return;
+      }
+      const replacedCount = dataRows.filter((row) => importedMonths.has(row.monthId)).length;
+      if (
+        replacedCount > 0 &&
+        !window.confirm(`سيستبدل الملف ${replacedCount} صفاً محفوظاً في ${importedMonths.size} شهر. هل تريد المتابعة؟`)
+      ) return;
       setDataRows((prev) => [
         ...prev.filter((row) => !importedMonths.has(row.monthId)),
         ...imported,

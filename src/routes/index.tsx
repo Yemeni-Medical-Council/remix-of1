@@ -170,6 +170,14 @@ function Index() {
   const [pwaInstallable, setPwaInstallable] = useState<boolean>(false);
 
   useEffect(() => {
+    const handleStorageError = () => {
+      toast.error("تعذر الوصول إلى التخزين المحلي. تحقق من مساحة الجهاز ولا تغلق التطبيق قبل حفظ نسخة احتياطية.");
+    };
+    window.addEventListener("mizan:storage-error", handleStorageError);
+    return () => window.removeEventListener("mizan:storage-error", handleStorageError);
+  }, []);
+
+  useEffect(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
