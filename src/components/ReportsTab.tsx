@@ -1,6 +1,18 @@
 import { useMemo, useState } from "react";
-import { BarChart3, CalendarDays, FileText, UserRound, Wallet, Coins } from "lucide-react";
-import { useStore } from "@/lib/store";
+import {
+  BarChart3,
+  CalendarDays,
+  FileText,
+  UserRound,
+  Wallet,
+  Coins,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  RotateCcw,
+} from "lucide-react";
+import { useStore, type Account } from "@/lib/store";
 import TabActions, { type TabCol } from "./TabActions";
 import revenueSchema from "@/data/revenueTemplate.json";
 
@@ -18,7 +30,6 @@ type ReportSource =
 type PeriodType = "all" | "month" | "quarter" | "half" | "year";
 type TraineeGrouping = "month" | "year";
 type TraineeDisplayMode = "detail" | "summary" | "both";
-type SortDirection = "asc" | "desc";
 type ReportRow = Record<string, string | number | any>;
 
 const MONTHS: string[] = [
@@ -114,7 +125,7 @@ const amountValue = (value: unknown) => Number(value) || 0;
 const canonicalFeeCategory = (value: unknown) => {
   const text = String(value || "")
     .trim()
-    .replace(/[\"ًٌٍُِْـ]/g, "")
+    .replace(/[ًٌٍَُِّْـ]/g, "")
     .replace(/[إأآ]/g, "ا")
     .replace(/\s+/g, " ");
   if (!text) return "رسوم أخرى";
@@ -123,20 +134,25 @@ const canonicalFeeCategory = (value: unknown) => {
   return String(value).trim() || "رسوم أخرى";
 };
 
+// دالة تصنيف السجل وفق عمود البيان في الحساب الجاري
 const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "other" => {
   const text = String(description || "").trim();
   if (!text) return "other";
 
+  // فحص أولاً سجلات عهدة الداعي / توفيق الداعي
   const isTawfiq = /(عهدة\s*الداعي|توفيق\s*الداعي)/.test(text);
   if (isTawfiq) return "tawfiq";
 
+  // فحص سجلات عهدة د/يوسف: تحتوي على "عهدة" أو "العهدة" أو "عهدة د/يوسف"
   const isYoussef = /(عهدة\s*د\s*\/?\s*يوسف|العهدة|عهدة)/.test(text);
   if (isYoussef) return "youssef";
 
   return "other";
 };
 
+// أنماط طباعة مخصصة للتقارير متطابقة 100% مع نافذة معاينة المتصفح
 const reportsTabPrintCss = `
+  /* رؤوس الأعمدة: مطابقة للرأس الكحلي في جدول التقارير */
   thead th {
     background: #0f283a !important;
     color: #ffffff !important;
@@ -155,6 +171,7 @@ const reportsTabPrintCss = `
     color: #ffffff !important;
     font-weight: 900 !important;
   }
+  /* خلايا البيانات: خط Cairo عريض أسود */
   tbody td {
     color: #000000 !important;
     font-weight: 800 !important;
@@ -176,6 +193,7 @@ const reportsTabPrintCss = `
   tbody tr.report-period-row td { background: #fef3c7 !important; color: #451a03 !important; font-weight: 900 !important; }
   tbody tr.report-fee-row td { background: #e0f2fe !important; color: #082f49 !important; font-weight: 900 !important; }
 
+  /* صف الإجمالي الكلي الملون في تقارير العهد والتقارير العامة */
   tbody tr.total-row td {
     background: #0437bb !important;
     color: #ffffff !important;
@@ -193,6 +211,7 @@ const reportsTabPrintCss = `
     background: transparent !important;
   }
 
+  /* ===== صفوف ملخص العهدة (الافتتاحي / المنصرف / المتبقي) ===== */
   .summary-spacer-row td {
     height: 12px !important;
     background: transparent !important;
@@ -209,6 +228,7 @@ const reportsTabPrintCss = `
     print-color-adjust: exact !important;
     white-space: nowrap !important;
   }
+  /* البطاقة 0: الرصيد الافتتاحي (كهرماني/أصفر) */
   .summary-card-0 td {
     background: #fde68a !important;
     color: #451a03 !important;
@@ -218,6 +238,7 @@ const reportsTabPrintCss = `
     color: #451a03 !important;
     background: transparent !important;
   }
+  /* البطاقة 1: المنصرف خلال العام (وردي/أحمر) */
   .summary-card-1 td {
     background: #fecdd3 !important;
     color: #4c0519 !important;
@@ -227,6 +248,7 @@ const reportsTabPrintCss = `
     color: #4c0519 !important;
     background: transparent !important;
   }
+  /* البطاقة 2: المتبقي من العهدة (زمردي/أخضر فاتح) */
   .summary-card-2 td {
     background: #a7f3d0 !important;
     color: #022c22 !important;
@@ -261,6 +283,7 @@ const reportsTabPrintCss = `
   .report-page-content table tbody tr.summary-card-1 .pdf-cell-text { color: #4c0519 !important; }
   .report-page-content table tbody tr.summary-card-2 td { background: #a7f3d0 !important; color: #022c22 !important; border-color: #10b981 !important; }
   .report-page-content table tbody tr.summary-card-2 .pdf-cell-text { color: #022c22 !important; }
+  /* توحيد الحدود إلى الأسود لجميع خلايا الجدول، بما فيها الرأس والإجمالي والملخص */
   #tableContainer table th,
   #tableContainer table td,
   #report-source table th,
@@ -288,9 +311,25 @@ export default function ReportsTab() {
   const [traineeGrouping, setTraineeGrouping] = useState<TraineeGrouping>("month");
   const [selectedFee, setSelectedFee] = useState<string>("all");
   const [traineeDisplayMode, setTraineeDisplayMode] = useState<TraineeDisplayMode>("both");
-  const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortDir, setSortDir] = useState<SortDirection>("asc");
 
+  // حالة الفرز والبحث والتصفية
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => {
+      if (prev?.key !== key) return { key, direction: "asc" };
+      if (prev.direction === "asc") return { key, direction: "desc" };
+      return null; // العودة للترتيب الأصلي
+    });
+  };
+
+  const handleResetFilters = () => {
+    setSortConfig(null);
+    setSearchTerm("");
+  };
+
+  // الرصيد الافتتاحي مع الحفظ التلقائي في المتصفح
   const [youssefOpeningBalance, setYoussefOpeningBalance] = useState<number>(() => {
     const saved = localStorage.getItem("youssef_loan_opening_balance");
     return saved ? Number(saved) || 0 : 0;
@@ -338,53 +377,7 @@ export default function ReportsTab() {
     return date.getFullYear() === year && selectedMonthSet.has(date.getMonth());
   };
 
-  const getSortValue = (row: ReportRow, key: string) => {
-    const value = row[key];
-
-    if (value === null || value === undefined || value === "") return null;
-    if (typeof value === "number") return value;
-    const normalized = String(value).replace(/[,\\s]/g, "");
-    if (!Number.isNaN(Number(normalized)) && normalized !== "") return Number(normalized);
-    if (key === "date" || key === "notifyDate") {
-      const date = normalizeDate(value);
-      return date ? date.getTime() : Number.MAX_SAFE_INTEGER;
-    }
-    return String(value);
-  };
-
-  const handleSort = (key: string) => {
-    if (sortKey !== key) {
-      setSortKey(key);
-      setSortDir("asc");
-      return;
-    }
-    setSortDir((current) => (current === "asc" ? "desc" : "asc"));
-  };
-
-  const sortRows = (rows: ReportRow[]) => {
-    if (!sortKey) return rows;
-
-    const collator = new Intl.Collator("ar");
-    const openingRows = rows.filter((row) => row.summaryLevel === "opening");
-    const totalsRows = rows.filter((row) => row.summaryLevel === "total" || row.summaryLevel === "fee" || row.summaryLevel === "period");
-    const regularRows = rows.filter((row) => row.summaryLevel !== "opening" && row.summaryLevel !== "total" && row.summaryLevel !== "fee" && row.summaryLevel !== "period");
-
-    regularRows.sort((a, b) => {
-      const av = getSortValue(a, sortKey);
-      const bv = getSortValue(b, sortKey);
-      const dir = sortDir === "asc" ? 1 : -1;
-
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1 * dir;
-      if (bv == null) return -1 * dir;
-
-      if (typeof av === "number" && typeof bv === "number") return (av - bv) * dir;
-      return collator.compare(String(av), String(bv)) * dir;
-    });
-
-    return [...openingRows, ...regularRows, ...totalsRows];
-  };
-
+  // 1. تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق)
   const youssefRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
@@ -398,6 +391,7 @@ export default function ReportsTab() {
     let running = youssefOpeningBalance;
     const result: ReportRow[] = [];
 
+    // سطر الرصيد الافتتاحي
     result.push({
       date: "2026-01-01",
       docNo: "افتتاحي",
@@ -438,6 +432,7 @@ export default function ReportsTab() {
       });
     });
 
+    // صف الإجمالي الكلي الملون لكل الأعمدة
     result.push({
       date: "—",
       docNo: "—",
@@ -449,6 +444,7 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
+    // صفوف ملخص العهدة
     const paidForSummary = sumCredit - (youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0);
     const remainingForSummary = youssefOpeningBalance - paidForSummary;
 
@@ -474,6 +470,7 @@ export default function ReportsTab() {
     return result;
   }, [accounts, youssefOpeningBalance, period, year, selectedMonthSet]);
 
+  // 2. تقرير عهدة توفيق الداعي (من الحساب الجاري 2026 فما فوق)
   const tawfiqRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
@@ -487,6 +484,7 @@ export default function ReportsTab() {
     let running = tawfiqOpeningBalance;
     const result: ReportRow[] = [];
 
+    // سطر الرصيد الافتتاحي
     result.push({
       date: "2026-01-01",
       docNo: "افتتاحي",
@@ -527,6 +525,7 @@ export default function ReportsTab() {
       });
     });
 
+    // صف الإجمالي الكلي الملون لكل الأعمدة
     result.push({
       date: "—",
       docNo: "—",
@@ -538,6 +537,7 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
+    // صفوف ملخص العهدة
     const paidForSummary = sumCredit - (tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0);
     const remainingForSummary = tawfiqOpeningBalance - paidForSummary;
 
@@ -600,11 +600,9 @@ export default function ReportsTab() {
       const trainee = String(row.name || "").trim();
       const category = canonicalFeeCategory(row.description);
       const amount = amountValue(row.notifyAmount);
-      if (!date || date.getFullYear() < TRAINEE_REPORT_START_YEAR || !trainee || amount <= 0 || (selectedTrainee !== "all" && trainee !== selectedTrainee) || (selectedFee !== "all" && category !== selectedFee)) {
-        return [];
-      }
+      if (!date || date.getFullYear() < TRAINEE_REPORT_START_YEAR || !trainee || amount <= 0 || (selectedTrainee !== "all" && trainee !== selectedTrainee) || (selectedFee !== "all" && category !== selectedFee)) return [];
       const p = traineeGrouping === "year" ? String(date.getFullYear()) : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
-      return [{ notifyDate: row.notifyDate, hafizaNo: row.hafizaNo || "", notifyNo: row.notifyNo || "", year: date.getFullYear(), period: p, trainee, category, description: String(row.description || ""), source: "حوافظ التوريد", amount, displayType: "تفصيلي" }];
+      return [{ notifyDate: row.notifyDate, hafizaNo: row.hafizaNo || "", notifyNo: row.notifyNo || "", year: date.getFullYear(), period: p, trainee, category, description: String(row.description || "رسوم أخرى").trim(), source: "حوافظ التوريد", amount }];
     });
 
     const categories = Array.from(new Set(payments.map((row) => String(row.category)))).sort((a, b) => a.localeCompare(b, "ar"));
@@ -701,13 +699,13 @@ export default function ReportsTab() {
         ] satisfies TabCol[],
       };
     }
-    if (source === "trainee") return { title: "كشف مدفوعات المتدربين من حوافظ التوريد", columns: [{ key: "year", label: "السنة" }, { key: "notifyDate", label: "تاريخ الإشعار" }, { key: "period", label: "الفترة" }, { key: "trainee", label: "المتدرب" }, { key: "category", label: "نوع الرسم" }, { key: "description", label: "البيان" }, { key: "amount", label: "المبلغ" }] satisfies TabCol[] };
-    if (source === "feeTotals") return { title: "إجماليات الرسوم حسب النوع", columns: [{ key: "category", label: "نوع الرسم" }, { key: "source", label: "المصدر" }, { key: "amount", label: "المبلغ" }] satisfies TabCol[] };
-    if (source === "hafiza") return { title: "تقرير حوافظ التوريد", columns: [{ key: "date", label: "التاريخ" }, { key: "hafizaNo", label: "رقم الحافظة" }, { key: "description", label: "البيان" }, { key: "name", label: "اسم المتدرب" }, { key: "amount", label: "المبلغ" }, { key: "income", label: "الإيراد" }] satisfies TabCol[] };
-    if (source === "account") return { title: "تقرير الحساب الجاري", columns: [{ key: "date", label: "التاريخ" }, { key: "description", label: "البيان" }, { key: "name", label: "الاسم" }, { key: "income", label: "الوارد" }, { key: "expense", label: "المنصرف" }] satisfies TabCol[] };
+    if (source === "trainee") return { title: "كشف مدفوعات المتدربين من حوافظ التوريد", columns: [{ key: "year", label: "السنة" }, { key: "notifyDate", label: "تاريخ التوريد" }, { key: "period", label: "الشهر / السنة" }, { key: "trainee", label: "اسم المتدرب" }, { key: "hafizaNo", label: "رقم الحافظة" }, { key: "notifyNo", label: "رقم الإشعار" }, { key: "description", label: "البيان الأصلي" }, { key: "category", label: "التصنيف الموحد" }, { key: "displayType", label: "نوع السجل" }, { key: "source", label: "المصدر" }, { key: "amount", label: "مبلغ التوريد" }] satisfies TabCol[] };
+    if (source === "feeTotals") return { title: "إجماليات الرسوم حسب النوع", columns: [{ key: "category", label: "نوع الرسم" }, { key: "source", label: "المصدر" }, { key: "amount", label: "الإجمالي" }] satisfies TabCol[] };
+    if (source === "hafiza") return { title: "تقرير حوافظ التوريد", columns: [{ key: "date", label: "التاريخ" }, { key: "hafizaNo", label: "رقم الحافظة" }, { key: "description", label: "البيان" }, { key: "name", label: "الاسم" }, { key: "amount", label: "المبلغ" }, { key: "income", label: "الإيرادات" }] satisfies TabCol[] };
+    if (source === "account") return { title: "تقرير الحساب الجاري", columns: [{ key: "date", label: "التاريخ" }, { key: "description", label: "البيان" }, { key: "name", label: "الاسم" }, { key: "income", label: "الإيرادات" }, { key: "expense", label: "المصروفات" }] satisfies TabCol[] };
     if (source === "expenses") return { title: "تقرير المصروفات", columns: [{ key: "date", label: "التاريخ" }, { key: "item", label: "بند المصروف" }, { key: "name", label: "الاسم" }, { key: "expense", label: "المبلغ" }] satisfies TabCol[] };
     if (source === "revenue") return { title: "تقرير الإيرادات", columns: [{ key: "date", label: "الشهر" }, { key: "item", label: "اسم بند الإيراد" }, { key: "amount", label: "المبلغ" }] satisfies TabCol[] };
-    return { title: "تقرير مالي مجمّع", columns: [{ key: "source", label: "المصدر" }, { key: "date", label: "التاريخ / الفترة" }, { key: "description", label: "البيان" }, { key: "amount", label: "المبلغ" }] satisfies TabCol[] };
+    return { title: "تقرير مالي مجمّع", columns: [{ key: "source", label: "المصدر" }, { key: "date", label: "التاريخ / الفترة" }, { key: "description", label: "البيان / البند" }, { key: "income", label: "الإيرادات" }, { key: "expense", label: "المصروفات" }, { key: "amount", label: "المبلغ" }] satisfies TabCol[] };
   }, [source]);
 
   const reportRows = useMemo<ReportRow[]>(() => {
@@ -728,7 +726,7 @@ export default function ReportsTab() {
   }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, traineeRows, feeTotalsRows]);
 
   const title = source === "trainee"
-    ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "both" ? "تفصيلي + إجمالي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي"}`
+    ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "detail" ? "تفصيلي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي وإجمالي"} — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"}`
     : source === "feeTotals"
     ? `إجماليات الرسوم حسب النوع — ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — من ${TRAINEE_REPORT_START_YEAR}`
     : `${sourceConfig.title} — ${periodLabel(period, month, year)}`;
@@ -750,12 +748,91 @@ export default function ReportsTab() {
 
   const isLoanOrCustody = source === "youssefLoan" || source === "tawfiqCustody";
 
+  // صفوف التقرير الأساسية المعروضة (بدون بطاقات ملخص العهدة)
   const displayRows = useMemo(
     () => reportRows.filter((row) => row.summaryLevel !== "summary-card"),
     [reportRows]
   );
 
-  const sortedDisplayRows = useMemo(() => sortRows(displayRows), [displayRows, sortKey, sortDir]);
+  // تصفية وفرز صفوف الجدول مع تثبيت صف الرصيد الافتتاحي في الأعلى وصف الإجمالي في الأسفل
+  const processedDisplayRows = useMemo(() => {
+    const openingRows: ReportRow[] = [];
+    const totalRows: ReportRow[] = [];
+    const dataRows: ReportRow[] = [];
+
+    displayRows.forEach((row) => {
+      if (row.summaryLevel === "opening") {
+        openingRows.push(row);
+      } else if (
+        row.summaryLevel === "total" ||
+        row.description === "الإجمالي الكلي" ||
+        row.category === "الإجمالي الكلي لجميع الرسوم"
+      ) {
+        totalRows.push(row);
+      } else {
+        dataRows.push(row);
+      }
+    });
+
+    // 1. تصفية / بحث نصي سريع
+    let filtered = dataRows;
+    if (searchTerm.trim()) {
+      const q = searchTerm.trim().toLowerCase();
+      filtered = dataRows.filter((row) =>
+        sourceConfig.columns.some((col) => {
+          const val = row[col.key];
+          if (val == null) return false;
+          return String(val).toLowerCase().includes(q);
+        })
+      );
+    }
+
+    // 2. فرز الأعمدة التفاعلي (تصاعدي / تنازلي)
+    if (sortConfig) {
+      const { key, direction } = sortConfig;
+      const isNum = numericKeys.includes(key);
+
+      filtered = [...filtered].sort((a, b) => {
+        const valA = a[key];
+        const valB = b[key];
+
+        // القيم الفارغة أو غير المعرفة تذهب للأسفل
+        if (valA == null || valA === "" || valA === "—") return 1;
+        if (valB == null || valB === "" || valB === "—") return -1;
+
+        // مقارنة عددية نقية للأرقام والمبالغ
+        if (isNum || (typeof valA === "number" && typeof valB === "number")) {
+          const numA = Number(valA) || 0;
+          const numB = Number(valB) || 0;
+          return direction === "asc" ? numA - numB : numB - numA;
+        }
+
+        // مقارنة تواريخ
+        const dateA = normalizeDate(valA);
+        const dateB = normalizeDate(valB);
+        if (dateA && dateB && !Number.isNaN(dateA.getTime()) && !Number.isNaN(dateB.getTime())) {
+          return direction === "asc"
+            ? dateA.getTime() - dateB.getTime()
+            : dateB.getTime() - dateA.getTime();
+        }
+
+        // مقارنة نصوص عربية أبجدياً من أ إلى ي
+        const strA = String(valA).trim();
+        const strB = String(valB).trim();
+        const cmp = strA.localeCompare(strB, "ar", { numeric: true, sensitivity: "base" });
+        return direction === "asc" ? cmp : -cmp;
+      });
+    }
+
+    return [...openingRows, ...filtered, ...totalRows];
+  }, [displayRows, searchTerm, sortConfig, sourceConfig.columns, numericKeys]);
+
+  // صفوف التقرير المفروزة والمعدة للتصدير والطباعة والـ PDF مع بطاقات العهدة
+  const processedReportRows = useMemo(() => {
+    if (!sortConfig && !searchTerm.trim()) return reportRows;
+    const summaryCards = reportRows.filter((r) => r.summaryLevel === "summary-card");
+    return [...processedDisplayRows, ...summaryCards];
+  }, [reportRows, sortConfig, searchTerm, processedDisplayRows]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50 to-indigo-50 p-2 sm:p-4" dir="rtl">
@@ -774,12 +851,17 @@ export default function ReportsTab() {
           </div>
         </header>
 
+        {/* عناصر التحكم والتصفية */}
         <div className="grid grid-cols-1 gap-3 border-b border-slate-200 bg-slate-50/70 p-3 sm:grid-cols-2 lg:grid-cols-4 sm:p-4">
           <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
             مصدر التقرير
             <select
               value={source}
-              onChange={(event) => setSource(event.target.value as ReportSource)}
+              onChange={(event) => {
+                setSource(event.target.value as ReportSource);
+                setSortConfig(null);
+                setSearchTerm("");
+              }}
               className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
             >
               {SOURCES.map((item) => (
@@ -788,6 +870,7 @@ export default function ReportsTab() {
             </select>
           </label>
 
+          {/* حقل الرصيد الافتتاحي اليدوي لسلفة د/يوسف */}
           {source === "youssefLoan" && (
             <label className="flex flex-col gap-1 text-xs font-black text-amber-900 bg-amber-50/80 p-1.5 rounded-xl border border-amber-200">
               <span className="flex items-center gap-1 font-black">
@@ -795,7 +878,7 @@ export default function ReportsTab() {
                 الرصيد الافتتاحي لسلفة د/ يوسف (ريال)
               </span>
               <input
-                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                type="number"
                 value={youssefOpeningBalance || ""}
                 onChange={(e) => handleYoussefOpeningChange(Number(e.target.value) || 0)}
                 placeholder="0"
@@ -804,6 +887,7 @@ export default function ReportsTab() {
             </label>
           )}
 
+          {/* حقل الرصيد الافتتاحي اليدوي لعهدة توفيق الداعي */}
           {source === "tawfiqCustody" && (
             <label className="flex flex-col gap-1 text-xs font-black text-emerald-900 bg-emerald-50/80 p-1.5 rounded-xl border border-emerald-200">
               <span className="flex items-center gap-1 font-black">
@@ -811,7 +895,7 @@ export default function ReportsTab() {
                 الرصيد الافتتاحي لعهدة توفيق الداعي (ريال)
               </span>
               <input
-                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                type="number"
                 value={tawfiqOpeningBalance || ""}
                 onChange={(e) => handleTawfiqOpeningChange(Number(e.target.value) || 0)}
                 placeholder="0"
@@ -927,24 +1011,53 @@ export default function ReportsTab() {
           )}
         </div>
 
+        {/* شريط الإجراءات والطباعة والتصفية السريعة */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-3 sm:p-4">
-          <div className="flex items-center gap-2 text-sm font-black text-slate-800">
-            {source === "trainee" ? (
-              <UserRound className="h-5 w-5 text-sky-700" />
-            ) : isLoanOrCustody ? (
-              <Wallet className="h-5 w-5 text-[#1f5f7a]" />
-            ) : (
-              <CalendarDays className="h-5 w-5 text-sky-700" />
-            )}
-            <span>{title}</span>
-            <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-bold text-sky-800">
-              {displayRows.length} سجل
-            </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-sm font-black text-slate-800">
+              {source === "trainee" ? (
+                <UserRound className="h-5 w-5 text-sky-700" />
+              ) : isLoanOrCustody ? (
+                <Wallet className="h-5 w-5 text-[#1f5f7a]" />
+              ) : (
+                <CalendarDays className="h-5 w-5 text-sky-700" />
+              )}
+              <span>{title}</span>
+              <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-bold text-sky-800">
+                {processedDisplayRows.length} سجل
+              </span>
+            </div>
+
+            {/* حقل البحث والتصفية السريعة وزر إلغاء الفرز */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="تصفية سريعة..."
+                  className="w-36 sm:w-48 rounded-xl border border-slate-300 bg-white py-1 pr-8 pl-3 text-xs font-bold text-slate-900 outline-none transition focus:border-sky-600 focus:ring-1 focus:ring-sky-600"
+                />
+              </div>
+
+              {(sortConfig || searchTerm) && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  title="إلغاء الفرز والتصفية"
+                  className="flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 transition hover:bg-rose-100"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  <span>إلغاء الفرز</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <TabActions
             title={title}
-            rows={reportRows}
+            rows={processedReportRows}
             columns={sourceConfig.columns}
             fileName={
               source === "youssefLoan"
@@ -962,8 +1075,9 @@ export default function ReportsTab() {
           />
         </div>
 
+        {/* جدول عرض التقرير */}
         <div className="overflow-x-auto p-3 sm:p-4">
-          {displayRows.length === 0 ? (
+          {processedDisplayRows.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-slate-600">
               <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
               لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
@@ -973,29 +1087,40 @@ export default function ReportsTab() {
               <thead className="bg-[#0f283a] text-white">
                 <tr>
                   <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold">م</th>
-                  {sourceConfig.columns.map((column) => (
-                    <th key={column.key} className="border border-[#1f5f7a] px-3 py-2.5 font-bold">
-                      <button
-                        type="button"
+                  {sourceConfig.columns.map((column) => {
+                    const isSorted = sortConfig?.key === column.key;
+                    return (
+                      <th
+                        key={column.key}
                         onClick={() => handleSort(column.key)}
-                        className="flex w-full items-center justify-center gap-1 font-bold text-white transition hover:text-sky-200"
+                        className="cursor-pointer select-none border border-[#1f5f7a] px-3 py-2.5 font-bold transition hover:bg-[#1a445e]"
+                        title="انقر لفرز العمود (تصاعدي / تنازلي)"
                       >
-                        <span>{column.label}</span>
-                        <span className="text-[11px]">
-                          {sortKey === column.key ? (sortDir === "asc" ? "↑" : "↓") : "↕"}
-                        </span>
-                      </button>
-                    </th>
-                  ))}
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span>{column.label}</span>
+                          {isSorted ? (
+                            sortConfig.direction === "asc" ? (
+                              <ArrowUp className="h-3.5 w-3.5 text-emerald-300" />
+                            ) : (
+                              <ArrowDown className="h-3.5 w-3.5 text-emerald-300" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="h-3 w-3 text-slate-300/60 hover:text-white" />
+                          )}
+                        </div>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
-                {sortedDisplayRows.map((row, index) => {
-                  const isTotal = row.summaryLevel === "total" || row.description === "الإجمالي الكلي";
+                {processedDisplayRows.map((row, index) => {
+                  const isTotal = row.summaryLevel === "total" || row.description === "الإجمالي الكلي" || row.category === "الإجمالي الكلي لجميع الرسوم";
                   const isOpening = row.summaryLevel === "opening";
 
                   let rowStyle = "hover:bg-sky-50/50";
                   if (isTotal) {
+                    // تلوين خلفية صف الإجمالي الكلي بالأزرق الغامق الملوّن
                     rowStyle = "bg-[#0437bb] text-white font-black text-sm sm:text-base";
                   } else if (isOpening) {
                     rowStyle = "bg-amber-100/90 text-amber-950 font-bold";
@@ -1032,7 +1157,7 @@ export default function ReportsTab() {
                                 : "border-slate-200 text-slate-900"
                             } ${isNum ? "font-mono" : ""}`}
                           >
-                            {typeof val === "number" ? val.toLocaleString("en-US") : (val ?? "—")}
+                            {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
                           </td>
                         );
                       })}
@@ -1040,18 +1165,20 @@ export default function ReportsTab() {
                   );
                 })}
 
+                {/* صف فاصل + صفوف ملخص العهدة داخل الجدول بخلايا مدمجة وألوان مميزة */}
                 {isLoanOrCustody && (() => {
                   const summaryRows = reportRows.filter((r) => r.summaryLevel === "summary-card");
                   if (!summaryRows.length) return null;
 
                   const cardStyles = [
-                    { label: "مبلغ العهدة الافتتاحي للعام 2026", bg: "bg-amber-200", text: "text-amber-950", border: "border-amber-500", cls: "summary-card-0" },
-                    { label: "المنصرف من العهدة خلال العام", bg: "bg-rose-200", text: "text-rose-950", border: "border-rose-500", cls: "summary-card-1" },
+                    { label: "مبلغ العهدة الافتتاحي للعام 2026",   bg: "bg-amber-200",   text: "text-amber-950",   border: "border-amber-500",   cls: "summary-card-0" },
+                    { label: "المنصرف من العهدة خلال العام",        bg: "bg-rose-200",    text: "text-rose-950",    border: "border-rose-500",    cls: "summary-card-1" },
                     { label: "المتبقي من العهدة حتى تاريخ التقرير", bg: "bg-emerald-200", text: "text-emerald-950", border: "border-emerald-500", cls: "summary-card-2" },
                   ];
 
                   return (
                     <>
+                      {/* صف فاصل مرئي */}
                       <tr className="summary-spacer" aria-hidden="true">
                         <td
                           colSpan={sourceConfig.columns.length + 1}
@@ -1068,17 +1195,19 @@ export default function ReportsTab() {
                             key={`summary-${i}`}
                             className={`summary-card-row ${style.cls} ${style.bg} ${style.text} font-black`}
                           >
+                            {/* خلية البيان: تدمج من عمود "م" حتى قبل عمود الرصيد (5 خلايا) */}
                             <td
                               colSpan={sourceConfig.columns.length - 1}
                               className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm font-black`}
                             >
                               {style.label}
                             </td>
+                            {/* خلية المبلغ: تدمج العمودين الأخيرين */}
                             <td
                               colSpan={2}
                               className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base font-black`}
                             >
-                              {value.toLocaleString("en-US")}
+                              {value.toLocaleString()}
                             </td>
                           </tr>
                         );
