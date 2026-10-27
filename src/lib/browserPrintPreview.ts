@@ -1,7 +1,5 @@
-import { localCairoFontCss, localCairoTextCss, REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
+import { REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
 import { downloadRenderedReportPdf } from "./reportPdf";
-import { Capacitor } from "@capacitor/core";
-import { NATIVE_BROWSER_PRINT_PREVIEW_EVENT } from "@/lib/nativePrintPreviewEvents";
 
 interface OpenBrowserPrintPreviewOptions {
   title: string;
@@ -31,9 +29,8 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
   const defaultMargin = options.defaultMarginMm !== undefined
     ? `${options.defaultMarginMm}mm`
     : options.margin === "normal" ? "8mm" : "3mm";
-  const nativePlatform = Capacitor.isNativePlatform();
-  const newWin = nativePlatform ? null : window.open("", "_blank");
-  if (!nativePlatform && !newWin) {
+  const newWin = window.open("", "_blank");
+  if (!newWin) {
     alert("يرجى السماح بالنوافذ المنبثقة لمعاينة الطباعة");
     return false;
   }
@@ -44,9 +41,10 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>معاينة الطباعة - ${title}</title>
-  <style>${localCairoFontCss()}</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style id="dynamic-page-rule">
     @page {
       size: ${paperSize} ${defaultOrientation};
@@ -453,7 +451,7 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
       tfoot { display: table-footer-group !important; }
     }
   </style>
-  <style>${contentCss}${localCairoTextCss}</style>
+  <style>${contentCss}</style>
 </head>
 <body>
   <div class="preview-toolbar">
@@ -504,11 +502,11 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
     <div class="toolbar-center">
       <div class="toolbar-control">
         <label>من:</label>
-        <input type="date" lang="ar-EG-u-nu-latn" dir="ltr" id="dateFrom" />
+        <input type="date" id="dateFrom" />
       </div>
       <div class="toolbar-control">
         <label>إلى:</label>
-        <input type="date" lang="ar-EG-u-nu-latn" dir="ltr" id="dateTo" />
+        <input type="date" id="dateTo" />
       </div>
       <button type="button" class="btn-action btn-filter" id="btnFilter">
         🔍 تطبيق
@@ -563,16 +561,6 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
       const originalSubText = subTitleEl ? subTitleEl.textContent : '';
 
       let printInProgress = false;
-
-      function notifyParent(type, payload) {
-        if (window.parent === window) return false;
-        window.parent.postMessage(Object.assign({ source: 'mizan-print-preview', type: type }, payload || {}), '*');
-        return true;
-      }
-
-      function closePreview() {
-        if (!notifyParent('close')) window.close();
-      }
 
       function toLatinDigits(str) {
         if (!str) return '';
@@ -740,24 +728,8 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
       function printOnce() {
         if (printInProgress) return;
         printInProgress = true;
-        var fontSet = document.fonts;
-        var cairoReady = fontSet && fontSet.load
-          ? Promise.all([
-              fontSet.load('400 16px Cairo', 'اللغة العربية 123'),
-              fontSet.load('700 16px Cairo', 'اللغة العربية 123'),
-              fontSet.load('900 16px Cairo', 'اللغة العربية 123')
-            ]).then(function() { return fontSet.ready; })
-          : Promise.resolve();
-        Promise.race([cairoReady, new Promise(function(resolve) { window.setTimeout(resolve, 10000); })])
-          .catch(function() {})
-          .then(function() {
-            if (window.parent !== window) {
-              notifyParent('print', { html: '<!doctype html>' + document.documentElement.outerHTML });
-            } else {
-              window.print();
-            }
-            window.setTimeout(function() { printInProgress = false; }, 1000);
-          });
+        window.print();
+        window.setTimeout(function() { printInProgress = false; }, 1000);
       }
 
       function updatePageSettings() {
@@ -827,14 +799,6 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
         btnDownloadPdf.disabled = true;
         btnDownloadPdf.innerText = 'جارٍ إنشاء PDF...';
         try {
-          if (notifyParent('download', {
-            settings: {
-              pageSize: selPageSize.value,
-              orientation: selOrientation.value,
-              marginMm: parseFloat(selMargin.value),
-              fitToContent: fitToContent
-            }
-          })) return;
           await window.downloadReportFromPreview({
             pageSize: selPageSize.value,
             orientation: selOrientation.value,
@@ -857,7 +821,7 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
 
       btnPrint.addEventListener('click', printOnce);
       btnDownloadPdf.addEventListener('click', downloadDirectPdf);
-      btnClose.addEventListener('click', closePreview);
+      btnClose.addEventListener('click', function() { window.close(); });
 
       if (autoDownloadPdf) {
         window.addEventListener('load', function() {
@@ -870,7 +834,7 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
           e.preventDefault();
           printOnce();
         } else if (e.key === 'Escape') {
-          closePreview();
+          window.close();
         }
       });
       updatePageSettings();
@@ -879,21 +843,12 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
 </body>
 </html>`;
 
-  const downloadFileName = options.downloadFileName || `${title.replace(/[\\/:*?"<>|]/g, "-")}.pdf`;
-  if (nativePlatform) {
-    window.dispatchEvent(new CustomEvent(NATIVE_BROWSER_PRINT_PREVIEW_EVENT, {
-      detail: { html, title, fileName: downloadFileName },
-    }));
-    return true;
-  }
-
-  if (!newWin) return false;
   (newWin as any).downloadReportFromPreview = async (settings: any) => {
     const paper = newWin.document.getElementById("paperContainer");
     if (!paper) throw new Error("تعذر تحديد الورقة");
     await downloadRenderedReportPdf(paper, {
       ...settings,
-      fileName: downloadFileName,
+      fileName: options.downloadFileName || `${title.replace(/[\\/:*?"<>|]/g, "-")}.pdf`,
     });
   };
   newWin.document.open();

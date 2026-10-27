@@ -29,7 +29,6 @@ const AppTabs = lazy(() => import("@/components/AppTabs"));
 // استيراد وظائف الـ PWA
 import { canInstall, onInstallAvailability, promptInstall } from "@/lib/pwa";
 import { installAndroidBackButton } from "@/lib/capacitorNavigation";
-import NativePrintPreviewHost from "@/components/NativePrintPreviewHost";
 
 // إعداد مسار التوجيه والبيانات التعريفية للمتصفح
 export const Route = createFileRoute("/")({
@@ -169,21 +168,6 @@ function Index() {
   const tabHistoryRef = useRef<Tab[]>([getInitialTab()]);
   const [pwaInstallable, setPwaInstallable] = useState<boolean>(false);
 
-  // حماية الإقلاع الأولي: لا تُرسم التبويبات الثقيلة على الخادم، بل بعد تحميل المتصفح فقط.
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const handleStorageError = () => {
-      toast.error("تعذر الوصول إلى التخزين المحلي. تحقق من مساحة الجهاز ولا تغلق التطبيق قبل حفظ نسخة احتياطية.");
-    };
-    window.addEventListener("mizan:storage-error", handleStorageError);
-    return () => window.removeEventListener("mizan:storage-error", handleStorageError);
-  }, []);
-
   useEffect(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
@@ -270,17 +254,17 @@ function Index() {
       dir="rtl"
     >
       {/* قسم الهيدر العلوي — أزرق ثلجي عصري */}
-      <div className="app-header relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-3 py-3 sm:px-5 sm:py-4 border-b border-[#b8d4e8] shadow-sm text-white overflow-hidden">
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-3 py-3 sm:px-5 sm:py-4 border-b border-[#b8d4e8] shadow-sm text-white overflow-hidden">
         {/* خيط زخرفي أعلى الهيدر */}
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#b8d4e8,#e8f0f8,#b8d4e8)] opacity-80" />
 
         {/* الجزء الأيمن: الشعار والعنوان والوصف */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="app-brand-logo relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46]/20">
+          <div className="relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46]/20">
             <img src="/app-logo.png" alt="شعار مِيزان" className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col gap-0.5 min-w-0">
-            <h1 className="app-brand-title text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
+            <h1 className="text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
               المجلس اليمني للاختصاصات الطبية
             </h1>
             <p className="text-[clamp(0.75rem,2.4vw,0.875rem)] text-[#e8f0f8] font-medium flex items-center gap-1.5 leading-snug min-w-0">
@@ -297,7 +281,7 @@ function Index() {
           {pwaInstallable && (
             <button
               onClick={handlePWAInstall}
-              className="app-install-btn flex items-center gap-1.5 bg-white text-[#2e6b8a] hover:bg-[#e8f0f8] font-bold text-[13px] px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap active:scale-[0.97]"
+              className="flex items-center gap-1.5 bg-white text-[#2e6b8a] hover:bg-[#e8f0f8] font-bold text-[13px] px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap active:scale-[0.97]"
             >
               <DownloadCloud className="w-4 h-4 shrink-0" />
               <span>تثبيت التطبيق</span>
@@ -308,47 +292,36 @@ function Index() {
 
       {/* محتوى التبويب النشط */}
       <div className="app-tab-content w-full min-w-0 bg-[#f4f9fd] p-0 pb-28 sm:p-0 sm:pb-24 md:p-0 min-h-[calc(100vh-140px)]">
-        {!isMounted ? (
-          // شاشة تجهيز خفيفة أثناء الرندر على الخادم وقبل تحميل المتصفح
-          <div
-            className="flex min-h-[35vh] items-center justify-center p-6 text-xs font-semibold text-[#2e6b8a]"
-            role="status"
-            aria-live="polite"
-          >
-            جارٍ تجهيز النظام…
-          </div>
-        ) : (
-          <Suspense
-            fallback={
-              <div
-                className="flex min-h-[35vh] items-center justify-center rounded-2xl border border-[#b8d4e8] bg-gold/95 p-6 text-xs font-semibold text-[#2e6b8a]"
-                role="status"
-                aria-live="polite"
-              >
-                جارٍ فتح التبويب…
-              </div>
-            }
-          >
-            {activeTab === "installments" && <InstallmentsTab />}
-            {activeTab === "hafiza" && <HafizaTab />}
-            {activeTab === "account" && <AccountTab />}
-            {activeTab === "journal" && <JournalTab />}
-            {activeTab === "monthly" && <MonthlyStatementTab />}
-            {activeTab === "revenue" && <RevenueTab />}
-            {activeTab === "expenses-table" && <ExpensesTab />}
-            {activeTab === "reports" && <ReportsTab />}
-            {activeTab === "general-expenses-ledger" && <AppTabs />}
-          </Suspense>
-        )}
+        <Suspense
+          fallback={
+            <div
+              className="flex min-h-[35vh] items-center justify-center rounded-2xl border border-[#b8d4e8] bg-gold/95 p-6 text-xs font-semibold text-[#2e6b8a]"
+              role="status"
+              aria-live="polite"
+            >
+              جارٍ فتح التبويب…
+            </div>
+          }
+        >
+          {activeTab === "installments" && <InstallmentsTab />}
+          {activeTab === "hafiza" && <HafizaTab />}
+          {activeTab === "account" && <AccountTab />}
+          {activeTab === "journal" && <JournalTab />}
+          {activeTab === "monthly" && <MonthlyStatementTab />}
+          {activeTab === "revenue" && <RevenueTab />}
+          {activeTab === "expenses-table" && <ExpensesTab />}
+          {activeTab === "reports" && <ReportsTab />}
+          {activeTab === "general-expenses-ledger" && <AppTabs />}
+        </Suspense>
       </div>
 
       {/* شريط التبويبات السفلي — عائم زجاجي فاتح */}
       <nav
-        className="app-main-nav fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
+        className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
         dir="rtl"
         aria-label="التنقل الرئيسي"
       >
-        <div className="app-tab-nav-items flex w-full gap-1.5 overflow-x-auto px-0 py-2 sm:gap-2 sm:px-0">
+        <div className="flex w-full gap-1.5 overflow-x-auto px-0 py-2 sm:gap-2 sm:px-0">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value;
             return (
@@ -357,7 +330,7 @@ function Index() {
                 type="button"
                 onClick={() => handleTabChange(tab.value)}
                 aria-current={isActive ? "page" : undefined}
-                className={`app-tab-nav-item flex min-h-[48px] min-w-[76px] shrink-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#6ba3c8] sm:min-w-[104px] sm:px-3 ${
+                className={`flex min-h-[48px] min-w-[76px] shrink-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#6ba3c8] sm:min-w-[104px] sm:px-3 ${
                   isActive
                     ? `${tab.activeClass} text-white shadow-md`
                     : "text-[#4e6b80] hover:bg-[#e8f0f8]"
@@ -377,7 +350,6 @@ function Index() {
       </nav>
 
       <Toaster position="top-center" richColors />
-      <NativePrintPreviewHost />
     </div>
   );
 }

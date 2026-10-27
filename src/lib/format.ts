@@ -3,13 +3,6 @@ export const fmt = (n: number | undefined | null) => {
   return Number(n).toLocaleString("en-US");
 };
 
-export const normalizeNumericText = (value: string) =>
-  value
-    .replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
-    .replace(/[\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) - 0x06f0))
-    .replace(/[\u066c\u066b]/g, (separator) => (separator === "٫" ? "." : ""))
-    .replace(/[٬،,]/g, "");
-
 export const today = () => new Date().toISOString().slice(0, 10);
 
 export const arDate = (s?: string) => {

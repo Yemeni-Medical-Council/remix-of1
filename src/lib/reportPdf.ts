@@ -1,11 +1,8 @@
 import { deliverBlobToUser, isNativeFileStorageAvailable } from './nativeFileStorage';
-import { escapeHtml, localCairoFontCss, localCairoTextCss, reportLetterheadHtml } from './printTableHtml';
+import { escapeHtml, reportLetterheadHtml } from './printTableHtml';
 
 export type ReportPaperSize = 'A4' | 'A3' | 'Letter';
 export type ReportOrientation = 'portrait' | 'landscape';
-
-const MAX_PDF_ROWS = 4000;
-const MAX_PDF_PAGES = 150;
 
 export const reportDocumentCss = `
   :root { 
@@ -262,17 +259,10 @@ const dimensions = (size: ReportPaperSize, orientation: ReportOrientation) => {
 };
 
 async function ready(doc: Document) {
-  const fontSet = doc.fonts;
-  const fontReady = fontSet
-    ? Promise.all([
-        fontSet.load('400 16px Cairo', 'اللغة العربية 123'),
-        fontSet.load('700 16px Cairo', 'اللغة العربية 123'),
-        fontSet.load('900 16px Cairo', 'اللغة العربية 123'),
-      ]).then(() => fontSet.ready)
-    : Promise.resolve();
+  const fontReady = doc.fonts?.ready ?? Promise.resolve();
   await Promise.race([
     fontReady,
-    new Promise<void>((resolve) => window.setTimeout(resolve, 10000)),
+    new Promise<void>((resolve) => window.setTimeout(resolve, 2500)),
   ]);
   await Promise.all(Array.from(doc.images).map(image => {
     if (image.complete) return Promise.resolve();
@@ -334,10 +324,6 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
       return h > maxHeight;
     };
     
-    if (rows.length > MAX_PDF_ROWS) {
-      throw new Error(`يتجاوز التقرير الحد الآمن لتصدير PDF (${MAX_PDF_ROWS} صف). قلّل نطاق التقرير أو استخدم Excel.`);
-    }
-
     const groups: HTMLTableRowElement[][] = [];
     let group: HTMLTableRowElement[] = [];
     
@@ -352,8 +338,7 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
     } else if (rows.length === 0) {
       groups.push([]);
     } else {
-      for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
-        const row = rows[rowIndex];
+      for (const row of rows) {
         body?.append(row);
         fitWidth();
         if (overflows() && group.length > 0) {
@@ -364,17 +349,10 @@ export async function downloadRenderedReportPdf(source: HTMLElement, options: {
           fitWidth();
         }
         group.push(row);
-        if ((rowIndex + 1) % 24 === 0) {
-          await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
-        }
       }
       if (group.length > 0) {
         groups.push(group);
       }
-    }
-
-    if (groups.length > MAX_PDF_PAGES) {
-      throw new Error(`يتجاوز التقرير الحد الآمن للطباعة على الهاتف (${MAX_PDF_PAGES} صفحة). قلّل نطاق التقرير أو استخدم Excel.`);
     }
     
     const pdf = new JsPDF({
@@ -480,11 +458,12 @@ export async function downloadReportPdf(options: {
     if (!doc) throw new Error('تعذر تجهيز التقرير');
     doc.open();
     doc.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(options.title)}</title>
-      <style>${localCairoFontCss()}
-      ${reportDocumentCss}
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+      <style>${reportDocumentCss}
       ${reportContainmentCss}
-      ${options.css || ''}
-      ${localCairoTextCss}</style></head><body><div id="report-source" class="report-page-content">
+      ${options.css || ''}</style></head><body><div id="report-source" class="report-page-content">
       ${options.body.includes('report-letterhead') ? '' : reportLetterheadHtml()}${options.body}</div></body></html>`);
     doc.close();
     const source = doc.getElementById('report-source');
