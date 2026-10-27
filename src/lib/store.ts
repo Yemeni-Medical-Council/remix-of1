@@ -194,6 +194,7 @@ const getToday = () => new Date().toISOString().split("T")[0];
 
 let pendingStorageWrite: { name: string; value: string } | null = null;
 let storageWriteTimer: ReturnType<typeof setTimeout> | null = null;
+const STORAGE_WRITE_DELAY_MS = 1200;
 
 const flushStorageWrite = () => {
   if (!pendingStorageWrite || typeof window === "undefined") return;
@@ -213,7 +214,7 @@ const deferredStorage: StateStorage = {
   setItem: (name, value) => {
     pendingStorageWrite = { name, value };
     if (storageWriteTimer) clearTimeout(storageWriteTimer);
-    storageWriteTimer = setTimeout(flushStorageWrite, 80);
+    storageWriteTimer = setTimeout(flushStorageWrite, STORAGE_WRITE_DELAY_MS);
   },
   removeItem: (name) => {
     if (pendingStorageWrite?.name === name) pendingStorageWrite = null;
