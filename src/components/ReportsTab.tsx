@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, CalendarDays, FileText, UserRound, Wallet, Coins } from "lucide-react";
+import { BarChart3, CalendarDays, FileText, UserRound, Wallet, Coins, Trash2 } from "lucide-react";
 import { useStore, type Account } from "@/lib/store";
 import TabActions, { type TabCol } from "./TabActions";
 import revenueSchema from "@/data/revenueTemplate.json";
@@ -21,18 +21,8 @@ type TraineeDisplayMode = "detail" | "summary" | "both";
 type ReportRow = Record<string, string | number | any>;
 
 const MONTHS: string[] = [
-  "يناير",
-  "فبراير",
-  "مارس",
-  "أبريل",
-  "مايو",
-  "يونيو",
-  "يوليو",
-  "أغسطس",
-  "سبتمبر",
-  "أكتوبر",
-  "نوفمبر",
-  "ديسمبر",
+  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
 ];
 
 const TRAINEE_REPORT_START_YEAR = 2021;
@@ -64,7 +54,7 @@ const normalizeDate = (value: unknown): Date | null => {
 };
 
 const periodMonths = (period: PeriodType, month: number) => {
-  if (period === "all" || period === "year") return Array.from({ length: 12 }, (_, index) => index);
+  if (period === "all" || period === "year") return Array.from({ length: 12 }, (_, i) => i);
   if (period === "quarter") return [Math.floor(month / 3) * 3, Math.floor(month / 3) * 3 + 1, Math.floor(month / 3) * 3 + 2];
   if (period === "half") return month < 6 ? [0, 1, 2, 3, 4, 5] : [6, 7, 8, 9, 10, 11];
   return [month];
@@ -122,22 +112,31 @@ const canonicalFeeCategory = (value: unknown) => {
   return String(value).trim() || "رسوم أخرى";
 };
 
-// دالة تصنيف السجل وفق عمود البيان في الحساب الجاري
 const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "other" => {
   const text = String(description || "").trim();
   if (!text) return "other";
-  const isTawfiq = /(عهدة\s*الداعي|توفيق\s*الداعي)/.test(text);
-  if (isTawfiq) return "tawfiq";
-  const isYoussef = /(عهدة\s*د\s*\/?\s*يوسف|العهدة|عهدة)/.test(text);
-  if (isYoussef) return "youssef";
+  if (/(عهدة\s*الداعي|توفيق\s*الداعي)/.test(text)) return "tawfiq";
+  if (/(عهدة\s*د\s*\/?\s*يوسف|العهدة|عهدة)/.test(text)) return "youssef";
   return "other";
 };
 
-// الصفوف الهيكلية (لا تُصفّى ولا تُرتّب) — تبقى في موضعها الأصلي
-const isPreservedRow = (row: ReportRow) =>
-  Boolean(row.summaryLevel) && row.summaryLevel !== "detail";
+/* ====== تصنيف الصفوف (بنية الجدول) ====== */
+// صفوف «رأس» تظهر أول الجدول
+const isHeadRow = (row: ReportRow) => row.summaryLevel === "opening";
+// صفوف «تذييل» تظهر آخر الجدول (ثابتة لا تتأثر بالفرز)
+const isFootRow = (row: ReportRow) =>
+  row.summaryLevel === "total" ||
+  row.summaryLevel === "fee" ||
+  row.summaryLevel === "summary-card" ||
+  row.summaryLevel === "trainee-name-total";
+// الصفوف التي لا تُصفّى بالتصفية العمودية (تحافظ على ظهورها)
+const isPreservedFromColumnFilter = (row: ReportRow) =>
+  row.summaryLevel === "opening" ||
+  row.summaryLevel === "total" ||
+  row.summaryLevel === "fee" ||
+  row.summaryLevel === "summary-card";
 
-// أنماط طباعة مخصصة للتقارير متطابقة 100% مع نافذة معاينة المتصفح
+// أنماط الطباعة
 const reportsTabPrintCss = `
   thead th {
     background: #0f283a !important;
@@ -211,37 +210,16 @@ const reportsTabPrintCss = `
     print-color-adjust: exact !important;
     white-space: nowrap !important;
   }
-  .summary-card-0 td {
-    background: #fde68a !important;
-    color: #451a03 !important;
-    border: 1.5px solid #f59e0b !important;
-  }
-  .summary-card-0 .pdf-cell-text {
-    color: #451a03 !important;
-    background: transparent !important;
-  }
-  .summary-card-1 td {
-    background: #fecdd3 !important;
-    color: #4c0519 !important;
-    border: 1.5px solid #f43f5e !important;
-  }
-  .summary-card-1 .pdf-cell-text {
-    color: #4c0519 !important;
-    background: transparent !important;
-  }
-  .summary-card-2 td {
-    background: #a7f3d0 !important;
-    color: #022c22 !important;
-    border: 1.5px solid #10b981 !important;
-  }
-  .summary-card-2 .pdf-cell-text {
-    color: #022c22 !important;
-    background: transparent !important;
-  }
+  .summary-card-0 td { background: #fde68a !important; color: #451a03 !important; border: 1.5px solid #f59e0b !important; }
+  .summary-card-0 .pdf-cell-text { color: #451a03 !important; background: transparent !important; }
+  .summary-card-1 td { background: #fecdd3 !important; color: #4c0519 !important; border: 1.5px solid #f43f5e !important; }
+  .summary-card-1 .pdf-cell-text { color: #4c0519 !important; background: transparent !important; }
+  .summary-card-2 td { background: #a7f3d0 !important; color: #022c22 !important; border: 1.5px solid #10b981 !important; }
+  .summary-card-2 .pdf-cell-text { color: #022c22 !important; background: transparent !important; }
   .report-page-content table thead th {
     background: #0f283a !important;
     color: #ffffff !important;
-    border-color: #fff !important;
+    border-color: #1f5f7a !important;
   }
   .report-page-content table tbody td { border-color: #e2e8f0 !important; }
   .report-page-content table tbody td .pdf-cell-text { color: inherit !important; background: transparent !important; }
@@ -292,23 +270,23 @@ export default function ReportsTab() {
   const [selectedFee, setSelectedFee] = useState<string>("all");
   const [traineeDisplayMode, setTraineeDisplayMode] = useState<TraineeDisplayMode>("both");
 
-  // حالة الفرز لكشف مدفوعات المتدربين
   const [traineeSortColumn, setTraineeSortColumn] = useState<string>("notifyDate");
   const [traineeSortDirection, setTraineeSortDirection] = useState<"asc" | "desc">("asc");
 
-  // ====== الحالة العامة للفرز والتصفية لكل التقارير ======
+  // ====== الحالة العامة للفرز والتصفية والحذف المؤقت ======
   const [sortColumn, setSortColumn] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
+  const [deletedRows, setDeletedRows] = useState<Set<ReportRow>>(() => new Set());
 
-  // إعادة ضبط التصفية والفرز العام عند تغيير المصدر
+  // إعادة ضبط التصفية والفرز العام والحذف المؤقت عند تغيير المصدر
   useEffect(() => {
     setColumnFilters({});
     setSortColumn("");
     setSortDirection("asc");
+    setDeletedRows(new Set());
   }, [source]);
 
-  // الرصيد الافتتاحي مع الحفظ التلقائي في المتصفح
   const [youssefOpeningBalance, setYoussefOpeningBalance] = useState<number>(() => {
     const saved = localStorage.getItem("youssef_loan_opening_balance");
     return saved ? Number(saved) || 0 : 0;
@@ -329,9 +307,18 @@ export default function ReportsTab() {
     localStorage.setItem("tawfiq_custody_opening_balance", String(val));
   };
 
+  const deleteRow = (row: ReportRow) =>
+    setDeletedRows((prev) => {
+      const next = new Set(prev);
+      next.add(row);
+      return next;
+    });
+
+  const restoreDeleted = () => setDeletedRows(new Set());
+
   const selectedMonths = useMemo(() => periodMonths(period, month), [period, month]);
   const selectedMonthSet = useMemo(() => new Set(selectedMonths), [selectedMonths]);
-  const years = useMemo(() => getYearOptions([...hafiza.map((row) => row.date), ...accounts.map((row) => row.date)]), [hafiza, accounts]);
+  const years = useMemo(() => getYearOptions([...hafiza.map((r) => r.date), ...accounts.map((r) => r.date)]), [hafiza, accounts]);
   const traineeOptions = useMemo(() => Array.from(new Set(hafiza
     .filter((row) => {
       const date = normalizeDate(row.notifyDate);
@@ -356,7 +343,7 @@ export default function ReportsTab() {
     return date.getFullYear() === year && selectedMonthSet.has(date.getMonth());
   };
 
-  // 1. تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق)
+  // 1. تقرير سلفة د/يوسف
   const youssefRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
@@ -567,6 +554,7 @@ export default function ReportsTab() {
     return { date: `${MONTHS[rowMonth] || parts[1]} ${rowYear}`, item: revenueName(key), amount: amountValue(amount), _year: rowYear, _month: rowMonth };
   }).filter((row) => (period === "all" ? row._year >= 2026 : row._year === year && selectedMonthSet.has(row._month as number))).map(({ _year, _month, ...row }) => row), [revenue, year, selectedMonthSet, period]);
 
+  // ====== كشف المتدربين (مع إضافة إجمالي كل اسم حسب السنة) ======
   const traineeRows = useMemo<ReportRow[]>(() => {
     const payments = hafiza.flatMap((row) => {
       const date = normalizeDate(row.notifyDate);
@@ -622,42 +610,40 @@ export default function ReportsTab() {
         summaryLevel: "fee"
       });
     });
-    return result;
-  }, [hafiza, selectedTrainee, selectedFee, traineeGrouping, traineeDisplayMode]);
 
-  // فرز صفوف كشف مدفوعات المتدربين
-  const sortedTraineeRows = useMemo<ReportRow[]>(() => {
-    if (source !== "trainee" || !traineeSortColumn) return traineeRows;
-
-    const compareValues = (a: ReportRow, b: ReportRow) => {
-      let valA = a[traineeSortColumn];
-      let valB = b[traineeSortColumn];
-      if (valA === undefined || valA === null) valA = "";
-      if (valB === undefined || valB === null) valB = "";
-      let cmp = 0;
-      if (typeof valA === "number" && typeof valB === "number") {
-        cmp = valA - valB;
-      } else {
-        const numA = Number(valA);
-        const numB = Number(valB);
-        if (!isNaN(numA) && !isNaN(numB) && String(valA).trim() !== "" && String(valB).trim() !== "") {
-          cmp = numA - numB;
+    // ====== إجمالي مدفوعات كل متدرب حسب السنة (سواء مكرر أو منفرد) ======
+    if (traineeDisplayMode === "summary" || traineeDisplayMode === "both") {
+      const nameYearMap = new Map<string, { trainee: string; year: number; amount: number }>();
+      payments.forEach((row) => {
+        const key = `${row.trainee}|${row.year}`;
+        const existing = nameYearMap.get(key);
+        if (existing) {
+          existing.amount += amountValue(row.amount);
         } else {
-          cmp = String(valA).localeCompare(String(valB), "ar", { numeric: true, sensitivity: "base" });
+          nameYearMap.set(key, { trainee: row.trainee, year: row.year, amount: amountValue(row.amount) });
         }
-      }
-      return traineeSortDirection === "asc" ? cmp : -cmp;
-    };
-
-    if (traineeDisplayMode === "detail") {
-      return [...traineeRows].sort(compareValues);
+      });
+      const nameYearRows: ReportRow[] = Array.from(nameYearMap.values())
+        .sort((a, b) => {
+          const cmp = a.trainee.localeCompare(b.trainee, "ar");
+          return cmp !== 0 ? cmp : a.year - b.year;
+        })
+        .map(({ trainee, year, amount }) => ({
+          year,
+          trainee,
+          category: "—",
+          description: `إجمالي ${trainee} لعام ${year}`,
+          source: "حوافظ التوريد",
+          amount,
+          displayType: "إجمالي المتدرب / السنة",
+          notes: "إجمالي المتدرب / السنة",
+          summaryLevel: "trainee-name-total",
+        }));
+      result.push(...nameYearRows);
     }
 
-    const detailsAndPeriods = traineeRows.filter((r) => r.summaryLevel !== "fee");
-    const feeTotals = traineeRows.filter((r) => r.summaryLevel === "fee");
-
-    return [...detailsAndPeriods].sort(compareValues).concat(feeTotals);
-  }, [traineeRows, source, traineeSortColumn, traineeSortDirection, traineeDisplayMode]);
+    return result;
+  }, [hafiza, selectedTrainee, selectedFee, traineeGrouping, traineeDisplayMode]);
 
   const feeTotalsRows = useMemo<ReportRow[]>(() => {
     const totals = new Map<string, number>();
@@ -718,7 +704,7 @@ export default function ReportsTab() {
   const reportRows = useMemo<ReportRow[]>(() => {
     if (source === "youssefLoan") return youssefRows;
     if (source === "tawfiqCustody") return tawfiqRows;
-    if (source === "trainee") return sortedTraineeRows;
+    if (source === "trainee") return traineeRows;
     if (source === "feeTotals") return feeTotalsRows;
     if (source === "hafiza") return hafizaRows;
     if (source === "account") return accountRows;
@@ -730,13 +716,17 @@ export default function ReportsTab() {
       ...expenseRows.map((row) => ({ source: "المصروفات", date: row.date, description: row.item, expense: row.expense })),
       ...revenueRows.map((row) => ({ source: "الإيرادات", date: row.date, description: row.item, amount: row.amount }))
     ];
-  }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, sortedTraineeRows, feeTotalsRows]);
+  }, [source, youssefRows, tawfiqRows, traineeRows, hafizaRows, accountRows, expenseRows, revenueRows, feeTotalsRows]);
 
-  // ====== الصفوف المعالجة بالتصفية والفرز (تُستخدم في العرض وفي الطباعة/PDF) ======
+  // ====== الصفوف المعالجة (تصفية + فرز + حذف مؤقت) — تُستخدم أيضاً في الطباعة/PDF ======
   const processedRows = useMemo<ReportRow[]>(() => {
-    // 1. تطبيق تصفية الأعمدة على الصفوف التفصيلية فقط (الصفوف الهيكلية محفوظة)
+    const activeSortCol = source === "trainee" ? traineeSortColumn : sortColumn;
+    const activeSortDir = source === "trainee" ? traineeSortDirection : sortDirection;
+
+    // 1) تصفية: حذف مؤقت + تصفية أعمدة (مع الحفاظ على الصفوف البنيوية)
     const filtered = reportRows.filter((row) => {
-      if (isPreservedRow(row)) return true;
+      if (deletedRows.has(row)) return false;
+      if (isPreservedFromColumnFilter(row)) return true;
       for (const [key, filterVal] of Object.entries(columnFilters)) {
         const fv = String(filterVal || "").trim();
         if (!fv) continue;
@@ -756,49 +746,42 @@ export default function ReportsTab() {
       return true;
     });
 
-    // 2. الفرز: المتدرب يستخدم فرزها الخاص، باقي المصادر تستخدم الفرز العام
-    const activeSortCol = source === "trainee" ? traineeSortColumn : sortColumn;
-    const activeSortDir = source === "trainee" ? traineeSortDirection : sortDirection;
-
-    if (!activeSortCol) return filtered;
-
-    const result = [...filtered];
-    const dataIndices: number[] = [];
-    const dataRows: ReportRow[] = [];
-
-    result.forEach((row, i) => {
-      if (!isPreservedRow(row)) {
-        dataIndices.push(i);
-        dataRows.push(row);
-      }
+    // 2) تصنيف: رأس / جسم / تذييل
+    const headRows: ReportRow[] = [];
+    const bodyRows: ReportRow[] = [];
+    const footRows: ReportRow[] = [];
+    filtered.forEach((row) => {
+      if (isHeadRow(row)) headRows.push(row);
+      else if (isFootRow(row)) footRows.push(row);
+      else bodyRows.push(row);
     });
 
-    dataRows.sort((a, b) => {
-      let va = a[activeSortCol];
-      let vb = b[activeSortCol];
-      if (va === undefined || va === null) va = "";
-      if (vb === undefined || vb === null) vb = "";
-      let cmp = 0;
-      if (typeof va === "number" && typeof vb === "number") {
-        cmp = va - vb;
-      } else {
-        const na = Number(va);
-        const nb = Number(vb);
-        if (!isNaN(na) && !isNaN(nb) && String(va).trim() !== "" && String(vb).trim() !== "") {
-          cmp = na - nb;
+    // 3) فرز صفوف الجسم فقط
+    if (activeSortCol) {
+      bodyRows.sort((a, b) => {
+        let va = a[activeSortCol];
+        let vb = b[activeSortCol];
+        if (va === undefined || va === null) va = "";
+        if (vb === undefined || vb === null) vb = "";
+        let cmp = 0;
+        if (typeof va === "number" && typeof vb === "number") {
+          cmp = va - vb;
         } else {
-          cmp = String(va).localeCompare(String(vb), "ar", { numeric: true, sensitivity: "base" });
+          const na = Number(va);
+          const nb = Number(vb);
+          if (!isNaN(na) && !isNaN(nb) && String(va).trim() !== "" && String(vb).trim() !== "") {
+            cmp = na - nb;
+          } else {
+            cmp = String(va).localeCompare(String(vb), "ar", { numeric: true, sensitivity: "base" });
+          }
         }
-      }
-      return activeSortDir === "asc" ? cmp : -cmp;
-    });
+        return activeSortDir === "asc" ? cmp : -cmp;
+      });
+    }
 
-    dataIndices.forEach((idx, i) => {
-      result[idx] = dataRows[i];
-    });
-
-    return result;
-  }, [reportRows, columnFilters, sortColumn, sortDirection, source, traineeSortColumn, traineeSortDirection]);
+    // 4) إعادة التجميع: الرأس → الجسم المفروز → التذييل الثابت في النهاية
+    return [...headRows, ...bodyRows, ...footRows];
+  }, [reportRows, columnFilters, sortColumn, sortDirection, source, traineeSortColumn, traineeSortDirection, deletedRows]);
 
   const title = source === "trainee"
     ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "detail" ? "تفصيلي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي وإجمالي"} — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"}`
@@ -823,16 +806,14 @@ export default function ReportsTab() {
 
   const isLoanOrCustody = source === "youssefLoan" || source === "tawfiqCustody";
 
-  // صفوف التقرير المعروضة في الشاشة (بدون صفوف الملخص لأنها تُعرض كصفوف مدمجة أسفل الجدول)
-  const displayRows = useMemo(
-    () => processedRows.filter((row) => row.summaryLevel !== "summary-card"),
-    [processedRows]
-  );
+  // الصفوف المعروضة (بدون بطاقات الملخص لأنها تُعرض كصفوف مدمجة أسفل الجدول)
+  const displayRows = useMemo(() => processedRows.filter((row) => row.summaryLevel !== "summary-card"), [processedRows]);
 
-  // مؤشر الفرز النشط (المتدرب يستخدم فرزها، والبقية يستخدمون الفرز العام)
   const activeSortColumn = source === "trainee" ? traineeSortColumn : sortColumn;
   const activeSortDirection = source === "trainee" ? traineeSortDirection : sortDirection;
   const hasAnyFilter = Object.values(columnFilters).some((v) => String(v || "").trim() !== "");
+
+  const colCount = sourceConfig.columns.length + 2; // م + أعمدة + حذف
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50 to-indigo-50 p-2 sm:p-4" dir="rtl">
@@ -851,7 +832,7 @@ export default function ReportsTab() {
           </div>
         </header>
 
-        {/* عناصر التحكم والتصفية */}
+        {/* عناصر التحكم */}
         <div className="grid grid-cols-1 gap-3 border-b border-slate-200 bg-slate-50/70 p-3 sm:grid-cols-2 lg:grid-cols-4 sm:p-4">
           <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
             مصدر التقرير
@@ -860,9 +841,7 @@ export default function ReportsTab() {
               onChange={(event) => setSource(event.target.value as ReportSource)}
               className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
             >
-              {SOURCES.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
+              {SOURCES.map((item) => (<option key={item.value} value={item.value}>{item.label}</option>))}
             </select>
           </label>
 
@@ -908,9 +887,7 @@ export default function ReportsTab() {
                   className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
                 >
                   <option value="all">كل المتدربين</option>
-                  {traineeOptions.map((name) => (
-                    <option key={name} value={name}>{name}</option>
-                  ))}
+                  {traineeOptions.map((name) => (<option key={name} value={name}>{name}</option>))}
                 </select>
               </label>
 
@@ -936,9 +913,7 @@ export default function ReportsTab() {
                       className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
                     >
                       <option value="all">كل الرسوم</option>
-                      {feeOptions.map((fee) => (
-                        <option key={fee} value={fee}>{fee}</option>
-                      ))}
+                      {feeOptions.map((fee) => (<option key={fee} value={fee}>{fee}</option>))}
                     </select>
                   </label>
 
@@ -997,9 +972,7 @@ export default function ReportsTab() {
                   onChange={(event) => setPeriod(event.target.value as PeriodType)}
                   className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
                 >
-                  {PERIODS.map((item) => (
-                    <option key={item.value} value={item.value}>{item.label}</option>
-                  ))}
+                  {PERIODS.map((item) => (<option key={item.value} value={item.value}>{item.label}</option>))}
                 </select>
               </label>
 
@@ -1011,9 +984,7 @@ export default function ReportsTab() {
                     onChange={(event) => setYear(Number(event.target.value))}
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
                   >
-                    {years.map((item) => (
-                      <option key={item} value={item}>{item}</option>
-                    ))}
+                    {years.map((item) => (<option key={item} value={item}>{item}</option>))}
                   </select>
                 </label>
               )}
@@ -1026,9 +997,7 @@ export default function ReportsTab() {
                     onChange={(event) => setMonth(Number(event.target.value))}
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
                   >
-                    {MONTHS.map((item, index) => (
-                      <option key={item} value={index}>{item}</option>
-                    ))}
+                    {MONTHS.map((item, index) => (<option key={item} value={index}>{item}</option>))}
                   </select>
                 </label>
               )}
@@ -1051,9 +1020,16 @@ export default function ReportsTab() {
               {displayRows.length} سجل
             </span>
             {hasAnyFilter && (
-              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">
-                مفلتر
-              </span>
+              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">مفلتر</span>
+            )}
+            {deletedRows.size > 0 && (
+              <button
+                onClick={restoreDeleted}
+                className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-800 hover:bg-rose-200"
+                title="استعادة كل الصفوف المحذوفة مؤقتاً"
+              >
+                استعادة المحذوف ({deletedRows.size})
+              </button>
             )}
           </div>
 
@@ -1077,9 +1053,9 @@ export default function ReportsTab() {
           />
         </div>
 
-        {/* جدول عرض التقرير */}
+        {/* الجدول */}
         <div className="overflow-x-auto p-3 sm:p-4">
-          <table className="w-full min-w-[860px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm">
+          <table className="w-full min-w-[900px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm">
             <thead className="bg-[#0f283a] text-white">
               <tr>
                 <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white">م</th>
@@ -1090,40 +1066,28 @@ export default function ReportsTab() {
                       key={column.key}
                       onClick={() => {
                         if (source === "trainee") {
-                          if (traineeSortColumn === column.key) {
-                            setTraineeSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-                          } else {
-                            setTraineeSortColumn(column.key);
-                            setTraineeSortDirection("asc");
-                          }
+                          if (traineeSortColumn === column.key) setTraineeSortDirection((p) => (p === "asc" ? "desc" : "asc"));
+                          else { setTraineeSortColumn(column.key); setTraineeSortDirection("asc"); }
                         } else {
-                          if (sortColumn === column.key) {
-                            setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-                          } else {
-                            setSortColumn(column.key);
-                            setSortDirection("asc");
-                          }
+                          if (sortColumn === column.key) setSortDirection((p) => (p === "asc" ? "desc" : "asc"));
+                          else { setSortColumn(column.key); setSortDirection("asc"); }
                         }
                       }}
-                      className="border border-[#fff] px-3 py-2.5 font-bold cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
+                      className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
                       title="انقر للفرز تصاعدياً أو تنازلياً"
                     >
                       <div className="flex items-center justify-center gap-1.5">
                         <span>{column.label}</span>
-                        <span
-   className="text-[11px] font-bold text-white opacity-90">
-                          {isSortActive ? (
-                            activeSortDirection === "asc" ? "▲" : "▼"
-                          ) : (
-                            <span className="opacity-40 hover:opacity-100">⇅</span>
-                          )}
+                        <span className="text-[11px] font-black opacity-90">
+                          {isSortActive ? (activeSortDirection === "asc" ? "▲" : "▼") : (<span className="opacity-40 hover:opacity-100">⇅</span>)}
                         </span>
                       </div>
                     </th>
                   );
                 })}
+                <th className="border border-[#1f5f7a] px-1 py-2.5 font-bold text-white print:hidden" style={{ width: "44px" }} title="حذف مؤقت">حذف</th>
               </tr>
-              {/* صف التصفية لكل عمود — يظهر على الشاشة فقط (لا يظهر في الطباعة) */}
+              {/* صف التصفية — يظهر على الشاشة فقط */}
               <tr className="bg-slate-200/80 print:hidden">
                 <td className="border border-slate-300 px-2 py-1 text-center">
                   {hasAnyFilter && (
@@ -1131,9 +1095,7 @@ export default function ReportsTab() {
                       onClick={() => setColumnFilters({})}
                       className="rounded bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-rose-700"
                       title="مسح جميع التصفية"
-                    >
-                      مسح
-                    </button>
+                    >مسح</button>
                   )}
                 </td>
                 {sourceConfig.columns.map((column) => (
@@ -1141,20 +1103,19 @@ export default function ReportsTab() {
                     <input
                       type="text"
                       value={columnFilters[column.key] || ""}
-                      onChange={(e) =>
-                        setColumnFilters((prev) => ({ ...prev, [column.key]: e.target.value }))
-                      }
+                      onChange={(e) => setColumnFilters((prev) => ({ ...prev, [column.key]: e.target.value }))}
                       placeholder="تصفية..."
                       className="w-full rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-slate-900 outline-none focus:border-sky-600"
                     />
                   </td>
                 ))}
+                <td className="border border-slate-300 px-1 py-1 print:hidden"></td>
               </tr>
             </thead>
             <tbody>
               {displayRows.length === 0 ? (
                 <tr>
-                  <td colSpan={sourceConfig.columns.length + 1} className="p-10 text-center text-sm font-bold text-slate-600">
+                  <td colSpan={colCount} className="p-10 text-center text-sm font-bold text-slate-600">
                     <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
                     لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
                   </td>
@@ -1166,19 +1127,13 @@ export default function ReportsTab() {
                     const isOpening = row.summaryLevel === "opening";
 
                     let rowStyle = "hover:bg-sky-50/50";
-                    if (isTotal) {
-                      rowStyle = "bg-[#0437bb] text-white font-bold text-sm sm:text-base";
-                    } else if (isOpening) {
-                      rowStyle = "bg-amber-100/90 text-amber-950 font-bold";
-                    } else if (row.summaryLevel === "fee") {
-                      rowStyle = "bg-sky-100 font-bold text-sky-950";
-                    } else if (row.summaryLevel === "period") {
-                      rowStyle = "bg-amber-100 font-bold text-amber-950";
-                    } else if (index % 2 === 1) {
-                      rowStyle = "bg-slate-50/80 text-slate-900";
-                    } else {
-                      rowStyle = "bg-white text-slate-900";
-                    }
+                    if (isTotal) rowStyle = "bg-[#0437bb] text-white font-black text-sm sm:text-base";
+                    else if (isOpening) rowStyle = "bg-amber-100/90 text-amber-950 font-bold";
+                    else if (row.summaryLevel === "fee") rowStyle = "bg-sky-100 font-bold text-sky-950";
+                    else if (row.summaryLevel === "trainee-name-total") rowStyle = "bg-emerald-100 font-bold text-emerald-950";
+                    else if (row.summaryLevel === "period") rowStyle = "bg-amber-100 font-bold text-amber-950";
+                    else if (index % 2 === 1) rowStyle = "bg-slate-50/80 text-slate-900";
+                    else rowStyle = "bg-white text-slate-900";
 
                     return (
                       <tr
@@ -1186,9 +1141,7 @@ export default function ReportsTab() {
                         className={`transition-colors ${rowStyle} ${isTotal ? "total-row" : ""}`}
                         data-summary={isTotal ? "total" : undefined}
                       >
-                        <td className={`border px-2 py-2 font-bold ${
-                          isTotal ? "border-blue-900 text-white font-black" : "border-slate-200 text-slate-800"
-                        }`}>
+                        <td className={`border px-2 py-2 font-bold ${isTotal ? "border-blue-900 text-white font-black" : "border-slate-200 text-slate-800"}`}>
                           {isTotal ? "★" : index + 1}
                         </td>
                         {sourceConfig.columns.map((column) => {
@@ -1198,20 +1151,27 @@ export default function ReportsTab() {
                             <td
                               key={column.key}
                               className={`border px-3 py-2 font-semibold ${
-                                isTotal
-                                  ? "border-blue-900 text-white font-black"
-                                  : "border-slate-200 text-slate-900"
+                                isTotal ? "border-blue-900 text-white font-black" : "border-slate-200 text-slate-900"
                               } ${isNum ? "font-mono" : ""}`}
                             >
                               {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
                             </td>
                           );
                         })}
+                        <td className="border border-slate-200 px-1 py-1 print:hidden">
+                          <button
+                            onClick={() => deleteRow(row)}
+                            className={`rounded p-1 hover:bg-rose-50 ${isTotal ? "text-white hover:bg-white/20" : "text-rose-600"}`}
+                            title="حذف مؤقت"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
 
-                  {/* صفوف ملخص العهدة */}
+                  {/* بطاقات ملخص العهدة */}
                   {isLoanOrCustody && (() => {
                     const summaryRows = processedRows.filter((r) => r.summaryLevel === "summary-card");
                     if (!summaryRows.length) return null;
@@ -1225,32 +1185,28 @@ export default function ReportsTab() {
                     return (
                       <>
                         <tr className="summary-spacer" aria-hidden="true">
-                          <td
-                            colSpan={sourceConfig.columns.length + 1}
-                            className="border-0 bg-transparent p-0"
-                            style={{ height: "14px" }}
-                          />
+                          <td colSpan={colCount} className="border-0 bg-transparent p-0" style={{ height: "14px" }} />
                         </tr>
 
                         {summaryRows.map((row, i) => {
                           const style = cardStyles[i % cardStyles.length];
                           const value = amountValue(row.credit);
                           return (
-                            <tr
-                              key={`summary-${i}`}
-                              className={`summary-card-row ${style.cls} ${style.bg} ${style.text} font-black`}
-                            >
-                              <td
-                                colSpan={sourceConfig.columns.length - 1}
-                                className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm font-black`}
-                              >
+                            <tr key={`summary-${i}`} className={`summary-card-row ${style.cls} ${style.bg} ${style.text} font-black`}>
+                              <td colSpan={sourceConfig.columns.length - 1} className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm font-black`}>
                                 {style.label}
                               </td>
-                              <td
-                                colSpan={2}
-                                className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base font-black`}
-                              >
+                              <td colSpan={2} className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base font-black`}>
                                 {value.toLocaleString()}
+                              </td>
+                              <td className={`border ${style.border} px-1 py-1 print:hidden`}>
+                                <button
+                                  onClick={() => deleteRow(row)}
+                                  className={`rounded p-1 ${style.text} hover:bg-white/30`}
+                                  title="حذف مؤقت"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
                               </td>
                             </tr>
                           );
