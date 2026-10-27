@@ -300,10 +300,6 @@ export default function ReportsTab() {
   const [selectedFee, setSelectedFee] = useState<string>("all");
   const [traineeDisplayMode, setTraineeDisplayMode] = useState<TraineeDisplayMode>("both");
 
-  // حالة الفرز لكشف مدفوعات المتدربين
-  const [traineeSortColumn, setTraineeSortColumn] = useState<string>("notifyDate");
-  const [traineeSortDirection, setTraineeSortDirection] = useState<"asc" | "desc">("asc");
-
   // الرصيد الافتتاحي مع الحفظ التلقائي في المتصفح
   const [youssefOpeningBalance, setYoussefOpeningBalance] = useState<number>(() => {
     const saved = localStorage.getItem("youssef_loan_opening_balance");
@@ -627,43 +623,6 @@ export default function ReportsTab() {
     return result;
   }, [hafiza, selectedTrainee, selectedFee, traineeGrouping, traineeDisplayMode]);
 
-  // فرز صفوف كشف مدفوعات المتدربين تصاعدياً أو تنازلياً مع دعم النصوص والتواريخ والأرقام
-  const sortedTraineeRows = useMemo<ReportRow[]>(() => {
-    if (source !== "trainee" || !traineeSortColumn) return traineeRows;
-
-    const compareValues = (a: ReportRow, b: ReportRow) => {
-      let valA = a[traineeSortColumn];
-      let valB = b[traineeSortColumn];
-
-      if (valA === undefined || valA === null) valA = "";
-      if (valB === undefined || valB === null) valB = "";
-
-      let cmp = 0;
-      if (typeof valA === "number" && typeof valB === "number") {
-        cmp = valA - valB;
-      } else {
-        const numA = Number(valA);
-        const numB = Number(valB);
-        if (!isNaN(numA) && !isNaN(numB) && String(valA).trim() !== "" && String(valB).trim() !== "") {
-          cmp = numA - numB;
-        } else {
-          cmp = String(valA).localeCompare(String(valB), "ar", { numeric: true, sensitivity: "base" });
-        }
-      }
-      return traineeSortDirection === "asc" ? cmp : -cmp;
-    };
-
-    if (traineeDisplayMode === "detail") {
-      return [...traineeRows].sort(compareValues);
-    }
-
-    // الحفاظ على صفوف الإجماليات في ذيل التقرير مع فرز الصفوف التفصيلية وسجلات الفترات
-    const detailsAndPeriods = traineeRows.filter((r) => r.summaryLevel !== "fee");
-    const feeTotals = traineeRows.filter((r) => r.summaryLevel === "fee");
-
-    return [...detailsAndPeriods].sort(compareValues).concat(feeTotals);
-  }, [traineeRows, source, traineeSortColumn, traineeSortDirection, traineeDisplayMode]);
-
   const feeTotalsRows = useMemo<ReportRow[]>(() => {
     const totals = new Map<string, number>();
     hafiza.forEach((row) => {
@@ -723,7 +682,7 @@ export default function ReportsTab() {
   const reportRows = useMemo<ReportRow[]>(() => {
     if (source === "youssefLoan") return youssefRows;
     if (source === "tawfiqCustody") return tawfiqRows;
-    if (source === "trainee") return sortedTraineeRows;
+    if (source === "trainee") return traineeRows;
     if (source === "feeTotals") return feeTotalsRows;
     if (source === "hafiza") return hafizaRows;
     if (source === "account") return accountRows;
@@ -735,7 +694,7 @@ export default function ReportsTab() {
       ...expenseRows.map((row) => ({ source: "المصروفات", date: row.date, description: row.item, expense: row.expense })),
       ...revenueRows.map((row) => ({ source: "الإيرادات", date: row.date, description: row.item, amount: row.amount }))
     ];
-  }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, sortedTraineeRows, feeTotalsRows]);
+  }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, traineeRows, feeTotalsRows]);
 
   const title = source === "trainee"
     ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "detail" ? "تفصيلي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي وإجمالي"} — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"}`
@@ -888,39 +847,6 @@ export default function ReportsTab() {
                       <option value="both">تفصيلي وإجمالي</option>
                     </select>
                   </label>
-
-                  {/* عنصر فرز الأعمدة لكشف المتدربين */}
-                  <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
-                    فرز حسب العمود
-                    <select
-                      value={traineeSortColumn}
-                      onChange={(event) => setTraineeSortColumn(event.target.value)}
-                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
-                    >
-                      <option value="trainee">اسم المتدرب</option>
-                      <option value="notifyDate">تاريخ التوريد</option>
-                      <option value="amount">مبلغ التوريد</option>
-                      <option value="hafizaNo">رقم الحافظة</option>
-                      <option value="notifyNo">رقم الإشعار</option>
-                      <option value="category">التصنيف الموحد</option>
-                      <option value="year">السنة</option>
-                      <option value="period">الشهر / السنة</option>
-                      <option value="description">البيان الأصلي</option>
-                    </select>
-                  </label>
-
-                  {/* عنصر اتجاه الفرز */}
-                  <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
-                    اتجاه الفرز
-                    <select
-                      value={traineeSortDirection}
-                      onChange={(event) => setTraineeSortDirection(event.target.value as "asc" | "desc")}
-                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
-                    >
-                      <option value="asc">تصاعدي (من أ إلى ي / الأصغر للأكبر)</option>
-                      <option value="desc">تنازلي (من ي إلى أ / الأكبر للأصغر)</option>
-                    </select>
-                  </label>
                 </>
               )}
             </>
@@ -1020,41 +946,11 @@ export default function ReportsTab() {
               <thead className="bg-[#0f283a] text-white">
                 <tr>
                   <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold">م</th>
-                  {sourceConfig.columns.map((column) => {
-                    const isSortActive = source === "trainee" && traineeSortColumn === column.key;
-                    return (
-                      <th
-                        key={column.key}
-                        onClick={() => {
-                          if (source === "trainee") {
-                            if (traineeSortColumn === column.key) {
-                              setTraineeSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-                            } else {
-                              setTraineeSortColumn(column.key);
-                              setTraineeSortDirection("asc");
-                            }
-                          }
-                        }}
-                        className={`border border-[#1f5f7a] px-3 py-2.5 font-bold ${
-                          source === "trainee" ? "cursor-pointer hover:bg-[#1a4b64] select-none transition-colors" : ""
-                        }`}
-                        title={source === "trainee" ? "انقر للفرز تصاعدياً أو تنازلياً" : undefined}
-                      >
-                        <div className="flex items-center justify-center gap-1.5">
-                          <span>{column.label}</span>
-                          {source === "trainee" && (
-                            <span className="text-[11px] font-black opacity-90">
-                              {isSortActive ? (
-                                traineeSortDirection === "asc" ? "▲" : "▼"
-                              ) : (
-                                <span className="opacity-40 hover:opacity-100">⇅</span>
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      </th>
-                    );
-                  })}
+                  {sourceConfig.columns.map((column) => (
+                    <th key={column.key} className="border border-[#1f5f7a] px-3 py-2.5 font-bold">
+                      {column.label}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
