@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BarChart3, CalendarDays, FileText, UserRound, Wallet, Coins } from "lucide-react";
 import { useStore, type Account } from "@/lib/store";
 import TabActions, { type TabCol } from "./TabActions";
@@ -126,21 +126,19 @@ const canonicalFeeCategory = (value: unknown) => {
 const classifyCustodyRecord = (description: unknown): "youssef" | "tawfiq" | "other" => {
   const text = String(description || "").trim();
   if (!text) return "other";
-
-  // فحص أولاً سجلات عهدة الداعي / توفيق الداعي
   const isTawfiq = /(عهدة\s*الداعي|توفيق\s*الداعي)/.test(text);
   if (isTawfiq) return "tawfiq";
-
-  // فحص سجلات عهدة د/يوسف: تحتوي على "عهدة" أو "العهدة" أو "عهدة د/يوسف"
   const isYoussef = /(عهدة\s*د\s*\/?\s*يوسف|العهدة|عهدة)/.test(text);
   if (isYoussef) return "youssef";
-
   return "other";
 };
 
+// الصفوف الهيكلية (لا تُصفّى ولا تُرتّب) — تبقى في موضعها الأصلي
+const isPreservedRow = (row: ReportRow) =>
+  Boolean(row.summaryLevel) && row.summaryLevel !== "detail";
+
 // أنماط طباعة مخصصة للتقارير متطابقة 100% مع نافذة معاينة المتصفح
 const reportsTabPrintCss = `
-  /* رؤوس الأعمدة: مطابقة للرأس الكحلي في جدول التقارير */
   thead th {
     background: #0f283a !important;
     color: #ffffff !important;
@@ -159,7 +157,6 @@ const reportsTabPrintCss = `
     color: #ffffff !important;
     font-weight: 900 !important;
   }
-  /* خلايا البيانات: خط Cairo عريض أسود */
   tbody td {
     color: #000000 !important;
     font-weight: 800 !important;
@@ -181,7 +178,6 @@ const reportsTabPrintCss = `
   tbody tr.report-period-row td { background: #fef3c7 !important; color: #451a03 !important; font-weight: 900 !important; }
   tbody tr.report-fee-row td { background: #e0f2fe !important; color: #082f49 !important; font-weight: 900 !important; }
 
-  /* صف الإجمالي الكلي الملون في تقارير العهد والتقارير العامة */
   tbody tr.total-row td {
     background: #0437bb !important;
     color: #ffffff !important;
@@ -199,7 +195,6 @@ const reportsTabPrintCss = `
     background: transparent !important;
   }
 
-  /* ===== صفوف ملخص العهدة (الافتتاحي / المنصرف / المتبقي) ===== */
   .summary-spacer-row td {
     height: 12px !important;
     background: transparent !important;
@@ -216,7 +211,6 @@ const reportsTabPrintCss = `
     print-color-adjust: exact !important;
     white-space: nowrap !important;
   }
-  /* البطاقة 0: الرصيد الافتتاحي (كهرماني/أصفر) */
   .summary-card-0 td {
     background: #fde68a !important;
     color: #451a03 !important;
@@ -226,7 +220,6 @@ const reportsTabPrintCss = `
     color: #451a03 !important;
     background: transparent !important;
   }
-  /* البطاقة 1: المنصرف خلال العام (وردي/أحمر) */
   .summary-card-1 td {
     background: #fecdd3 !important;
     color: #4c0519 !important;
@@ -236,7 +229,6 @@ const reportsTabPrintCss = `
     color: #4c0519 !important;
     background: transparent !important;
   }
-  /* البطاقة 2: المتبقي من العهدة (زمردي/أخضر فاتح) */
   .summary-card-2 td {
     background: #a7f3d0 !important;
     color: #022c22 !important;
@@ -271,7 +263,6 @@ const reportsTabPrintCss = `
   .report-page-content table tbody tr.summary-card-1 .pdf-cell-text { color: #4c0519 !important; }
   .report-page-content table tbody tr.summary-card-2 td { background: #a7f3d0 !important; color: #022c22 !important; border-color: #10b981 !important; }
   .report-page-content table tbody tr.summary-card-2 .pdf-cell-text { color: #022c22 !important; }
-  /* توحيد الحدود إلى الأسود لجميع خلايا الجدول، بما فيها الرأس والإجمالي والملخص */
   #tableContainer table th,
   #tableContainer table td,
   #report-source table th,
@@ -299,6 +290,22 @@ export default function ReportsTab() {
   const [traineeGrouping, setTraineeGrouping] = useState<TraineeGrouping>("month");
   const [selectedFee, setSelectedFee] = useState<string>("all");
   const [traineeDisplayMode, setTraineeDisplayMode] = useState<TraineeDisplayMode>("both");
+
+  // حالة الفرز لكشف مدفوعات المتدربين
+  const [traineeSortColumn, setTraineeSortColumn] = useState<string>("notifyDate");
+  const [traineeSortDirection, setTraineeSortDirection] = useState<"asc" | "desc">("asc");
+
+  // ====== الحالة العامة للفرز والتصفية لكل التقارير ======
+  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
+
+  // إعادة ضبط التصفية والفرز العام عند تغيير المصدر
+  useEffect(() => {
+    setColumnFilters({});
+    setSortColumn("");
+    setSortDirection("asc");
+  }, [source]);
 
   // الرصيد الافتتاحي مع الحفظ التلقائي في المتصفح
   const [youssefOpeningBalance, setYoussefOpeningBalance] = useState<number>(() => {
@@ -362,7 +369,6 @@ export default function ReportsTab() {
     let running = youssefOpeningBalance;
     const result: ReportRow[] = [];
 
-    // سطر الرصيد الافتتاحي
     result.push({
       date: "2026-01-01",
       docNo: "افتتاحي",
@@ -403,7 +409,6 @@ export default function ReportsTab() {
       });
     });
 
-    // صف الإجمالي الكلي الملون لكل الأعمدة
     result.push({
       date: "—",
       docNo: "—",
@@ -415,7 +420,6 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
-    // صفوف ملخص العهدة
     const paidForSummary = sumCredit - (youssefOpeningBalance < 0 ? Math.abs(youssefOpeningBalance) : 0);
     const remainingForSummary = youssefOpeningBalance - paidForSummary;
 
@@ -441,7 +445,7 @@ export default function ReportsTab() {
     return result;
   }, [accounts, youssefOpeningBalance, period, year, selectedMonthSet]);
 
-  // 2. تقرير عهدة توفيق الداعي (من الحساب الجاري 2026 فما فوق)
+  // 2. تقرير عهدة توفيق الداعي
   const tawfiqRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
@@ -455,7 +459,6 @@ export default function ReportsTab() {
     let running = tawfiqOpeningBalance;
     const result: ReportRow[] = [];
 
-    // سطر الرصيد الافتتاحي
     result.push({
       date: "2026-01-01",
       docNo: "افتتاحي",
@@ -496,7 +499,6 @@ export default function ReportsTab() {
       });
     });
 
-    // صف الإجمالي الكلي الملون لكل الأعمدة
     result.push({
       date: "—",
       docNo: "—",
@@ -508,7 +510,6 @@ export default function ReportsTab() {
       summaryLevel: "total",
     });
 
-    // صفوف ملخص العهدة
     const paidForSummary = sumCredit - (tawfiqOpeningBalance < 0 ? Math.abs(tawfiqOpeningBalance) : 0);
     const remainingForSummary = tawfiqOpeningBalance - paidForSummary;
 
@@ -623,6 +624,40 @@ export default function ReportsTab() {
     return result;
   }, [hafiza, selectedTrainee, selectedFee, traineeGrouping, traineeDisplayMode]);
 
+  // فرز صفوف كشف مدفوعات المتدربين
+  const sortedTraineeRows = useMemo<ReportRow[]>(() => {
+    if (source !== "trainee" || !traineeSortColumn) return traineeRows;
+
+    const compareValues = (a: ReportRow, b: ReportRow) => {
+      let valA = a[traineeSortColumn];
+      let valB = b[traineeSortColumn];
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+      let cmp = 0;
+      if (typeof valA === "number" && typeof valB === "number") {
+        cmp = valA - valB;
+      } else {
+        const numA = Number(valA);
+        const numB = Number(valB);
+        if (!isNaN(numA) && !isNaN(numB) && String(valA).trim() !== "" && String(valB).trim() !== "") {
+          cmp = numA - numB;
+        } else {
+          cmp = String(valA).localeCompare(String(valB), "ar", { numeric: true, sensitivity: "base" });
+        }
+      }
+      return traineeSortDirection === "asc" ? cmp : -cmp;
+    };
+
+    if (traineeDisplayMode === "detail") {
+      return [...traineeRows].sort(compareValues);
+    }
+
+    const detailsAndPeriods = traineeRows.filter((r) => r.summaryLevel !== "fee");
+    const feeTotals = traineeRows.filter((r) => r.summaryLevel === "fee");
+
+    return [...detailsAndPeriods].sort(compareValues).concat(feeTotals);
+  }, [traineeRows, source, traineeSortColumn, traineeSortDirection, traineeDisplayMode]);
+
   const feeTotalsRows = useMemo<ReportRow[]>(() => {
     const totals = new Map<string, number>();
     hafiza.forEach((row) => {
@@ -682,7 +717,7 @@ export default function ReportsTab() {
   const reportRows = useMemo<ReportRow[]>(() => {
     if (source === "youssefLoan") return youssefRows;
     if (source === "tawfiqCustody") return tawfiqRows;
-    if (source === "trainee") return traineeRows;
+    if (source === "trainee") return sortedTraineeRows;
     if (source === "feeTotals") return feeTotalsRows;
     if (source === "hafiza") return hafizaRows;
     if (source === "account") return accountRows;
@@ -694,7 +729,75 @@ export default function ReportsTab() {
       ...expenseRows.map((row) => ({ source: "المصروفات", date: row.date, description: row.item, expense: row.expense })),
       ...revenueRows.map((row) => ({ source: "الإيرادات", date: row.date, description: row.item, amount: row.amount }))
     ];
-  }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, traineeRows, feeTotalsRows]);
+  }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, sortedTraineeRows, feeTotalsRows]);
+
+  // ====== الصفوف المعالجة بالتصفية والفرز (تُستخدم في العرض وفي الطباعة/PDF) ======
+  const processedRows = useMemo<ReportRow[]>(() => {
+    // 1. تطبيق تصفية الأعمدة على الصفوف التفصيلية فقط (الصفوف الهيكلية محفوظة)
+    const filtered = reportRows.filter((row) => {
+      if (isPreservedRow(row)) return true;
+      for (const [key, filterVal] of Object.entries(columnFilters)) {
+        const fv = String(filterVal || "").trim();
+        if (!fv) continue;
+        const cellValue = row[key];
+        if (cellValue === undefined || cellValue === null) return false;
+        if (typeof cellValue === "number") {
+          const numFilter = Number(fv);
+          if (!isNaN(numFilter)) {
+            if (cellValue !== numFilter) return false;
+          } else if (!String(cellValue).includes(fv)) {
+            return false;
+          }
+        } else if (!String(cellValue).toLowerCase().includes(fv.toLowerCase())) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    // 2. الفرز: المتدرب يستخدم فرزها الخاص، باقي المصادر تستخدم الفرز العام
+    const activeSortCol = source === "trainee" ? traineeSortColumn : sortColumn;
+    const activeSortDir = source === "trainee" ? traineeSortDirection : sortDirection;
+
+    if (!activeSortCol) return filtered;
+
+    const result = [...filtered];
+    const dataIndices: number[] = [];
+    const dataRows: ReportRow[] = [];
+
+    result.forEach((row, i) => {
+      if (!isPreservedRow(row)) {
+        dataIndices.push(i);
+        dataRows.push(row);
+      }
+    });
+
+    dataRows.sort((a, b) => {
+      let va = a[activeSortCol];
+      let vb = b[activeSortCol];
+      if (va === undefined || va === null) va = "";
+      if (vb === undefined || vb === null) vb = "";
+      let cmp = 0;
+      if (typeof va === "number" && typeof vb === "number") {
+        cmp = va - vb;
+      } else {
+        const na = Number(va);
+        const nb = Number(vb);
+        if (!isNaN(na) && !isNaN(nb) && String(va).trim() !== "" && String(vb).trim() !== "") {
+          cmp = na - nb;
+        } else {
+          cmp = String(va).localeCompare(String(vb), "ar", { numeric: true, sensitivity: "base" });
+        }
+      }
+      return activeSortDir === "asc" ? cmp : -cmp;
+    });
+
+    dataIndices.forEach((idx, i) => {
+      result[idx] = dataRows[i];
+    });
+
+    return result;
+  }, [reportRows, columnFilters, sortColumn, sortDirection, source, traineeSortColumn, traineeSortDirection]);
 
   const title = source === "trainee"
     ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "detail" ? "تفصيلي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي وإجمالي"} — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"}`
@@ -721,9 +824,14 @@ export default function ReportsTab() {
 
   // صفوف التقرير المعروضة في الشاشة (بدون صفوف الملخص لأنها تُعرض كصفوف مدمجة أسفل الجدول)
   const displayRows = useMemo(
-    () => reportRows.filter((row) => row.summaryLevel !== "summary-card"),
-    [reportRows]
+    () => processedRows.filter((row) => row.summaryLevel !== "summary-card"),
+    [processedRows]
   );
+
+  // مؤشر الفرز النشط (المتدرب يستخدم فرزها، والبقية يستخدمون الفرز العام)
+  const activeSortColumn = source === "trainee" ? traineeSortColumn : sortColumn;
+  const activeSortDirection = source === "trainee" ? traineeSortDirection : sortDirection;
+  const hasAnyFilter = Object.values(columnFilters).some((v) => String(v || "").trim() !== "");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50 to-indigo-50 p-2 sm:p-4" dir="rtl">
@@ -757,7 +865,6 @@ export default function ReportsTab() {
             </select>
           </label>
 
-          {/* حقل الرصيد الافتتاحي اليدوي لسلفة د/يوسف */}
           {source === "youssefLoan" && (
             <label className="flex flex-col gap-1 text-xs font-black text-amber-900 bg-amber-50/80 p-1.5 rounded-xl border border-amber-200">
               <span className="flex items-center gap-1 font-black">
@@ -774,7 +881,6 @@ export default function ReportsTab() {
             </label>
           )}
 
-          {/* حقل الرصيد الافتتاحي اليدوي لعهدة توفيق الداعي */}
           {source === "tawfiqCustody" && (
             <label className="flex flex-col gap-1 text-xs font-black text-emerald-900 bg-emerald-50/80 p-1.5 rounded-xl border border-emerald-200">
               <span className="flex items-center gap-1 font-black">
@@ -847,6 +953,37 @@ export default function ReportsTab() {
                       <option value="both">تفصيلي وإجمالي</option>
                     </select>
                   </label>
+
+                  <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
+                    فرز حسب العمود
+                    <select
+                      value={traineeSortColumn}
+                      onChange={(event) => setTraineeSortColumn(event.target.value)}
+                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
+                    >
+                      <option value="trainee">اسم المتدرب</option>
+                      <option value="notifyDate">تاريخ التوريد</option>
+                      <option value="amount">مبلغ التوريد</option>
+                      <option value="hafizaNo">رقم الحافظة</option>
+                      <option value="notifyNo">رقم الإشعار</option>
+                      <option value="category">التصنيف الموحد</option>
+                      <option value="year">السنة</option>
+                      <option value="period">الشهر / السنة</option>
+                      <option value="description">البيان الأصلي</option>
+                    </select>
+                  </label>
+
+                  <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
+                    اتجاه الفرز
+                    <select
+                      value={traineeSortDirection}
+                      onChange={(event) => setTraineeSortDirection(event.target.value as "asc" | "desc")}
+                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
+                    >
+                      <option value="asc">تصاعدي (من أ إلى ي / الأصغر للأكبر)</option>
+                      <option value="desc">تنازلي (من ي إلى أ / الأكبر للأصغر)</option>
+                    </select>
+                  </label>
                 </>
               )}
             </>
@@ -912,11 +1049,16 @@ export default function ReportsTab() {
             <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-bold text-sky-800">
               {displayRows.length} سجل
             </span>
+            {hasAnyFilter && (
+              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">
+                مفلتر
+              </span>
+            )}
           </div>
 
           <TabActions
             title={title}
-            rows={reportRows}
+            rows={processedRows}
             columns={sourceConfig.columns}
             fileName={
               source === "youssefLoan"
@@ -936,128 +1078,188 @@ export default function ReportsTab() {
 
         {/* جدول عرض التقرير */}
         <div className="overflow-x-auto p-3 sm:p-4">
-          {displayRows.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-slate-600">
-              <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
-              لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
-            </div>
-          ) : (
-            <table className="w-full min-w-[860px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm">
-              <thead className="bg-[#0f283a] text-white">
-                <tr>
-                  <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold">م</th>
-                  {sourceConfig.columns.map((column) => (
-                    <th key={column.key} className="border border-[#1f5f7a] px-3 py-2.5 font-bold">
-                      {column.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {displayRows.map((row, index) => {
-                  const isTotal = row.summaryLevel === "total" || row.description === "الإجمالي الكلي";
-                  const isOpening = row.summaryLevel === "opening";
-
-                  let rowStyle = "hover:bg-sky-50/50";
-                  if (isTotal) {
-                    // تلوين خلفية صف الإجمالي الكلي بالأزرق الغامق الملوّن
-                    rowStyle = "bg-[#0437bb] text-white font-black text-sm sm:text-base";
-                  } else if (isOpening) {
-                    rowStyle = "bg-amber-100/90 text-amber-950 font-bold";
-                  } else if (row.summaryLevel === "fee") {
-                    rowStyle = "bg-sky-100 font-bold text-sky-950";
-                  } else if (row.summaryLevel === "period") {
-                    rowStyle = "bg-amber-100 font-bold text-amber-950";
-                  } else if (index % 2 === 1) {
-                    rowStyle = "bg-slate-50/80 text-slate-900";
-                  } else {
-                    rowStyle = "bg-white text-slate-900";
-                  }
-
+          <table className="w-full min-w-[860px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm">
+            <thead className="bg-[#0f283a] text-white">
+              <tr>
+                <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold">م</th>
+                {sourceConfig.columns.map((column) => {
+                  const isSortActive = activeSortColumn === column.key;
                   return (
-                    <tr
-                      key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`}
-                      className={`transition-colors ${rowStyle} ${isTotal ? "total-row" : ""}`}
-                      data-summary={isTotal ? "total" : undefined}
+                    <th
+                      key={column.key}
+                      onClick={() => {
+                        if (source === "trainee") {
+                          if (traineeSortColumn === column.key) {
+                            setTraineeSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+                          } else {
+                            setTraineeSortColumn(column.key);
+                            setTraineeSortDirection("asc");
+                          }
+                        } else {
+                          if (sortColumn === column.key) {
+                            setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+                          } else {
+                            setSortColumn(column.key);
+                            setSortDirection("asc");
+                          }
+                        }
+                      }}
+                      className="border border-[#1f5f7a] px-3 py-2.5 font-bold cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
+                      title="انقر للفرز تصاعدياً أو تنازلياً"
                     >
-                      <td className={`border px-2 py-2 font-bold ${
-                        isTotal ? "border-blue-900 text-white font-black" : "border-slate-200 text-slate-800"
-                      }`}>
-                        {isTotal ? "★" : index + 1}
-                      </td>
-                      {sourceConfig.columns.map((column) => {
-                        const val = row[column.key];
-                        const isNum = numericKeys.includes(column.key);
-                        return (
-                          <td
-                            key={column.key}
-                            className={`border px-3 py-2 font-semibold ${
-                              isTotal
-                                ? "border-blue-900 text-white font-black"
-                                : "border-slate-200 text-slate-900"
-                            } ${isNum ? "font-mono" : ""}`}
-                          >
-                            {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
-                          </td>
-                        );
-                      })}
-                    </tr>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span>{column.label}</span>
+                        <span className="text-[11px] font-black opacity-90">
+                          {isSortActive ? (
+                            activeSortDirection === "asc" ? "▲" : "▼"
+                          ) : (
+                            <span className="opacity-40 hover:opacity-100">⇅</span>
+                          )}
+                        </span>
+                      </div>
+                    </th>
                   );
                 })}
+              </tr>
+              {/* صف التصفية لكل عمود — يظهر على الشاشة فقط (لا يظهر في الطباعة) */}
+              <tr className="bg-slate-200/80 print:hidden">
+                <td className="border border-slate-300 px-2 py-1 text-center">
+                  {hasAnyFilter && (
+                    <button
+                      onClick={() => setColumnFilters({})}
+                      className="rounded bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-rose-700"
+                      title="مسح جميع التصفية"
+                    >
+                      مسح
+                    </button>
+                  )}
+                </td>
+                {sourceConfig.columns.map((column) => (
+                  <td key={column.key} className="border border-slate-300 px-1 py-1">
+                    <input
+                      type="text"
+                      value={columnFilters[column.key] || ""}
+                      onChange={(e) =>
+                        setColumnFilters((prev) => ({ ...prev, [column.key]: e.target.value }))
+                      }
+                      placeholder="تصفية..."
+                      className="w-full rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-slate-900 outline-none focus:border-sky-600"
+                    />
+                  </td>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {displayRows.length === 0 ? (
+                <tr>
+                  <td colSpan={sourceConfig.columns.length + 1} className="p-10 text-center text-sm font-bold text-slate-600">
+                    <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
+                    لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
+                  </td>
+                </tr>
+              ) : (
+                <>
+                  {displayRows.map((row, index) => {
+                    const isTotal = row.summaryLevel === "total" || row.description === "الإجمالي الكلي";
+                    const isOpening = row.summaryLevel === "opening";
 
-                {/* صف فاصل + صفوف ملخص العهدة داخل الجدول بخلايا مدمجة وألوان مميزة */}
-                {isLoanOrCustody && (() => {
-                  const summaryRows = reportRows.filter((r) => r.summaryLevel === "summary-card");
-                  if (!summaryRows.length) return null;
+                    let rowStyle = "hover:bg-sky-50/50";
+                    if (isTotal) {
+                      rowStyle = "bg-[#0437bb] text-white font-black text-sm sm:text-base";
+                    } else if (isOpening) {
+                      rowStyle = "bg-amber-100/90 text-amber-950 font-bold";
+                    } else if (row.summaryLevel === "fee") {
+                      rowStyle = "bg-sky-100 font-bold text-sky-950";
+                    } else if (row.summaryLevel === "period") {
+                      rowStyle = "bg-amber-100 font-bold text-amber-950";
+                    } else if (index % 2 === 1) {
+                      rowStyle = "bg-slate-50/80 text-slate-900";
+                    } else {
+                      rowStyle = "bg-white text-slate-900";
+                    }
 
-                  const cardStyles = [
-                    { label: "مبلغ العهدة الافتتاحي للعام 2026",   bg: "bg-amber-200",   text: "text-amber-950",   border: "border-amber-500",   cls: "summary-card-0" },
-                    { label: "المنصرف من العهدة خلال العام",        bg: "bg-rose-200",    text: "text-rose-950",    border: "border-rose-500",    cls: "summary-card-1" },
-                    { label: "المتبقي من العهدة حتى تاريخ التقرير", bg: "bg-emerald-200", text: "text-emerald-950", border: "border-emerald-500", cls: "summary-card-2" },
-                  ];
-
-                  return (
-                    <>
-                      {/* صف فاصل مرئي */}
-                      <tr className="summary-spacer" aria-hidden="true">
-                        <td
-                          colSpan={sourceConfig.columns.length + 1}
-                          className="border-0 bg-transparent p-0"
-                          style={{ height: "14px" }}
-                        />
+                    return (
+                      <tr
+                        key={`${String(row.date)}-${String(row.trainee || row.name || "")}-${index}`}
+                        className={`transition-colors ${rowStyle} ${isTotal ? "total-row" : ""}`}
+                        data-summary={isTotal ? "total" : undefined}
+                      >
+                        <td className={`border px-2 py-2 font-bold ${
+                          isTotal ? "border-blue-900 text-white font-black" : "border-slate-200 text-slate-800"
+                        }`}>
+                          {isTotal ? "★" : index + 1}
+                        </td>
+                        {sourceConfig.columns.map((column) => {
+                          const val = row[column.key];
+                          const isNum = numericKeys.includes(column.key);
+                          return (
+                            <td
+                              key={column.key}
+                              className={`border px-3 py-2 font-semibold ${
+                                isTotal
+                                  ? "border-blue-900 text-white font-black"
+                                  : "border-slate-200 text-slate-900"
+                              } ${isNum ? "font-mono" : ""}`}
+                            >
+                              {typeof val === "number" ? val.toLocaleString() : (val ?? "—")}
+                            </td>
+                          );
+                        })}
                       </tr>
+                    );
+                  })}
 
-                      {summaryRows.map((row, i) => {
-                        const style = cardStyles[i % cardStyles.length];
-                        const value = amountValue(row.credit);
-                        return (
-                          <tr
-                            key={`summary-${i}`}
-                            className={`summary-card-row ${style.cls} ${style.bg} ${style.text} font-black`}
-                          >
-                            {/* خلية البيان: تدمج من عمود "م" حتى قبل عمود الرصيد (5 خلايا) */}
-                            <td
-                              colSpan={sourceConfig.columns.length - 1}
-                              className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm font-black`}
+                  {/* صفوف ملخص العهدة */}
+                  {isLoanOrCustody && (() => {
+                    const summaryRows = processedRows.filter((r) => r.summaryLevel === "summary-card");
+                    if (!summaryRows.length) return null;
+
+                    const cardStyles = [
+                      { label: "مبلغ العهدة الافتتاحي للعام 2026",   bg: "bg-amber-200",   text: "text-amber-950",   border: "border-amber-500",   cls: "summary-card-0" },
+                      { label: "المنصرف من العهدة خلال العام",        bg: "bg-rose-200",    text: "text-rose-950",    border: "border-rose-500",    cls: "summary-card-1" },
+                      { label: "المتبقي من العهدة حتى تاريخ التقرير", bg: "bg-emerald-200", text: "text-emerald-950", border: "border-emerald-500", cls: "summary-card-2" },
+                    ];
+
+                    return (
+                      <>
+                        <tr className="summary-spacer" aria-hidden="true">
+                          <td
+                            colSpan={sourceConfig.columns.length + 1}
+                            className="border-0 bg-transparent p-0"
+                            style={{ height: "14px" }}
+                          />
+                        </tr>
+
+                        {summaryRows.map((row, i) => {
+                          const style = cardStyles[i % cardStyles.length];
+                          const value = amountValue(row.credit);
+                          return (
+                            <tr
+                              key={`summary-${i}`}
+                              className={`summary-card-row ${style.cls} ${style.bg} ${style.text} font-black`}
                             >
-                              {style.label}
-                            </td>
-                            {/* خلية المبلغ: تدمج العمودين الأخيرين */}
-                            <td
-                              colSpan={2}
-                              className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base font-black`}
-                            >
-                              {value.toLocaleString()}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </>
-                  );
-                })()}
-              </tbody>
-            </table>
-          )}
+                              <td
+                                colSpan={sourceConfig.columns.length - 1}
+                                className={`border ${style.border} px-3 py-2.5 text-center text-xs sm:text-sm font-black`}
+                              >
+                                {style.label}
+                              </td>
+                              <td
+                                colSpan={2}
+                                className={`border ${style.border} px-3 py-2.5 text-center font-mono text-sm sm:text-base font-black`}
+                              >
+                                {value.toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </>
+                    );
+                  })()}
+                </>
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>
