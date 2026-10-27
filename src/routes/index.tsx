@@ -83,72 +83,63 @@ const tabs: TabItem[] = [
     value: "installments",
     label: "كشف الأقساط",
     shortLabel: "أقساط",
-    icon: <WalletCards className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // أزرق: افتراضي
+    icon: <WalletCards className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#2e6b8a] to-[#6ba3c8]",
   },
   {
     value: "hafiza",
     label: "حوافظ التوريد",
     shortLabel: "حوافظ",
-    icon: <FileBox className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // أخضر
+    icon: <FileBox className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#166b4e] to-[#3fa270]",
   },
   {
     value: "account",
     label: "الحساب الجاري",
     shortLabel: "حساب",
-    icon: <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // تركوازي/أزرق مخضر
+    icon: <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#1f5f7a] to-[#4b8db0]",
   },
   {
     value: "journal",
     label: "القيود اليومية",
     shortLabel: "قيود",
-    icon: <BookOpenText className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // بنفسجي
+    icon: <BookOpenText className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#6b3d9c] to-[#b77ac1]",
   },
   {
     value: "monthly",
     label: "كشف شهري",
     shortLabel: "شهري",
-    icon: <PieChart className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // برتقالي
+    icon: <PieChart className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#b96b00] to-[#f0a54a]",
   },
   {
     value: "revenue",
     label: "الإيرادات",
     shortLabel: "إيرادات",
-    icon: <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // أخضر فاتح
+    icon: <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#1f7a2e] to-[#6bc97a]",
   },
   {
     value: "expenses-table",
     label: "المصروفات",
     shortLabel: "مصروفات",
-    icon: <ReceiptText className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // أحمر
+    icon: <ReceiptText className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#9c3d3d] to-[#d67b7b]",
   },
   {
     value: "reports",
     label: "التقارير",
     shortLabel: "تقارير",
-    icon: <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // كحلي/أزرق متدرج
+    icon: <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#2e5e9a] to-[#5f8fd0]",
   },
   {
     value: "general-expenses-ledger",
     label: "سجل النفقات",
     shortLabel: "السجل",
-    icon: <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6" />,
-    // بنفسجي عميق
+    icon: <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5" />,
     activeClass: "bg-gradient-to-b from-[#4b2e6a] to-[#7a58a0]",
   },
 ];
@@ -248,54 +239,49 @@ function Index() {
   };
 
   return (
-    // الحاوية الرئيسية بهوية "صقيع قطبي" الفاتحة
     <div
-      className="apk-tabs-ui w-full min-h-screen bg-[#e8f0ff] selection:bg-[#6ba3c8]/30 text-base"
+      className="apk-tabs-ui w-full min-h-screen bg-[#e8f0ff] selection:bg-[#6ba3c8]/30 text-[13px]"
       dir="rtl"
     >
-      {/* قسم الهيدر العلوي — أزرق ثلجي عصري */}
-      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-3 py-3 sm:px-5 sm:py-4 border-b border-[#b8d4e8] shadow-sm text-white overflow-hidden">
-        {/* خيط زخرفي أعلى الهيدر */}
-        <div className="absolute inset-x-0 top-0 h-[3px] bg-[linear-gradient(90deg,#b8d4e8,#e8f0f8,#b8d4e8)] opacity-80" />
+      {/* الهيدر العلوي */}
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-gradient-to-l from-[#2e6b8a] via-[#3d7fa0] to-[#2e6b8a] px-2.5 py-2.5 sm:px-4 sm:py-3 border-b border-[#b8d4e8] shadow-sm">
+        <div className="absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,#b8d4e8,#e8f0f8,#b8d4e8)] opacity-80" />
 
-        {/* الجزء الأيمن: الشعار والعنوان والوصف */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="relative shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/35 bg-white/15 p-1 shadow-lg shadow-[#102f46]/20">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="relative shrink-0 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-white/35 bg-white/15 p-1 shadow-md shadow-[#102f46]/25 sm:h-12 sm:w-12">
             <img src="/app-logo.png" alt="شعار مِيزان" className="h-full w-full object-contain" />
           </div>
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <h1 className="text-[clamp(1.35rem,4.5vw,1.9rem)] font-black tracking-[0.08em] text-white leading-tight truncate sm:whitespace-normal">
+
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <h1 className="truncate text-[1rem] font-black leading-tight tracking-[0.04em] text-white sm:text-[1.2rem]">
               المجلس اليمني للاختصاصات الطبية
             </h1>
-            <p className="text-[clamp(0.75rem,2.4vw,0.875rem)] text-[#e8f0f8] font-medium flex items-center gap-1.5 leading-snug min-w-0">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#b8d4e8] shrink-0"></span>
-              <span className="truncate sm:whitespace-normal">
-                النظام المالي — المجلس اليمني للاختصاصات الطبية
-              </span>
+            <p className="flex min-w-0 items-center gap-1 text-[10.5px] font-medium leading-snug text-[#e8f0f8] sm:text-[11.5px]">
+              <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#b8d4e8]"></span>
+              <span className="truncate">النظام المالي</span>
             </p>
           </div>
         </div>
 
-        {/* الجزء الأيسر: زر تثبيت التطبيق */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center">
           {pwaInstallable && (
             <button
               onClick={handlePWAInstall}
-              className="flex items-center gap-1.5 bg-white text-[#2e6b8a] hover:bg-[#e8f0f8] font-bold text-[13px] px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap active:scale-[0.97]"
+              className="flex items-center gap-1 rounded-lg bg-white px-2 py-1.5 text-[10.5px] font-bold text-[#2e6b8a] shadow-sm transition-all hover:bg-[#e8f0f8] active:scale-[0.98] sm:px-2.5 sm:py-1.5 sm:text-[11.5px]"
             >
-              <DownloadCloud className="w-4 h-4 shrink-0" />
-              <span>تثبيت التطبيق</span>
+              <DownloadCloud className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+              <span>تثبيت</span>
             </button>
           )}
         </div>
       </div>
 
       {/* محتوى التبويب النشط */}
-      <div className="app-tab-content w-full min-w-0 bg-[#f4f9fd] p-0 pb-28 sm:p-0 sm:pb-24 md:p-0 min-h-[calc(100vh-140px)]">
+      <div className="app-tab-content min-h-[calc(100vh-120px)] w-full min-w-0 bg-[#f4f9fd] p-0 pb-24 sm:pb-24">
         <Suspense
           fallback={
             <div
-              className="flex min-h-[35vh] items-center justify-center rounded-2xl border border-[#b8d4e8] bg-gold/95 p-6 text-xs font-semibold text-[#2e6b8a]"
+              className="flex min-h-[35vh] items-center justify-center rounded-xl border border-[#b8d4e8] bg-[#f9f2d6] p-4 text-[11px] font-semibold text-[#2e6b8a]"
               role="status"
               aria-live="polite"
             >
@@ -315,32 +301,33 @@ function Index() {
         </Suspense>
       </div>
 
-      {/* شريط التبويبات السفلي — عائم زجاجي فاتح */}
+      {/* شريط التبويبات السفلي */}
       <nav
         className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#b8d4e8] bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(46,107,138,0.12)]"
         dir="rtl"
         aria-label="التنقل الرئيسي"
       >
-        <div className="flex w-full gap-1.5 overflow-x-auto px-0 py-2 sm:gap-2 sm:px-0">
+        <div className="flex w-full gap-1 overflow-x-auto px-0 py-1.5 sm:gap-1.5">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value;
+
             return (
               <button
                 key={tab.value}
                 type="button"
                 onClick={() => handleTabChange(tab.value)}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex min-h-[48px] min-w-[76px] shrink-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#6ba3c8] sm:min-w-[104px] sm:px-3 ${
+                className={`flex min-h-[42px] min-w-[58px] shrink-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-center transition-colors duration-150 focus:outline-none ${
                   isActive
                     ? `${tab.activeClass} text-white shadow-md`
                     : "text-[#4e6b80] hover:bg-[#e8f0f8]"
                 }`}
               >
                 <span className={isActive ? "scale-105" : "scale-100"}>{tab.icon}</span>
-                <span className="text-[14.5px] font-bold leading-tight whitespace-nowrap sm:hidden">
+                <span className="text-[10.5px] font-bold leading-tight whitespace-nowrap sm:hidden">
                   {tab.shortLabel}
                 </span>
-                <span className="hidden text-[13px] font-bold leading-tight whitespace-nowrap sm:inline">
+                <span className="hidden text-[10.5px] font-bold leading-tight whitespace-nowrap sm:inline">
                   {tab.label}
                 </span>
               </button>
