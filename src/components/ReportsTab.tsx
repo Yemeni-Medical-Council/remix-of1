@@ -1082,7 +1082,7 @@ export default function ReportsTab() {
           <table className="w-full min-w-[860px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm">
             <thead className="bg-[#0f283a] text-white">
               <tr>
-                <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold">م</th>
+                <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white">م</th>
                 {sourceConfig.columns.map((column) => {
                   const isSortActive = activeSortColumn === column.key;
                   return (
@@ -1110,7 +1110,8 @@ export default function ReportsTab() {
                     >
                       <div className="flex items-center justify-center gap-1.5">
                         <span>{column.label}</span>
-                        <span className="text-[11px] font-white opacity-90">
+                        <span
+   className="text-[11px] font-bold text-white opacity-90">
                           {isSortActive ? (
                             activeSortDirection === "asc" ? "▲" : "▼"
                           ) : (
@@ -1166,7 +1167,7 @@ export default function ReportsTab() {
 
                     let rowStyle = "hover:bg-sky-50/50";
                     if (isTotal) {
-                      rowStyle = "bg-[#0437bb] text-white font-black text-sm sm:text-base";
+                      rowStyle = "bg-[#0437bb] text-white font-bold text-sm sm:text-base";
                     } else if (isOpening) {
                       rowStyle = "bg-amber-100/90 text-amber-950 font-bold";
                     } else if (row.summaryLevel === "fee") {
