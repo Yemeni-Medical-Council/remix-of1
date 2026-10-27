@@ -1,17 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  BarChart3,
-  CalendarDays,
-  FileText,
-  UserRound,
-  Wallet,
-  Coins,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Search,
-  RotateCcw,
-} from "lucide-react";
+import { BarChart3, CalendarDays, FileText, UserRound, Wallet, Coins } from "lucide-react";
 import { useStore, type Account } from "@/lib/store";
 import TabActions, { type TabCol } from "./TabActions";
 import revenueSchema from "@/data/revenueTemplate.json";
@@ -312,22 +300,9 @@ export default function ReportsTab() {
   const [selectedFee, setSelectedFee] = useState<string>("all");
   const [traineeDisplayMode, setTraineeDisplayMode] = useState<TraineeDisplayMode>("both");
 
-  // حالة الفرز والبحث والتصفية
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-
-  const handleSort = (key: string) => {
-    setSortConfig((prev) => {
-      if (prev?.key !== key) return { key, direction: "asc" };
-      if (prev.direction === "asc") return { key, direction: "desc" };
-      return null; // العودة للترتيب الأصلي
-    });
-  };
-
-  const handleResetFilters = () => {
-    setSortConfig(null);
-    setSearchTerm("");
-  };
+  // حالة الفرز لكشف مدفوعات المتدربين
+  const [traineeSortColumn, setTraineeSortColumn] = useState<string>("notifyDate");
+  const [traineeSortDirection, setTraineeSortDirection] = useState<"asc" | "desc">("asc");
 
   // الرصيد الافتتاحي مع الحفظ التلقائي في المتصفح
   const [youssefOpeningBalance, setYoussefOpeningBalance] = useState<number>(() => {
@@ -652,6 +627,43 @@ export default function ReportsTab() {
     return result;
   }, [hafiza, selectedTrainee, selectedFee, traineeGrouping, traineeDisplayMode]);
 
+  // فرز صفوف كشف مدفوعات المتدربين تصاعدياً أو تنازلياً مع دعم النصوص والتواريخ والأرقام
+  const sortedTraineeRows = useMemo<ReportRow[]>(() => {
+    if (source !== "trainee" || !traineeSortColumn) return traineeRows;
+
+    const compareValues = (a: ReportRow, b: ReportRow) => {
+      let valA = a[traineeSortColumn];
+      let valB = b[traineeSortColumn];
+
+      if (valA === undefined || valA === null) valA = "";
+      if (valB === undefined || valB === null) valB = "";
+
+      let cmp = 0;
+      if (typeof valA === "number" && typeof valB === "number") {
+        cmp = valA - valB;
+      } else {
+        const numA = Number(valA);
+        const numB = Number(valB);
+        if (!isNaN(numA) && !isNaN(numB) && String(valA).trim() !== "" && String(valB).trim() !== "") {
+          cmp = numA - numB;
+        } else {
+          cmp = String(valA).localeCompare(String(valB), "ar", { numeric: true, sensitivity: "base" });
+        }
+      }
+      return traineeSortDirection === "asc" ? cmp : -cmp;
+    };
+
+    if (traineeDisplayMode === "detail") {
+      return [...traineeRows].sort(compareValues);
+    }
+
+    // الحفاظ على صفوف الإجماليات في ذيل التقرير مع فرز الصفوف التفصيلية وسجلات الفترات
+    const detailsAndPeriods = traineeRows.filter((r) => r.summaryLevel !== "fee");
+    const feeTotals = traineeRows.filter((r) => r.summaryLevel === "fee");
+
+    return [...detailsAndPeriods].sort(compareValues).concat(feeTotals);
+  }, [traineeRows, source, traineeSortColumn, traineeSortDirection, traineeDisplayMode]);
+
   const feeTotalsRows = useMemo<ReportRow[]>(() => {
     const totals = new Map<string, number>();
     hafiza.forEach((row) => {
@@ -711,7 +723,7 @@ export default function ReportsTab() {
   const reportRows = useMemo<ReportRow[]>(() => {
     if (source === "youssefLoan") return youssefRows;
     if (source === "tawfiqCustody") return tawfiqRows;
-    if (source === "trainee") return traineeRows;
+    if (source === "trainee") return sortedTraineeRows;
     if (source === "feeTotals") return feeTotalsRows;
     if (source === "hafiza") return hafizaRows;
     if (source === "account") return accountRows;
@@ -723,7 +735,7 @@ export default function ReportsTab() {
       ...expenseRows.map((row) => ({ source: "المصروفات", date: row.date, description: row.item, expense: row.expense })),
       ...revenueRows.map((row) => ({ source: "الإيرادات", date: row.date, description: row.item, amount: row.amount }))
     ];
-  }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, traineeRows, feeTotalsRows]);
+  }, [source, youssefRows, tawfiqRows, hafizaRows, accountRows, expenseRows, revenueRows, sortedTraineeRows, feeTotalsRows]);
 
   const title = source === "trainee"
     ? `كشف مدفوعات ${selectedTrainee === "all" ? "جميع المتدربين" : selectedTrainee} — ${selectedFee === "all" ? "كل الرسوم" : selectedFee} — ${traineeDisplayMode === "detail" ? "تفصيلي" : traineeDisplayMode === "summary" ? "إجمالي" : "تفصيلي وإجمالي"} — تجميع ${traineeGrouping === "month" ? "شهري" : "سنوي"}`
@@ -748,91 +760,11 @@ export default function ReportsTab() {
 
   const isLoanOrCustody = source === "youssefLoan" || source === "tawfiqCustody";
 
-  // صفوف التقرير الأساسية المعروضة (بدون بطاقات ملخص العهدة)
+  // صفوف التقرير المعروضة في الشاشة (بدون صفوف الملخص لأنها تُعرض كصفوف مدمجة أسفل الجدول)
   const displayRows = useMemo(
     () => reportRows.filter((row) => row.summaryLevel !== "summary-card"),
     [reportRows]
   );
-
-  // تصفية وفرز صفوف الجدول مع تثبيت صف الرصيد الافتتاحي في الأعلى وصف الإجمالي في الأسفل
-  const processedDisplayRows = useMemo(() => {
-    const openingRows: ReportRow[] = [];
-    const totalRows: ReportRow[] = [];
-    const dataRows: ReportRow[] = [];
-
-    displayRows.forEach((row) => {
-      if (row.summaryLevel === "opening") {
-        openingRows.push(row);
-      } else if (
-        row.summaryLevel === "total" ||
-        row.description === "الإجمالي الكلي" ||
-        row.category === "الإجمالي الكلي لجميع الرسوم"
-      ) {
-        totalRows.push(row);
-      } else {
-        dataRows.push(row);
-      }
-    });
-
-    // 1. تصفية / بحث نصي سريع
-    let filtered = dataRows;
-    if (searchTerm.trim()) {
-      const q = searchTerm.trim().toLowerCase();
-      filtered = dataRows.filter((row) =>
-        sourceConfig.columns.some((col) => {
-          const val = row[col.key];
-          if (val == null) return false;
-          return String(val).toLowerCase().includes(q);
-        })
-      );
-    }
-
-    // 2. فرز الأعمدة التفاعلي (تصاعدي / تنازلي)
-    if (sortConfig) {
-      const { key, direction } = sortConfig;
-      const isNum = numericKeys.includes(key);
-
-      filtered = [...filtered].sort((a, b) => {
-        const valA = a[key];
-        const valB = b[key];
-
-        // القيم الفارغة أو غير المعرفة تذهب للأسفل
-        if (valA == null || valA === "" || valA === "—") return 1;
-        if (valB == null || valB === "" || valB === "—") return -1;
-
-        // مقارنة عددية نقية للأرقام والمبالغ
-        if (isNum || (typeof valA === "number" && typeof valB === "number")) {
-          const numA = Number(valA) || 0;
-          const numB = Number(valB) || 0;
-          return direction === "asc" ? numA - numB : numB - numA;
-        }
-
-        // مقارنة تواريخ
-        const dateA = normalizeDate(valA);
-        const dateB = normalizeDate(valB);
-        if (dateA && dateB && !Number.isNaN(dateA.getTime()) && !Number.isNaN(dateB.getTime())) {
-          return direction === "asc"
-            ? dateA.getTime() - dateB.getTime()
-            : dateB.getTime() - dateA.getTime();
-        }
-
-        // مقارنة نصوص عربية أبجدياً من أ إلى ي
-        const strA = String(valA).trim();
-        const strB = String(valB).trim();
-        const cmp = strA.localeCompare(strB, "ar", { numeric: true, sensitivity: "base" });
-        return direction === "asc" ? cmp : -cmp;
-      });
-    }
-
-    return [...openingRows, ...filtered, ...totalRows];
-  }, [displayRows, searchTerm, sortConfig, sourceConfig.columns, numericKeys]);
-
-  // صفوف التقرير المفروزة والمعدة للتصدير والطباعة والـ PDF مع بطاقات العهدة
-  const processedReportRows = useMemo(() => {
-    if (!sortConfig && !searchTerm.trim()) return reportRows;
-    const summaryCards = reportRows.filter((r) => r.summaryLevel === "summary-card");
-    return [...processedDisplayRows, ...summaryCards];
-  }, [reportRows, sortConfig, searchTerm, processedDisplayRows]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-sky-50 to-indigo-50 p-2 sm:p-4" dir="rtl">
@@ -857,11 +789,7 @@ export default function ReportsTab() {
             مصدر التقرير
             <select
               value={source}
-              onChange={(event) => {
-                setSource(event.target.value as ReportSource);
-                setSortConfig(null);
-                setSearchTerm("");
-              }}
+              onChange={(event) => setSource(event.target.value as ReportSource)}
               className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
             >
               {SOURCES.map((item) => (
@@ -960,6 +888,39 @@ export default function ReportsTab() {
                       <option value="both">تفصيلي وإجمالي</option>
                     </select>
                   </label>
+
+                  {/* عنصر فرز الأعمدة لكشف المتدربين */}
+                  <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
+                    فرز حسب العمود
+                    <select
+                      value={traineeSortColumn}
+                      onChange={(event) => setTraineeSortColumn(event.target.value)}
+                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
+                    >
+                      <option value="trainee">اسم المتدرب</option>
+                      <option value="notifyDate">تاريخ التوريد</option>
+                      <option value="amount">مبلغ التوريد</option>
+                      <option value="hafizaNo">رقم الحافظة</option>
+                      <option value="notifyNo">رقم الإشعار</option>
+                      <option value="category">التصنيف الموحد</option>
+                      <option value="year">السنة</option>
+                      <option value="period">الشهر / السنة</option>
+                      <option value="description">البيان الأصلي</option>
+                    </select>
+                  </label>
+
+                  {/* عنصر اتجاه الفرز */}
+                  <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
+                    اتجاه الفرز
+                    <select
+                      value={traineeSortDirection}
+                      onChange={(event) => setTraineeSortDirection(event.target.value as "asc" | "desc")}
+                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
+                    >
+                      <option value="asc">تصاعدي (من أ إلى ي / الأصغر للأكبر)</option>
+                      <option value="desc">تنازلي (من ي إلى أ / الأكبر للأصغر)</option>
+                    </select>
+                  </label>
                 </>
               )}
             </>
@@ -1011,53 +972,25 @@ export default function ReportsTab() {
           )}
         </div>
 
-        {/* شريط الإجراءات والطباعة والتصفية السريعة */}
+        {/* شريط الإجراءات والطباعة والتصدير */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-3 sm:p-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 text-sm font-black text-slate-800">
-              {source === "trainee" ? (
-                <UserRound className="h-5 w-5 text-sky-700" />
-              ) : isLoanOrCustody ? (
-                <Wallet className="h-5 w-5 text-[#1f5f7a]" />
-              ) : (
-                <CalendarDays className="h-5 w-5 text-sky-700" />
-              )}
-              <span>{title}</span>
-              <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-bold text-sky-800">
-                {processedDisplayRows.length} سجل
-              </span>
-            </div>
-
-            {/* حقل البحث والتصفية السريعة وزر إلغاء الفرز */}
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="تصفية سريعة..."
-                  className="w-36 sm:w-48 rounded-xl border border-slate-300 bg-white py-1 pr-8 pl-3 text-xs font-bold text-slate-900 outline-none transition focus:border-sky-600 focus:ring-1 focus:ring-sky-600"
-                />
-              </div>
-
-              {(sortConfig || searchTerm) && (
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  title="إلغاء الفرز والتصفية"
-                  className="flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 transition hover:bg-rose-100"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                  <span>إلغاء الفرز</span>
-                </button>
-              )}
-            </div>
+          <div className="flex items-center gap-2 text-sm font-black text-slate-800">
+            {source === "trainee" ? (
+              <UserRound className="h-5 w-5 text-sky-700" />
+            ) : isLoanOrCustody ? (
+              <Wallet className="h-5 w-5 text-[#1f5f7a]" />
+            ) : (
+              <CalendarDays className="h-5 w-5 text-sky-700" />
+            )}
+            <span>{title}</span>
+            <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-bold text-sky-800">
+              {displayRows.length} سجل
+            </span>
           </div>
 
           <TabActions
             title={title}
-            rows={processedReportRows}
+            rows={reportRows}
             columns={sourceConfig.columns}
             fileName={
               source === "youssefLoan"
@@ -1077,7 +1010,7 @@ export default function ReportsTab() {
 
         {/* جدول عرض التقرير */}
         <div className="overflow-x-auto p-3 sm:p-4">
-          {processedDisplayRows.length === 0 ? (
+          {displayRows.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm font-bold text-slate-600">
               <FileText className="mx-auto mb-2 h-8 w-8 text-slate-400" />
               لا توجد حركات مسجلة للخيارات المحددة في الحساب الجاري.
@@ -1088,24 +1021,35 @@ export default function ReportsTab() {
                 <tr>
                   <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold">م</th>
                   {sourceConfig.columns.map((column) => {
-                    const isSorted = sortConfig?.key === column.key;
+                    const isSortActive = source === "trainee" && traineeSortColumn === column.key;
                     return (
                       <th
                         key={column.key}
-                        onClick={() => handleSort(column.key)}
-                        className="cursor-pointer select-none border border-[#1f5f7a] px-3 py-2.5 font-bold transition hover:bg-[#1a445e]"
-                        title="انقر لفرز العمود (تصاعدي / تنازلي)"
+                        onClick={() => {
+                          if (source === "trainee") {
+                            if (traineeSortColumn === column.key) {
+                              setTraineeSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+                            } else {
+                              setTraineeSortColumn(column.key);
+                              setTraineeSortDirection("asc");
+                            }
+                          }
+                        }}
+                        className={`border border-[#1f5f7a] px-3 py-2.5 font-bold ${
+                          source === "trainee" ? "cursor-pointer hover:bg-[#1a4b64] select-none transition-colors" : ""
+                        }`}
+                        title={source === "trainee" ? "انقر للفرز تصاعدياً أو تنازلياً" : undefined}
                       >
                         <div className="flex items-center justify-center gap-1.5">
                           <span>{column.label}</span>
-                          {isSorted ? (
-                            sortConfig.direction === "asc" ? (
-                              <ArrowUp className="h-3.5 w-3.5 text-emerald-300" />
-                            ) : (
-                              <ArrowDown className="h-3.5 w-3.5 text-emerald-300" />
-                            )
-                          ) : (
-                            <ArrowUpDown className="h-3 w-3 text-slate-300/60 hover:text-white" />
+                          {source === "trainee" && (
+                            <span className="text-[11px] font-black opacity-90">
+                              {isSortActive ? (
+                                traineeSortDirection === "asc" ? "▲" : "▼"
+                              ) : (
+                                <span className="opacity-40 hover:opacity-100">⇅</span>
+                              )}
+                            </span>
                           )}
                         </div>
                       </th>
@@ -1114,8 +1058,8 @@ export default function ReportsTab() {
                 </tr>
               </thead>
               <tbody>
-                {processedDisplayRows.map((row, index) => {
-                  const isTotal = row.summaryLevel === "total" || row.description === "الإجمالي الكلي" || row.category === "الإجمالي الكلي لجميع الرسوم";
+                {displayRows.map((row, index) => {
+                  const isTotal = row.summaryLevel === "total" || row.description === "الإجمالي الكلي";
                   const isOpening = row.summaryLevel === "opening";
 
                   let rowStyle = "hover:bg-sky-50/50";
