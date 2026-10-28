@@ -1058,7 +1058,7 @@ export default function ReportsTab() {
           <table className="w-full min-w-[900px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm">
             <thead className="bg-[#0f283a] text-white">
               <tr>
-                <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold">م</th>
+                <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white">م</th>
                 {sourceConfig.columns.map((column) => {
                   const isSortActive = activeSortColumn === column.key;
                   return (
@@ -1076,12 +1076,12 @@ export default function ReportsTab() {
                       className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
                       title="انقر للفرز تصاعدياً أو تنازلياً"
                     >
-                      <div className="flex items-center justify-center gap-1.5">
+   <div className="flex items-center justify-center gap-1.5">
      <span className="font-bold text-white">{column.label}</span>
                         <span className="text-[11px] font-bold text-white opacity-90">
                           {isSortActive ? (activeSortDirection === "asc" ? "▲" : "▼") : (<span className="opacity-40 hover:opacity-100 text-white">⇅</span>)}
                         </span>
-                      </div>
+      </div>
                     </th>
                   );
                 })}
