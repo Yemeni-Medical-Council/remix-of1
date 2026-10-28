@@ -1073,10 +1073,10 @@ export default function ReportsTab() {
                           else { setSortColumn(column.key); setSortDirection("asc"); }
                         }
                       }}
-                      className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
+   className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
                       title="انقر للفرز تصاعدياً أو تنازلياً"
                     >
-  <div className="flex items-center justify-center gap-1.5">
+  <div className="flex items-center justify-center gap-1.5 text-white">
   <span className="text-white font-bold">{column.label}</span>
 
 <span className="text-[11px] font-bold text-white">
