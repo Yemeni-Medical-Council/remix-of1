@@ -103,7 +103,7 @@ const amountValue = (value: unknown) => Number(value) || 0;
 const canonicalFeeCategory = (value: unknown) => {
   const text = String(value || "")
     .trim()
-    .replace(/[ًٌٍَُِّْـ]/g, "")
+    .replace(/[ًٌٍَُِّْـ]/g, "")
     .replace(/[إأآ]/g, "ا")
     .replace(/\s+/g, " ");
   if (!text) return "رسوم أخرى";
@@ -1076,12 +1076,12 @@ export default function ReportsTab() {
                       className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
                       title="انقر للفرز تصاعدياً أو تنازلياً"
                     >
-   <div className="flex items-center justify-center gap-1.5">
-     <span className="font-bold text-white">{column.label}</span>
-                        <span className="text-[11px] font-bold text-white opacity-90">
-                          {isSortActive ? (activeSortDirection === "asc" ? "▲" : "▼") : (<span className="opacity-40 hover:opacity-100 text-white">⇅</span>)}
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span className="text-white font-bold">{column.label}</span>
+                        <span className="text-[11px] font-bold text-white">
+                          {isSortActive ? (activeSortDirection === "asc" ? "▲" : "▼") : (<span className="text-white opacity-70">⇅</span>)}
                         </span>
-      </div>
+                      </div>
                     </th>
                   );
                 })}
