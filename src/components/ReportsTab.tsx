@@ -1058,11 +1058,11 @@ export default function ReportsTab() {
           <table className="w-full min-w-[900px] border-collapse overflow-hidden rounded-2xl text-center text-xs sm:text-sm">
             <thead className="bg-[#0f283a] text-white">
               <tr>
-                <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white">م</th>
+<th className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white">م</th>
                 {sourceConfig.columns.map((column) => {
                   const isSortActive = activeSortColumn === column.key;
                   return (
-                    <th
+  <th className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white"
                       key={column.key}
                       onClick={() => {
                         if (source === "trainee") {
@@ -1076,16 +1076,18 @@ export default function ReportsTab() {
                       className="border border-[#1f5f7a] px-3 py-2.5 font-bold text-white cursor-pointer hover:bg-[#1a4b64] select-none transition-colors"
                       title="انقر للفرز تصاعدياً أو تنازلياً"
                     >
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span className="text-white font-bold">{column.label}</span>
-                        <span className="text-[11px] font-bold text-white">
-                          {isSortActive ? (activeSortDirection === "asc" ? "▲" : "▼") : (<span className="text-white opacity-70">⇅</span>)}
-                        </span>
+  <div className="flex items-center justify-center gap-1.5">
+  <span className="text-white font-bold">{column.label}</span>
+
+<span className="text-[11px] font-bold text-white">
+ {isSortActive ? (activeSortDirection === "asc" ? "▲" : "▼") : (
+  <span className="text-white opacity-70">⇅</span>)}
+               </span>
                       </div>
                     </th>
                   );
                 })}
-                <th className="border border-[#1f5f7a] px-1 py-2.5 font-bold text-white print:hidden" style={{ width: "44px" }} title="حذف مؤقت">حذف</th>
+<th className="border border-[#1f5f7a] px-1 py-2.5 font-bold text-white print:hidden" style={{ width: "44px" }} title="حذف مؤقت">حذف</th>
               </tr>
               {/* صف التصفية — يظهر على الشاشة فقط */}
               <tr className="bg-slate-200/80 print:hidden">
