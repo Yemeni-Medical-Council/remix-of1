@@ -1077,7 +1077,7 @@ export default function ReportsTab() {
                       title="انقر للفرز تصاعدياً أو تنازلياً"
                     >
                       <div className="flex items-center justify-center gap-1.5">
-                        <span>{column.label}</span>
+     <span className="font-bold text-white">{column.label}</span>
                         <span className="text-[11px] font-bold text-white opacity-90">
                           {isSortActive ? (activeSortDirection === "asc" ? "▲" : "▼") : (<span className="opacity-40 hover:opacity-100 text-white">⇅</span>)}
                         </span>
