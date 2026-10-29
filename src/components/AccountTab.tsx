@@ -1132,7 +1132,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                       />
                     </th>
                   ))}
-                  <th className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap"></th>
+                  <th className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-xl whitespace-normal"></th>
                 </tr>
               </thead>
 
@@ -1148,7 +1148,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                   </tr>
                 ) : (
                   filteredWithBalance.map((acc, index) => (
-<tr key={acc.id} className="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors group">
+<tr key={acc.id} classNam ="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors group">
 <td className="border border-black text-center font-mono tabular-nums numeric-cell px-1 py-1.5 sm:px-2 sm:py-2 text-xm sm:text-base whitespace-nowrap">
                         {index + 1}
  </td>
@@ -1170,7 +1170,8 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
  <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+<td className="w-50% max-w-0
+auto border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.description || "—"}
                       </td>
  <td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
@@ -1182,7 +1183,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
 <td className="w-auto border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {Number(acc.hafizaAmount) > 0 ? fmt(Number(acc.hafizaAmount)) : "—"}
                       </td>
-                      <td className="border border-black font-mono tabular-nums numeric-cell font-black text-center bg-[#1E8E5A]/[0.09] px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+                      <td className="border border-black font-mono tabular-nums numeric-cell font-black text-center bg-[#808000]/[0.09] px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {Number(acc.income) > 0 ? fmt(Number(acc.income)) : "—"}
                       </td>
                       <td className="border border-black font-mono tabular-nums numeric-cell font-black text-center bg-[#D14343]/[0.10] px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
@@ -1208,7 +1209,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                         </select>
                       </td>
 
-<td className="border border-black font-bold tabular-nums numeric-cell font-bold text-center text-white bg-[#1f5f7a] px-1 py-1.5 sm:px-2 sm:py-2 text-xm whitespace-nowrap">
+<td className="border border-black font-bold tabular-nums numeric-cell font-bold text-center text-white bg-[#FA8072] px-1 py-1.5 sm:px-2 sm:py-2 text-xm whitespace-nowrap">
                         {fmt(acc.balance)}
                       </td>
                       <td className="accounts-print-hide border border-black text-center px-1 py-1.5 sm:px-2 sm:py-2 text-xs whitespace-nowrap">
