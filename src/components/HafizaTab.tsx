@@ -195,20 +195,21 @@ export default function HafizaTab() {
       dir="rtl"
     >
       {/* الترويسة الرئيسية */}
-      <div className="rounded-2xl p-3.5 mb-3.5 bg-white/95 backdrop-blur-md border border-1-black shadow-md">
+      <div className="rounded-2xl p-3.5 mb-3.5 bg-emerald-50/80 backdrop-blur-md border border-black shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/30">
             <Wallet className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-base sm:text-lg font-extrabold text-slate-900">لوحة حوافـظ التوريـد</h1>
-            <p className="text-[13px] sm:text-xs text-slate-500">إدارة وتدقيق حوافظ التوريد</p>
+<h1 className="text-base sm:text-lg font-extrabold text-slate-900">تبويب حــوافـظ
+التوريـد</h1>
+  <p className="text-[13px] sm:text-xs text-slate-500">إدارة وتدقيق حوافظ التوريد</p>
           </div>
         </div>
       </div>
 
       {/* شريط الأزرار الرئيسي - كل سطر يحتوي على زرين */}
-      <div className="mb-3.5 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-1-black shadow-md">
+      <div className="mb-3.5 bg-#cdd5ae backdrop-blur-md p-3 rounded-2xl border border-black shadow-md">
         <div className="grid grid-cols-2 gap-2.5">
           {/* السطر 1: زر النموذج وزر نسخ المبالغ */}
           <button
@@ -248,15 +249,15 @@ export default function HafizaTab() {
 
       {/* نموذج إضافة حافظة */}
       <div className={`transition-all duration-300 ${showForm ? "max-h-[1400px] mb-3.5 opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
-        <Card className="border border-1-black rounded-2xl bg-sky/55 backdrop-blur-md shadow-lg overflow-hidden">
-          <CardHeader className="p-3.5 pb-2 border-b border-1-black bg-slate-50/50">
+        <Card className="border border-black rounded-2xl bg-sky/200 backdrop-blur-md shadow-lg overflow-hidden">
+  <CardHeader className="p-3.5 pb-2 border border-black bg-slate-50/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+     <div className="w-8 h-8 rounded-lg bg-teal-400 text-black-700 flex items-center justify-center font-bold">
                   <Plus className="w-4 h-4" />
                 </div>
-        <div>
-<CardTitle className="text-sm sm:text-base font-bold text-slate-900">إدخال حافظة توريد جديدة</CardTitle>
+   <div>
+     <CardTitle className="text-sm sm:text-base font-bold text-slate-900">إدخال حافظة توريد جديدة</CardTitle>
 <CardDescription className="text-[11px] text-slate-500">لادخال حافظة توريد جديدة بشكل سريع وسهل
 </CardDescription>
                 </div>
