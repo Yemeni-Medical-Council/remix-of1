@@ -704,12 +704,12 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
 
  {/*شريط العنوان */}
   <div className="accounts-print-hide relative flex items-center justify-between p-3 rounded-xl border border-black shadow-sm overflow-hidden" style={{ background: "linear-gradient(120deg, #0d1b2a, #1b263b 60%, #415a77)"}}>
-  <span className="absolute inset-x-0 top-0 h-1" style={{ background: "linear-gradient(90deg, #1f5f7a, #6aa5c8)" }} />
+  <span className="absolute inset-x-0 top-0 h-1" style={{ background: "linear-gradient(145deg, #1f5f7a, #6aa5c8)" }} />
   <div>
-    <h1 className={`${HEADING_MOBILE} text-[#0f2f44] text-xl font-bold tracking-tight`}>
+    <h1 className={`${HEADING_MOBILE} text-[#fff] text-xl font-bold tracking-tight`}>
      تبويب الحساب الجاري 
     </h1>
-    <p className="text-xs text-[#5b7d90] font-bold tracking-wide mt-0.5">
+    <p className="text-xs text-teal/900 font-bold tracking-wide mt-0.5">
       سجل حركات الحساب الجاري ومعاملاتها المالية
     </p>
   </div>
@@ -721,7 +721,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
   </div>
 </div>
       {/* ===== بطاقات الإجماليات ===== */}
-<div className="accounts-print-hide grid grid-cols-3 gap-2 bg-sky/300 border border-black">
+<div className="accounts-print-hide grid grid-cols-3 gap-2 bg-sky-300 border border-black">
   <LedgerStat
    label="إجمالي الإيرادات"
     style={{
@@ -757,19 +757,18 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
 </div>
       {/* ===== التقارير الدورية ===== */}
 <div
-  className="accounts-print-hide w-full rounded-2xl overflow-hidden border shadow-sm"
+  className="accounts-print-hide w-full rounded-2xl overflow-hidden border border-black shadow-sm"
   style={{
-    background: "linear-gradient(160deg, #eef6fb, #d7e7f0)",
-    borderColor: THEME.softBorder,
+    background: "linear-gradient(160deg, #eef6fb, #d7e7f0)"
   }}
 >
   <div
-    className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
-    style={{ background: "rgba(255,255,255,0.55)", borderColor: THEME.softBorder }}
+    className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border border-black"
+    style={{ background: "rgba(255,255,255,200.55)"}}
   >
     <div>
       <h2 className="text-base font-black text-[#1a2a3a] tracking-wide">
-        تقارير الحساب الدورية
+        تقاريـر الحســاب الدوريـة
       </h2>
       <p className="text-xs text-[#5b7d90] font-bold mt-1">
         اختر الربع أو النصف أو السنة ثم صدّر التقرير
@@ -786,7 +785,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
             setAccountReportMode(nextMode);
             setAccountReportPeriod(1);
           }}
-          className="block mt-1 px-2 py-2 border border-black bg-[#1a2a3a] text-[#d2b48c] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
+          className="block mt-1 px-2 py-2 border border-black bg-[#8ac926] text-[#d2b48c] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
         >
           <option value="quarter">ربع سنوي</option>
           <option value="halfYear">نصف سنوي</option>
@@ -800,7 +799,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
           <select
             value={accountReportPeriod}
             onChange={(e) => setAccountReportPeriod(Number(e.target.value))}
-            className="block mt-1 px-3 py-2 border border-black bg-[#1a2a3a] text-[#d2b48c] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
+            className="block mt-1 px-3 py-2 border border-black bg-[#8ac926] text-[#d2b48c] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
           >
             {accountReportMode === "quarter" ? (
               <>
@@ -825,16 +824,16 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
           type="number"
           value={accountReportYear}
           onChange={(e) => setAccountReportYear(Number(e.target.value) || accountReportYear)}
-          className="block mt-1 w-24 px-2 py-2 border border-black bg-[#1a2a3a] text-[#d2b48c] text-xs font-bold font-mono text-center rounded-lg outline-none focus:border-[#c5a059]"
+          className="block mt-1 w-24 px-2 py-2 border border-black bg-[#8ac926] text-[#d2b48c] text-xs font-bold font-mono text-center rounded-lg outline-none focus:border-[#c5a059]"
         />
       </label>
 
-      <div className="text-xs font-black text-[#1f5f7a] px-2 py-2 bg-[#dcecf5] rounded-lg border" style={{ borderColor: THEME.softBorder }}>
+      <div className="text-xs font-black text-[#000] px-2 py-2 bg-[#ff595e] rounded-lg border border-black" style={{ }}>
         {accountReportLabel}
       </div>
 
-      <TabActions
-        title={`تقرير الحساب الجاري - ${accountReportLabel}`}
+<TabActions title={`تقرير 
+الحساب الجاري - ${accountReportLabel}`}
         rows={accountReportRows}
         columns={COLS.filter((c) => c.key !== "revenueKey")}
         fileName={`الحساب-الجاري-${accountReportYear}`}
@@ -848,15 +847,14 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
       {/* ===== لوحة القيد اليدوي والمطابقة ===== */}
       
 <div
-  className="accounts-print-hide w-full rounded-2xl overflow-hidden border shadow-sm"
+  className="accounts-print-hide bolder border-black w-full rounded-2xl overflow-hidden border  shadow-sm"
   style={{
-    background: "linear-gradient(160deg, #eef6fb, #dcecf5)",
-    borderColor: THEME.softBorder,
+    background: "linear-gradient(160deg, #eef6fb, #dcecf5)"
   }}
 >
 <div
-className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
-    style={{ background: "rgba(255,255,255,0.55)", borderColor: THEME.softBorder }}
+className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border border-black"
+    style={{ background: "rgba(255,255,255,266.55)" }}
   >
     <div className="flex items-center gap-2.5">
       <div
@@ -871,24 +869,22 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
     </div>
 
     <div className="web-only-actions">
-      <WebActionMenu
-        label="إجراءات الإدخال والمطابقة"
-        actions={accountEntryWebActions}
+<WebActionMenu label="
+إجراءات الإدخال والمطابقة"
+actions={accountEntryWebActions}
       />
     </div>
 
     <div className="apk-only-actions flex items-center gap-2.5 flex-wrap">
       <button
         onClick={handleSyncFromHafiza}
-        className={`${BTN_MOBILE} flex items-center justify-center gap-2 rounded-full font-black border shadow-sm transition-all bg-gradient-to-r from-[#dcecf5] to-[#cfe4ef] text-[#1f5f7a]`}
-        style={{ borderColor: THEME.softBorder }}
-      >
+        className={`${BTN_MOBILE} flex items-center justify-center gap-2 rounded-full font-black border shadow-sm transition-all bg-gradient-to-r from-[#dcecf5] to-[#d3a373] text-[#ffffff]`}>
         <Zap className={`${ICON_MOBILE} text-[#1f5f7a]`} />
-        <span className="text-sm">مطابقة شاملة ٢٠٢٦</span>
+<span className="text-sm">مطابقة شاملة ٢٠٢٦</span>
       </button>
 
       <label
-        className={`${BTN_MOBILE} relative flex items-center justify-center gap-2 rounded-full border px-3 py-2 cursor-pointer font-bold shadow-sm bg-gradient-to-r from-[#eef6fb] to-[#e2eef7] text-[#0f2f44]`}
+        className={`${BTN_MOBILE} relative flex items-center justify-center gap-2 rounded-full border px-3 py-2 cursor-pointer font-bold shadow-sm bg-gradient-to-r from-[#8C9B86] to-[#e2eef7] text-[#ffffff]`}
         style={{ borderColor: THEME.softBorder }}
       >
         <FileSpreadsheet className={`${ICON_MOBILE} text-[#1f5f7a]`} />
@@ -905,7 +901,7 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
 
   <div className="p-2 sm:p-5">
     {/* شبكة الحقول - حقلين في كل سطر */}
-  <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3 items-end">
+  <div className="grid grid-cols-3 sm:grid-cols-2.5 gap-2 sm:gap-3 items-end">
       <Field
         label="التاريخ"
         type="date"
@@ -1088,8 +1084,8 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
                 مسح مرشحات التصفية
               </button>
             )}
-            <TabActions
-              title="كشف الحساب الجاري"
+<TabActions title="كشف الحساب 
+الجاري"
               rows={filteredWithBalance}
               columns={COLS.filter((c) => c.key !== "revenueKey")}
               fileName="الحساب-الجاري"
@@ -1104,10 +1100,10 @@ className="px-4 py-3 flex flex-wrap justify-between items-center gap-3 border-b"
 
 <div className="p-1.5 sm:p-3">
 <div className="overflow-x-auto overflow-y-auto max-h-[72vh] relative rounded-xl">
-<table className="w-100% table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
-<thead className="w-auto min-w-0 sticky top-0 z-20 text-[#0f2f44] font-black text-[16px]" style={{ background: THEME.warmCream }}>
+<table className="w-auto table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
+<thead className="w-auto max-w-0 sticky top-0 z-20 text-[#0f2f44] font-black text-[16px]">
                 <tr>
-<th className="border border-black text-center
+<th className="border border-black text-center bg-[8E5B42]
 sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">م</th>
                   {COLS.map((c) => (
                     <th
