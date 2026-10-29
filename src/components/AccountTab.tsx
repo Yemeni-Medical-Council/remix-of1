@@ -785,7 +785,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
             setAccountReportMode(nextMode);
             setAccountReportPeriod(1);
           }}
-          className="block mt-1 px-2 py-2 border border-black bg-[#8ac926] text-[#d2b48c] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
+          className="block mt-1 px-2 py-2 border border-black bg-linear-gradient(135deg, #C5A059 0%, rgba(255, 255, 255, 0.65) 50%, #C5A059 100%) text-[#000] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
         >
           <option value="quarter">ربع سنوي</option>
           <option value="halfYear">نصف سنوي</option>
