@@ -798,7 +798,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
           <select
             value={accountReportPeriod}
             onChange={(e) => setAccountReportPeriod(Number(e.target.value))}
-            className="block mt-1 px-3 py-2 border border-black bg-[#8ac926] text-[#d2b48c] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
+            className="block mt-1 px-3 py-2 border border-black bg-[#D4AF37] text-[#000] text-xs font-bold rounded-lg outline-none focus:border-[#c5a059]"
           >
             {accountReportMode === "quarter" ? (
               <>
