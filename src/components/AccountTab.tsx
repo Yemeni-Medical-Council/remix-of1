@@ -703,13 +703,13 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
       <style>{PRINT_STYLES}</style>
 
  {/*شريط العنوان */}
-  <div className="accounts-print-hide relative flex items-center justify-between p-3 rounded-xl border border-black shadow-sm overflow-hidden" style={{ background: "linear-gradient(120deg, #0d1b2a, #1b263b 60%, #415a77)"}}>
+  <div className="accounts-print-hide relative flex items-center justify-between p-3 rounded-xl border border-black shadow-sm overflow-hidden" style={{ background: "linear-gradient(120deg, #0055FF, #0EA5E9 60%, #4F46E5)"}}>
   <span className="absolute inset-x-0 top-0 h-1" style={{ background: "linear-gradient(145deg, #1f5f7a, #6aa5c8)" }} />
   <div>
     <h1 className={`${HEADING_MOBILE} text-[#fff] text-xl font-bold tracking-tight`}>
      تبويب الحساب الجاري 
     </h1>
-    <p className="text-xs text-teal/900 font-bold tracking-wide mt-0.5">
+    <p className="text-xs text-gold font-bold tracking-wide mt-0.5">
       سجل حركات الحساب الجاري ومعاملاتها المالية
     </p>
   </div>
@@ -823,7 +823,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
           type="number"
           value={accountReportYear}
           onChange={(e) => setAccountReportYear(Number(e.target.value) || accountReportYear)}
-          className="block mt-1 w-24 px-2 py-2 border border-black bg-[#8ac926] text-[#d2b48c] text-xs font-bold font-mono text-center rounded-lg outline-none focus:border-[#c5a059]"
+          className="block mt-1 w-24 px-2 py-2 border border-black bg-[#FFD700] text-[#000] text-xs font-bold font-mono text-center rounded-lg outline-none focus:border-[#c5a059]"
         />
       </label>
 
