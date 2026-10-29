@@ -142,7 +142,7 @@ const reportsTabPrintCss = `
     background: #0f283a !important;
     color: #ffffff !important;
     font-weight: 900 !important;
-    font-size: 13.5px !important;
+    font-size: 15.5px !important;
     padding: 6px 4px !important;
     white-space: normal !important;
     word-break: keep-all !important;
@@ -160,7 +160,7 @@ const reportsTabPrintCss = `
     color: #000000 !important;
     font-weight: 800 !important;
     border: 1px solid #e2e8f0 !important;
-    font-size: 13.5px !important;
+    font-size: 15.5px !important;
     padding: 4px 5px !important;
     text-align: center !important;
   }
@@ -205,7 +205,7 @@ const reportsTabPrintCss = `
     vertical-align: middle !important;
     font-weight: 900 !important;
     padding: 7px 6px !important;
-    font-size: 13px !important;
+    font-size: 18px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     white-space: nowrap !important;
@@ -246,12 +246,12 @@ const reportsTabPrintCss = `
   #tableContainer table td,
   #report-source table th,
   #report-source table td {
-    border: 1px solid #000000 !important;
+    border: 1px solid #ffffff !important;
   }
   @media print {
     #tableContainer table th,
     #tableContainer table td {
-      border: 1px solid #000000 !important;
+      border: 1px solid #ffffff !important;
     }
   }
 `;

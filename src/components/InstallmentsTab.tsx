@@ -2975,16 +2975,16 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
         pdfCss={INSTALLMENTS_SUMMARY_REPORT_CSS}
         additionalWebActions={installments2026WebActions}
 className="grid grid-cols-3 border border-1-black gap-2 w-full flex 
-[&>button]:w-full
+[&>button]:w-auto 
 [&>button]:min-w-auto
 [&>button]:justify-center 
 [&>button]:px-2 
-   [&>button]:py-1.5 [&>button]:text-sm [&>button]:font-bold [&>button]:rounded-md [&>button]:shadow"
+[&>button]:py-1.5 [&>button]:text-xs [&>button]:font-bold [&>button]:rounded-md [&>button]:shadow"
       />
 
       {/* السطر 6: زر تنزيل PDF تفصيلي (يمتد عبر العرض الكامل لختام المجموعة) */}
       <button
-        className="apk-only-actions w-auto flex-items-center justify-center gap-1 px-3 py-2 bg-[#10528e] text-white rounded-md text-sm font-bold shadow-sm hover:bg-[#0d4272] active:scale-95 transition-all disabled:opacity-50"
+        className="apk-only-actions min-w-auto flex-items-center justify-center gap-1 px-3 py-2 bg-[#10528e] text-white rounded-md text-sm font-bold shadow-sm hover:bg-[#0d4272] active:scale-95 transition-all disabled:opacity-50"
         type="button"
         onClick={handleDetailedPdf2026}
         disabled={detailedPdfBusy2026}
@@ -3007,9 +3007,9 @@ className="grid grid-cols-3 border border-1-black gap-2 w-full flex
 <table className="installments-table w-auto min-w-auto table-auto text-xs sm:text-base font-semibold">
 <thead className="bg-gradient-to-b from-sky-300 via-sky-400 to-sky-500 font-extrabold border-b-2 border-sky-700 text-black sticky top-0 z-20 shadow-md">
                 <tr>
- <th className="text-center whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-xl sm:!text-base text-black border-l border-sky-700/30">#</th>
+ <th className="text-center whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-xl sm:!text-base text-white border-l border-sky-700/30">#</th>
                   <th
-className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transition-colors !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base text-black border-l border-sky-700/30"
+className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transition-colors !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base text-white border-l border-sky-700/30"
                     onClick={() => handleSort2026("name")}
                   >
                     <div className="flex items-center justify-center gap-1">

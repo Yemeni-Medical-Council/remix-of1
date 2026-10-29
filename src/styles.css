@@ -227,7 +227,7 @@ overflow-wrap:anywhere !important;
   .accounts-ledger-table .accounts-ledger-description > span {
     display:-webkit-box;
     -webkit-box-orient:vertical;
-    -webkit-line-clamp: 2;
+    
     overflow:hidden;
   }
 
@@ -249,7 +249,7 @@ overflow-wrap:anywhere !important;
   .journal-ledger-table .journal-ledger-description > span {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 2px;
     overflow: hidden;
   }
 
@@ -387,7 +387,7 @@ table td > * {
   }
 
   .a4-landscape-page {
-    width: 100% !important;
+    width: 100% !important ;
     min-height:auto !important;
     margin: 0 !important;
     padding: 0 !important;
