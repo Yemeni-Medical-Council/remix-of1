@@ -877,8 +877,8 @@ actions={accountEntryWebActions}
     <div className="apk-only-actions flex items-center gap-2.5 flex-wrap">
       <button
         onClick={handleSyncFromHafiza}
-        className={`${BTN_MOBILE} flex items-center justify-center gap-2 rounded-full font-black border shadow-sm transition-all bg-gradient-to-r from-[#dcecf5] to-[#d3a373] text-[#ffffff]`}>
-        <Zap className={`${ICON_MOBILE} text-[#1f5f7a]`} />
+        className={`${BTN_MOBILE} flex items-center justify-center gap-2 rounded-full font-black border shadow-sm transition-all bg-[#B87333] text-[#ffffff]`}>
+        <Zap className={`${ICON_MOBILE} text-[#000]`} />
 <span className="text-sm">مطابقة شاملة ٢٠٢٦</span>
       </button>
 
