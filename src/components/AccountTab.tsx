@@ -883,7 +883,7 @@ actions={accountEntryWebActions}
       </button>
 
       <label
-        className={`${BTN_MOBILE} relative flex items-center justify-center gap-2 rounded-full border px-3 py-2 cursor-pointer font-bold shadow-sm bg-gradient-to-r from-[#8C9B86] to-[#e2eef7] text-[#ffffff]`}
+        className={`${BTN_MOBILE} relative flex items-center justify-center gap-2 rounded-full border px-3 py-2 cursor-pointer font-bold shadow-sm bg-[#8C4A32] text-[#ffffff]`}
         style={{ borderColor: THEME.softBorder }}
       >
         <FileSpreadsheet className={`${ICON_MOBILE} text-[#1f5f7a]`} />
