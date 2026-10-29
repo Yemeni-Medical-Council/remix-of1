@@ -160,17 +160,32 @@ export const reportContainmentCss = `
     width: 100%; 
     max-width: auto; 
   }
-  .report-page-content th, .report-page-content td {
-    min-width: auto !important; 
-    padding: 4px 5px !important;
+  .report-page-content th
+  {
+  min-width: auto !important;
+padding: 4px 5px!important;
+margin: 0 !important;
+text-align: center !important;
+vertical-align: middle !important;
+font-family: Cairo !important;
+font-size: 14px !important;
+font-weight: 800!important;
+line-height: 1.35!important;
+border: 1px solid #000000 !important;
+    color: #ffffff !important;
+  }
+  .report-page-content td {
+   min-width: auto !important;
+  padding: 4px 5px !important;
     margin: 0 !important;
-    text-align: center !important;
-    vertical-align: middle !important; 
-    font-family: Cairo !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    line-height: 1.35 !important;
-    border: 1px solid #000000 !important;
+text-align: center !important;
+vertical-align: middle !important; 
+font-family: Cairo !important;
+font-size: 14px !important;
+font-weight: 800 !important;
+line-height: 1.35 !important;
+border: 1px solid #000000 !important;
+
   }
   .report-page-content thead th { 
     font-size: 14.5px !important; 
