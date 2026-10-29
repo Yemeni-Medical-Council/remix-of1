@@ -164,7 +164,7 @@ const PRINT_STYLES = `
   .accounts-print-area th,
   .accounts-print-area td {
     border: 1px solid #000 !important;
-    white-space: nowrap!important;
+  white-space: normal !important;
     text-overflow: clip !important;
     overflow-wrap: anywhere !important;
     word-break: break-word !important;
@@ -174,7 +174,7 @@ const PRINT_STYLES = `
     line-height: 1.1 !important;
     font-size: 16px !important;
     height: auto !important;
-    max-width: none !important;
+    max-width: auto !important;
     color: #000 !important;
   }
   .accounts-print-area td.numeric-cell,
@@ -703,30 +703,30 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
       <style>{PRINT_STYLES}</style>
 
  {/*شريط العنوان */}
-<div className="accounts-print-hide relative flex items-center justify-between p-3 rounded-xl border shadow-sm overflow-hidden" style={{ background: "linear-gradient(120deg, #eef6fb, #dcecf5 60%, #cfe4ef)", borderColor: THEME.softBorder }}>
+  <div className="accounts-print-hide relative flex items-center justify-between p-3 rounded-xl border border-black shadow-sm overflow-hidden" style={{ background: "linear-gradient(120deg, #0d1b2a, #1b263b 60%, #415a77)"}}>
   <span className="absolute inset-x-0 top-0 h-1" style={{ background: "linear-gradient(90deg, #1f5f7a, #6aa5c8)" }} />
   <div>
     <h1 className={`${HEADING_MOBILE} text-[#0f2f44] text-xl font-bold tracking-tight`}>
-      الحساب الجاري
+     تبويب الحساب الجاري 
     </h1>
     <p className="text-xs text-[#5b7d90] font-bold tracking-wide mt-0.5">
-      سجل الحركات المالية المُرحّلة
+      سجل حركات الحساب الجاري ومعاملاتها المالية
     </p>
   </div>
 
-  <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/70 border shadow-sm" style={{ borderColor: THEME.softBorder }}>
-    <Landmark className={`${ICON_MOBILE} text-[#1f5f7a]`} />
-    <span className="text-sm text-[#0f2f44] font-bold">عدد القيود</span>
-    <span className="text-[#1f5f7a] font-mono text-base tabular-nums font-black">{accounts.length}</span>
+  <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-red/70 border border-black shadow-sm" style={{ }}>
+    <Landmark className={`${ICON_MOBILE} text-[#white]`} />
+    <span className="text-sm text-[#ffffff] font-bold">عدد القيود</span>
+    <span className="text-[#000] font-mono text-base tabular-nums font-black">{accounts.length}</span>
   </div>
 </div>
       {/* ===== بطاقات الإجماليات ===== */}
-<div className="accounts-print-hide grid grid-cols-2 gap-2">
+<div className="accounts-print-hide grid grid-cols-3 gap-2 bg-sky/300 border border-black">
   <LedgerStat
    label="إجمالي الإيرادات"
     style={{
-      background: "linear-gradient(135deg, #e9f7f0, #d3eee2)",
-      borderColor: "rgba(22,107,78,0.18)"
+      background: "linear-gradient(100deg, #e9f7f0, #d3eee2)",
+      borderColor: "#000"
     }}
     value={totalIncome}
     tone="income"
@@ -736,8 +736,8 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
   <LedgerStat
  label="إجمالي المصروفات"
     style={{
-      background: "linear-gradient(135deg, #fdeeee, #f7dcdc)",
-      borderColor: "rgba(156,61,61,0.18)"
+      background: "linear-gradient(100deg, #fdeeee, #f7dcdc)",
+      borderColor: "#000"
     }}
     value={totalExpense}
     tone="expense"
@@ -747,8 +747,8 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
   <LedgerStat
     label="الرصيد الحالي"
     style={{
-      background: "linear-gradient(135deg, #e8f2fa, #d5e8f5)",
-      borderColor: "rgba(31,95,122,0.18)"
+      background: "linear-gradient(100deg, #e8f2fa, #d5e8f5)",
+      borderColor: "#000"
     }}
     value={currentBalance}
     tone="balance"
