@@ -209,7 +209,7 @@ export default function HafizaTab() {
       </div>
 
       {/* شريط الأزرار الرئيسي - كل سطر يحتوي على زرين */}
-      <div className="mb-3.5 bg-#cdd5ae backdrop-blur-md p-3 rounded-2xl border border-black shadow-md">
+      <div className="mb-3.5 bg-[#cdd5ae] backdrop-blur-md p-3 rounded-2xl border border-black shadow-md">
         <div className="grid grid-cols-2 gap-2.5">
           {/* السطر 1: زر النموذج وزر نسخ المبالغ */}
           <button
@@ -224,14 +224,14 @@ export default function HafizaTab() {
           <button
             type="button"
             onClick={handleCopyAmountsToNotify}
-            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-sky-500 to-blue-600 shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/40 active:scale-95 transition-all"
+            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border border-black text-white bg-gradient-to-r from-sky-500 to-blue-600 shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/40 active:scale-95 transition-all"
           >
             <CheckSquare className="w-4 h-4" />
             نسخ للإشعار
           </button>
 
           {/* السطر 2: زر الاستيراد وزر مسح الكل */}
-          <div className="flex items-center justify-center rounded-xl overflow-hidden bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/25 hover:shadow-lg active:scale-95 transition-all">
+          <div className="flex items-center justify-center rounded-xl overflow-hidden bg-gradient-to-r from-indigo-900 to-violet-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/25 hover:shadow-lg active:scale-95 transition-all">
             <ImportButton kind="hafiza" />
           </div>
 
@@ -250,7 +250,7 @@ export default function HafizaTab() {
       {/* نموذج إضافة حافظة */}
       <div className={`transition-all duration-300 ${showForm ? "max-h-[1400px] mb-3.5 opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}>
         <Card className="border border-black rounded-2xl bg-sky/200 backdrop-blur-md shadow-lg overflow-hidden">
-  <CardHeader className="p-3.5 pb-2 border border-black bg-slate-50/50">
+  <CardHeader className="p-3.5 pb-2 border border-black bg-slate-200/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
      <div className="w-8 h-8 rounded-lg bg-teal-400 text-black-700 flex items-center justify-center font-bold">
@@ -266,7 +266,7 @@ export default function HafizaTab() {
           </CardHeader>
 
           <CardContent className="p-3 sm:p-4">
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5">
+ <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 bg-teal/200 border border-black">
               {/* السطر 1: الاسم الكامل | الدفعة */}
               <div className="relative">
                 <label className="text-sm font-bold text-slate-800 block mb-1">الاسم الكامل *</label>
@@ -344,11 +344,8 @@ className="w-full text-center px-3 py-2 hover:bg-sky-50 text-xs sm:text-xs flex 
             </div>
 
             {/* أزرار الحفظ والمسح - سطر يحتوي على زرين */}
-            <div className="mt-4 pt-3.5 border border-1-black grid grid-cols-2 gap-3 bg-#00b4d8">
-              <button
-                type="button"
-                onClick={submit}
-                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md shadow-emerald-600/30 hover:shadow-lg active:scale-95 transition-all"
+            <div className="mt-4 pt-3.5 border border-black grid grid-cols-2 gap-3 bg-#00b4d8">
+ <button type="button"onClick={submit} className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md shadow-emerald-600/30 hover:shadow-lg active:scale-95 transition-all"
               >
                 <Save className="w-4 h-4" /> حفظ الحافظة
               </button>
@@ -358,7 +355,7 @@ className="w-full text-center px-3 py-2 hover:bg-sky-50 text-xs sm:text-xs flex 
                   setForm(empty);
                   setNameQuery("");
                 }}
-                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-slate-600 to-slate-700 shadow-md shadow-slate-600/30 hover:shadow-lg active:scale-95 transition-all"
+                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-slate-200 to-slate-500 shadow-md shadow-slate-600/30 hover:shadow-lg active:scale-95 transition-all"
               >
                 <Eraser className="w-4 h-4" /> مسح المدخلات
               </button>
@@ -368,16 +365,18 @@ className="w-full text-center px-3 py-2 hover:bg-sky-50 text-xs sm:text-xs flex 
       </div>
 
       {/* جدول كشف القيود والحوافظ */}
-      <Card className="border border-1-black rounded-2xl bg-#ffca3a backdrop-blur-md shadow-lg overflow-hidden">
-        <CardHeader className="p-3.5 border border-1-black bg-slate-50/90">
+      <Card className="border border-black rounded-2xl bg-[#ffca3a] backdrop-blur-md shadow-lg overflow-hidden">
+<CardHeader className="p-3.5 border border-black bg-sky-500/200">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
+ <div className="w-8 h-8 rounded-lg bg-sky-5,00 text-black-700 flex items-center justify-center font-bold border border-black">
                 <FileText className="w-4 h-4" />
               </div>
               <div>
-                <CardTitle className="text-sm sm:text-base font-bold text-slate-900">كشف قيود الحوافظ</CardTitle>
-<CardDescription classNam="text-[11px] text-slate-500">كشف  حوافظ التوريد وسجلاتها</CardDescription>
+<CardTitle className="text-sm sm:text-base font-bold text-slate-900">كشف قيود الحوافظ</CardTitle>
+<CardDescription classNam="text-[11px] text-slate-900">كشف 
+حوافظ التوريد وسجلاتها
+</CardDescription>
               </div>
 <Badge className="bg-sky-600 hover:bg-sky-700 text-white font-mono text-[11px] px-2 py-0.5 rounded-lg shadow-sm">
                 {filtered.length} سجل
@@ -389,9 +388,9 @@ className="w-full text-center px-3 py-2 hover:bg-sky-50 text-xs sm:text-xs flex 
                 value={filters.name || ""}
                 onChange={(e) => setFilter("name", e.target.value)}
  placeholder="بحث بالاسم..."
- className="px-3 py-1.5 rounded-xl text-xm bg-white text-slate-900 border border-1-black shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 w-full sm:w-0"/>
+ className="px-3 py-1.5 rounded-xl text-xm bg-emerald text-slate-900 border border-black shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-400 w-full"/>
 {Object.values(filters).some(Boolean) && (
- <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-rose-1000 hover:bg-rose-50 rounded-lg">
+ <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-white-1000 hover:bg-green-50 rounded-lg">
                   <X className="w-4 h-4" />
                 </Button>
               )}
@@ -400,10 +399,10 @@ className="w-full text-center px-3 py-2 hover:bg-sky-50 text-xs sm:text-xs flex 
           </div>
         </CardHeader>
 
-        <CardContent className="p-0">
+  <CardContent className="p-0">
 <div className="w-auto overflow-auto max-h-[72vh]">
-<Table className="w-auto table-auto text-center border-collapse border border-1-black">
- <TableHeader className="bg-#faedcd sticky top-0 z-10 border-b border-slate-200 whitespace-normal">
+<Table className="w-auto table-auto text-center border-collapse border border-black">
+ <TableHeader className="bg-[#faedcd] sticky top-0 z-10 border-b border-slate-200 whitespace-normal">
                 <TableRow>
 <TableHead className="w-auto text-center font-bold text-slate-800">م</TableHead>
                   {COLS.map((c) => (
