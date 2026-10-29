@@ -41,7 +41,7 @@ export const reportDocumentCss = `
   th, td { padding: 4px 5px; text-align: center; vertical-align: middle; border: 1px solid #000000 !important; }
   thead th { 
     background: #047958 !important; 
-    color: #000 !important; 
+    color: #fff !important; 
     font-weight: 900;
   }
   tbody tr:nth-child(even) td { background: #f8fafc; }

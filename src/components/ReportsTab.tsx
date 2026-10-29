@@ -251,7 +251,7 @@ const reportsTabPrintCss = `
   @media print {
     #tableContainer table th,
     #tableContainer table td {
-      border: 1px solid #ffffff !important;
+      border: 1px solid #000 !important;
     }
   }
 `;
