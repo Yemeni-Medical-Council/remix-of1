@@ -1102,7 +1102,7 @@ actions={accountEntryWebActions}
 <table className="w-auto table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
 <thead className="w-auto max-w-0 sticky top-0 z-20 text-[#0f2f44] font-black text-[16px]">
                 <tr>
-<th className="border border-black text-center bg-[8E5B42]
+<th className="border border-black text-center bg-[#40E0D0]
 sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">م</th>
                   {COLS.map((c) => (
                     <th
@@ -1118,12 +1118,12 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                       </div>
                     </th>
                   ))}
-                  <th className="border border-black text-center sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">إجراءات</th>
+                  <th className="border border-black text-center sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">إجراءات</th>
                 </tr>
                 <tr className="accounts-print-hide" style={{ background: THEME.cream }}>
- <th className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap"></th>
+ <th className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal"></th>
                   {COLS.map((c) => (
- <th key={c.key} className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+ <th key={c.key} className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                       <input
                         value={filters[c.key] || ""}
                         onChange={(e) => setFilter(c.key, e.target.value)}
@@ -1170,7 +1170,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
  <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-300px min-w-auto border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+<td className="w-300px min-w-200px border border-black text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.description || "—"}
                       </td>
  <td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
