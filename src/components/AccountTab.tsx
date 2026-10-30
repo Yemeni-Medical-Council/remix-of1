@@ -1099,7 +1099,7 @@ actions={accountEntryWebActions}
 
 <div className="p-1.5 sm:p-3">
 <div className="overflow-x-auto overflow-y-auto max-h-[72vh] relative rounded-xl">
-<table className="w-auto max-w-auto table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
+<table className="w-auto table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
 <thead className="w-auto max-w-0 sticky bg-[#40E0D0] top-0 z-20 text-[#0f2f44] font-black text-[16px] whitespace-normal">
                 <tr>
 <th className="border border-black text-center
@@ -1107,7 +1107,7 @@ sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">م</th>
 {COLS.map((c) => (
   <th key={c.key}
     className={`border border-black cursor-pointer hover: transition-colors select-none sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm ${
-      c.key === "description" ? "w-[100px] max-w-[90px] min-w-[90px]" : ""
+      c.key === "description" ? "w-[100px] max-w-[90px] min-w-[80px]" : ""
     }`}
     onClick={() => toggleSort(c.key)}
   >
@@ -1172,11 +1172,9 @@ className ="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors 
  <td className="border border-black : tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-[100px] min-w[90px] border border-black font-bold text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm">
-<div 
-    className="line-clamp-2 leading-snug break-words" 
-    title={acc.description} // لإظهار النص كاملاً عند تمرير الفأرة
-  >
+<td className="w-[100px] max-w-[90px] min-w-[80px] border border-black font-bold text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm">
+<div className="line-clamp-2 leading-snug break-words" 
+    title={acc.description}>
     {acc.description || "—"}
   </div>
   </td>
