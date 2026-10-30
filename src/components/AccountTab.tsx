@@ -1107,12 +1107,7 @@ sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">م</th>
 {COLS.map((c) => (
  <th key={c.key}
 className="border border-black cursor-pointer hover: transition-colors select-none sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm"
-c.key === "description" ? "w-[150px] max-w-[150px] min-w-[140px]" : ""
-    }`}
-    onClick={() => toggleSort(c.key)}
-  >
-                      onClick={() => toggleSort(c.key)}
-                    >
+ onClick={() => toggleSort(c.key)}>
  <div className="flex items-center justify-center gap-1.5">
   <span>{c.label}</span>
  <span className="text-[14px] text-[#1f5f7a] font-mono">
