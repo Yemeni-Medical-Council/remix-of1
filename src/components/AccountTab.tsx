@@ -1172,7 +1172,7 @@ className ="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors 
  <td className="border border-black : tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-[150px] max-w-[140px] min-w-[130px] border border-black font-bold text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm">
+<td className="w-[200px] max-w-[180px] min-w-[170px] border border-black font-bold text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm">
 <div className="line-clamp-2 leading-snug break-words" 
     title={acc.description}>
     {acc.description || "—"}
