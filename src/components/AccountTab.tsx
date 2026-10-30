@@ -1106,7 +1106,7 @@ actions={accountEntryWebActions}
 sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">م</th>
 {COLS.map((c) => (
  <th key={c.key}
-className="border border-black cursor-pointer hover: transition-colors select-none sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm"
+className="w-[180px] max-w[200px] border border-black cursor-pointer hover: transition-colors select-none sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm"
                       onClick={() => toggleSort(c.key)}
                     >
  <div className="flex items-center justify-center gap-1.5">
@@ -1169,7 +1169,7 @@ className ="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors 
  <td className="border border-black : tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-auto border border-black font-bold text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+<td className="w-[180px] max-w[200px] border border-black font-bold text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.description || "—"}
                       </td>
  <td className="w-auto border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
