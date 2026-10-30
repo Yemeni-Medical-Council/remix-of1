@@ -1170,7 +1170,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
  <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-100px min-w-50px border border-black text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+<td className="w-100px min-w-0 border border-black text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.description || "—"}
                       </td>
  <td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
