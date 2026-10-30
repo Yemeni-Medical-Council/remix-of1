@@ -279,8 +279,8 @@ function Field({
   className?: string;
 }) {
   return (
-    <div className="w-full">
-      <label className="block text-sm font-black text-[#0f2f44]/70 mb-1.5 mr-0.5 tracking-wide">
+    <div className="w-auto">
+<label className="block text-sm font-black text-[#000] mb-1.5 mr-0.5 tracking-wide">
         {label}
       </label>
       <div className="relative flex items-center">
@@ -324,7 +324,7 @@ function LedgerStat({
 
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-xs sm:text-sm font-black text-[#5b7d90] tracking-wide">{label}</span>
+          <span className="text-xs sm:text-sm font-black text-[#000] tracking-wide">{label}</span>
           <div className={`text-base sm:text-2xl font-black font-mono tabular-nums numeric-cell mt-0.5 sm:mt-1.5 ${t.textClass}`}>
             {fmt(value)}
           </div>
@@ -574,7 +574,7 @@ String(row.description ?? "").includes("الرصيد الافتتاحي ");
         : `السنة المالية ${accountReportYear}م`;
 
   const accountReportRows = useMemo(() => {
-const isOpeningRow = (row: any) => String(row.description ?? "").includes("ابرصيد الافتتاحي");
+const isOpeningRow = (row: any) => String(row.description ?? "").includes("الرصيد الافتتاحي");
     const openingRow = accounts.find(isOpeningRow);
     let openingBalance = openingRow ? Number(openingRow.income) || 0 : 0;
     const periodRows: any[] = [];
@@ -682,7 +682,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
     onSelect: () => undefined,
     content: (
       <label className="flex w-full relative cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#166b4e] bg-gradient-to-r from-[#e9f7f0] to-[#d3eee2] border shadow-sm hover:from-[#dcefe5] hover:to-[#c5e6d5] transition-all duration-200">
-        <FileSpreadsheet className={`${ICON_MOBILE} text-[#166b4e]`} />
+        <FileSpreadsheet className={`${ICON_MOBILE} text-[#000]`} />
         <span>استيراد Excel</span>
         <input
           type="file"
@@ -767,7 +767,7 @@ const isOpeningRow = (row: any) => String(row.description ?? "").includes("اب�
     style={{ background: "rgba(255,255,255,200.55)"}}
   >
     <div>
-      <h2 className="text-base font-black text-[#1a2a3a] tracking-wide">
+      <h2 className="text-base font-black text-[#1a2a3a] tracking-wide text-lg">
         تقاريـر الحســاب الدوريـة
       </h2>
       <p className="text-xs text-[#5b7d90] font-bold mt-1">
@@ -1099,11 +1099,11 @@ actions={accountEntryWebActions}
 
 <div className="p-1.5 sm:p-3">
 <div className="overflow-x-auto overflow-y-auto max-h-[72vh] relative rounded-xl">
-<table className="w-auto table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
-<thead className="w-auto max-w-0 sticky top-0 z-20 text-[#0f2f44] font-black text-[16px] whitespace-normal">
+<table className="w-auto max-w-auto table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
+<thead className="w-auto max-w-0 sticky bg-[#40E0D0] top-0 z-20 text-[#0f2f44] font-black text-[16px] whitespace-normal">
                 <tr>
-<th className="border border-black text-center bg-[#40E0D0]
-sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">م</th>
+<th className="border border-black text-center
+sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">م</th>
 {COLS.map((c) => (
  <th key={c.key}
 className="border border-black cursor-pointer hover: transition-colors select-none sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm"
@@ -1120,14 +1120,14 @@ className="border border-black cursor-pointer hover: transition-colors select-no
 <th className="border border-black text-center sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">إجراءات
 </th>
 </tr>
-<tr className="accounts-print-hide bg-[#cfe4ef] whitespace-normal">
+<tr className="accounts-print-hide bg-[#cfe4ef]">
  <th className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal"></th>
 {COLS.map((c) => (
  <th key={c.key} className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
   <input value={filters[c.key] || ""}
 onChange={(e) => setFilter(c.key, e.target.value)}
 placeholder="تصفية..."
- className="w-auto min-w-0 max-w-auto px-1 py-1 text-xs border rounded bg-white text-[#0f2f44] outline-none focus:border-[#0f2f44] font-bold transition-colors"
+ className="w-5 min-w-0 max-w-auto px-1 py-1 text-xs border rounded bg-white text-[#0f2f44] outline-none focus:border-[#0f2f44] font-bold transition-colors"
                       />
                     </th>
                   ))}
@@ -1138,7 +1138,7 @@ placeholder="تصفية..."
 <tbody className="text-[#0f2f44] font-bolder whitespace-normal">
   {filteredWithBalance.length === 0 ? (
   <tr>
- <td colSpan={COLS.length + 2}
+     <td colSpan={COLS.length + 2}
 className="text-center font-black border border-black bg-white px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal"
                     >
                       لا توجد بيانات تطابق مرشحات البحث.
@@ -1266,7 +1266,7 @@ className ="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors 
         onClose={() => setEditingRow(null)}
       >
         {editingRow && (
-<form onSubmit={handleEditSave} className="space-y-20">
+<form onSubmit={handleEditSave} className="space-y-30">
 <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
    <div>
   <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">التاريخ</label>
