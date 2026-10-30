@@ -147,7 +147,7 @@ const PRINT_STYLES = `
     border-collapse: collapse !important;
     width: 100% !important;
     min-width:auto !important;
-    table-layout:auto!important;
+  table-layou: auto !important;
   }
   .accounts-print-area thead th {
     color: white !important;
@@ -1100,55 +1100,54 @@ actions={accountEntryWebActions}
 <div className="p-1.5 sm:p-3">
 <div className="overflow-x-auto overflow-y-auto max-h-[72vh] relative rounded-xl">
 <table className="w-auto table-auto text-xm xm:text-base text-center font-semibold border-collapse border-2 border-black">
-<thead className="w-auto max-w-0 sticky top-0 z-20 text-[#0f2f44] font-black text-[16px]">
+<thead className="w-auto max-w-0 sticky top-0 z-20 text-[#0f2f44] font-black text-[16px] whitespace-normal">
                 <tr>
 <th className="border border-black text-center bg-[#40E0D0]
 sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">م</th>
-                  {COLS.map((c) => (
-                    <th
-                      key={c.key}
-className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colors select-none sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm"
+{COLS.map((c) => (
+ <th key={c.key}
+className="border border-black cursor-pointer hover: transition-colors select-none sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm"
                       onClick={() => toggleSort(c.key)}
                     >
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span>{c.label}</span>
-                        <span className="text-[14px] text-[#1f5f7a] font-mono">
+ <div className="flex items-center justify-center gap-1.5">
+  <span>{c.label}</span>
+ <span className="text-[14px] text-[#1f5f7a] font-mono">
                           {sortIndicator(sortKey === c.key, sortDir)}
                         </span>
                       </div>
                     </th>
                   ))}
-                  <th className="border border-black text-center sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">إجراءات</th>
-                </tr>
-                <tr className="accounts-print-hide" style={{ background: THEME.cream }}>
+<th className="border border-black text-center sticky top-0 z-20 px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">إجراءات
+</th>
+</tr>
+<tr className="accounts-print-hide bg-[#cfe4ef] whitespace-normal">
  <th className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal"></th>
-                  {COLS.map((c) => (
+{COLS.map((c) => (
  <th key={c.key} className="border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
-                      <input
-                        value={filters[c.key] || ""}
-                        onChange={(e) => setFilter(c.key, e.target.value)}
-                        placeholder="تصفية..."
- className="w-7 min-w-0 max-w-auto px-1 py-1 text-xs border rounded bg-white text-[#0f2f44] outline-none focus:border-[#0f2f44] font-bold transition-colors"
+  <input value={filters[c.key] || ""}
+onChange={(e) => setFilter(c.key, e.target.value)}
+placeholder="تصفية..."
+ className="w-auto min-w-0 max-w-auto px-1 py-1 text-xs border rounded bg-white text-[#0f2f44] outline-none focus:border-[#0f2f44] font-bold transition-colors"
                       />
                     </th>
                   ))}
-<th className="w-auto bg-[#0F52BA] border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-lg whitespace-normal"></th>
+<th className="bg-[#0F52BA] border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-lg whitespace-normal"></th>
                 </tr>
               </thead>
 
-              <tbody className="text-[#0f2f44] font-bolder">
-                {filteredWithBalance.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={COLS.length + 2}
-                      className="text-center font-black border border-black bg-white px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap"
+<tbody className="text-[#0f2f44] font-bolder whitespace-normal">
+  {filteredWithBalance.length === 0 ? (
+  <tr>
+ <td colSpan={COLS.length + 2}
+className="text-center font-black border border-black bg-white px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal"
                     >
                       لا توجد بيانات تطابق مرشحات البحث.
                     </td>
                   </tr>
                 ) : (
-                  filteredWithBalance.map((acc, index) => (
-<tr key={acc.id} classNam ="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors group">
+filteredWithBalance.map((acc, index) => (
+<tr key={acc.id} 
+className ="odd:bg-white even:bg-[#f4fafd] hover:bg-[#e3f0f7] transition-colors group">
 <td className="border border-black text-center font-mono tabular-nums numeric-cell px-1 py-1.5 sm:px-2 sm:py-2 text-xm sm:text-base whitespace-nowrap">
                         {index + 1}
  </td>
@@ -1167,16 +1166,16 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                       <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkNo || "—"}
                       </td>
- <td className="border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
+ <td className="border border-black : tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-nowrap">
                         {acc.checkDate || "—"}
                       </td>
-<td className="w-0 max-w-0 border border-black text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+<td className="w-auto border border-black font-bold text-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.description || "—"}
                       </td>
- <td className="w-auto min-w-0 border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+ <td className="w-auto border border-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.specialty || "—"}
                       </td>
-<td className="w-auto min-w-0 border border-black font-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
+<td className="w-auto border border-black font-black px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
                         {acc.name || "—"}
                       </td>
 <td className="w-auto border border-black font-mono tabular-nums numeric-cell text-center px-1 py-1.5 sm:px-2 sm:py-2 text-sm whitespace-normal">
@@ -1268,9 +1267,9 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
       >
         {editingRow && (
 <form onSubmit={handleEditSave} className="space-y-20">
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">التاريخ</label>
+<div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
+   <div>
+  <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">التاريخ</label>
                 <input
                   type="date"
                   value={editingRow.date}
@@ -1304,8 +1303,8 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
                   className="w-full p-2 text-[15px] border rounded-xl outline-none bg-white text-[#0f2f44] font-bold focus:border-[#0f2f44]"
                 />
               </div>
-              <div className="sm:col-span-2">
- <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">البيان والشرح</label>
+<div className="sm:col-span-2">
+ <label className="w-full  block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">البيان والشرح</label>
                 <input
                   value={editingRow.description}
                   onChange={(e) => setEditingRow({ ...editingRow, description: e.target.value })}
