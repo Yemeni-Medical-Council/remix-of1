@@ -1267,7 +1267,7 @@ className="border border-black cursor-pointer hover:bg-[#cfe4ef] transition-colo
         onClose={() => setEditingRow(null)}
       >
         {editingRow && (
-<form onSubmit={handleEditSave} className="space-y-9">
+<form onSubmit={handleEditSave} className="space-y-20">
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-black text-[#0f2f44]/70 mb-1 tracking-wide">التاريخ</label>
