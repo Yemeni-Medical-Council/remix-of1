@@ -49,15 +49,17 @@ const QUARTERS = [
   { key: "p4", label: "المدة الرابعة", months: [9, 10, 11] },
 ];
 
-const YEAR_DEFAULT = 2026;
-const STORAGE_KEY = "expenses-data-v1";
+const LEGACY_STORAGE_KEY = "expenses-data-v1";
+const STORAGE_KEY = (year: number) => `expenses-data-v2-${year}`;
 
 type Cell = { f: number;r: number };
 type Store = Record < string, Cell > ;
 const emptyCell: Cell = { f: 0, r: 0 };
 
-function loadStore(): Store {
-  const raw = localStorage.getItem(STORAGE_KEY);
+function loadStore(year: number): Store {
+  const key = STORAGE_KEY(year);
+  let raw = localStorage.getItem(key);
+  if (raw === null) raw = localStorage.getItem(LEGACY_STORAGE_KEY);
   if (raw === null) return {};
 
   const parsed: unknown = JSON.parse(raw);
@@ -67,6 +69,7 @@ function loadStore(): Store {
 
   const result: Store = {};
   for (const [key, value] of Object.entries(parsed)) {
+    if (!key.startsWith(`${year}-`)) continue;
     if (!value || typeof value !== "object") {
       throw new Error(`Invalid expense cell: ${key}`);
     }
@@ -81,8 +84,8 @@ function loadStore(): Store {
   return result;
 }
 
-function saveStore(s: Store) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+function saveStore(s: Store, year: number) {
+  localStorage.setItem(STORAGE_KEY(year), JSON.stringify(s));
 }
 
 const isLeaf = (r: Row) => r.lv === "type";
@@ -363,34 +366,42 @@ export default function ExpensesTab() {
   const [store, setStore] = useState<Store>({});
   const [storageReady, setStorageReady] = useState(false);
   const [storageBlocked, setStorageBlocked] = useState(false);
+  const loadedYear = React.useRef<number | null>(null);
   const accounts = useStore((state) => state.accounts);
   const { reportDate, reportDateLabel } = useReportDate();
-  const [year] = useState < number > (YEAR_DEFAULT);
+  const year = useStore((state) => state.selectedYear);
   const [view, setView] = useState < string > ("cover");
   
   useEffect(() => {
+    loadedYear.current = null;
+    setStorageReady(false);
+    setStorageBlocked(false);
     try {
-      setStore(loadStore());
+      const loaded = loadStore(year);
+      setStore(loaded);
+      loadedYear.current = year;
     } catch (error) {
       console.error("[Storage] Unable to load expense data; preserving stored data", error);
+      setStore({});
+      loadedYear.current = year;
       setStorageBlocked(true);
       toast.error("تعذرت قراءة بيانات المصروفات المحفوظة؛ تم إيقاف الحفظ لتجنب استبدالها.");
     } finally {
       setStorageReady(true);
     }
-  }, []);
+  }, [year]);
 
   useEffect(() => {
-    if (!storageReady || storageBlocked) return;
+    if (!storageReady || storageBlocked || loadedYear.current !== year) return;
     try {
-      saveStore(store);
+      saveStore(store, year);
     } catch (error) {
       console.error("[Storage] Failed to persist expense data", error);
       setStorageBlocked(true);
       toast.error("تعذر حفظ بيانات المصروفات؛ التعديلات الحالية لن تُحفظ.");
     }
-  }, [store, storageReady, storageBlocked]);
-  
+  }, [store, storageReady, storageBlocked, year]);
+
   const monthlyLeaves: Cell[][] = useMemo(
     () => {
       const linkedAmounts = new Map < string,
@@ -1072,7 +1083,7 @@ export default function ExpensesTab() {
             onClick={() => {
               if (!confirm("هل أنت متأكد من مسح جميع بيانات المصروفات؟")) return;
               try {
-                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(STORAGE_KEY(year));
                 setStore({});
                 setStorageBlocked(false);
                 setStorageReady(true);

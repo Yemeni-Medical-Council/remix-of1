@@ -107,10 +107,25 @@ export type CustomTab = {
   rows: Record<string, string | number>[];
 };
 
+type AnnualData = {
+  hafiza: Hafiza[];
+  hafizas: Hafiza[];
+  accounts: Account[];
+  journal: Journal[];
+  installments: Installment[];
+  openingBalance: number;
+  revenue: RevenueMap;
+  customTabs: CustomTab[];
+};
+
+export const DEFAULT_FINANCIAL_YEAR = 2026;
+
 // ==========================================
 // 2. واجهة حالة المتجر (State Interface)
 // ==========================================
 type State = {
+  selectedYear: number;
+  annualData: Record<string, AnnualData>;
   trainees: Trainee[];
   hafiza: Hafiza[];
   hafizas: Hafiza[];
@@ -144,17 +159,18 @@ type State = {
   deleteJournal: (id: string) => void;
   clearJournal: () => void;
 
-  addInstallment: (i: Omit<Installment, "totalPaid" | "remaining">, year?: "2025") => void;
-  updateInstallment: (index: number, i: Partial<Installment>, year?: "2025") => void;
-  updateInstallmentPayment: (index: number, month: string, amount: number, year?: "2025") => void;
-  deleteInstallment: (index: number, year?: "2025") => void;
-  clearInstallments: (year?: "2025") => void;
+  addInstallment: (i: Omit<Installment, "totalPaid" | "remaining">, year?: number | "2025") => void;
+  updateInstallment: (index: number, i: Partial<Installment>, year?: number | "2025") => void;
+  updateInstallmentPayment: (index: number, month: string, amount: number, year?: number | "2025") => void;
+  deleteInstallment: (index: number, year?: number | "2025") => void;
+  clearInstallments: (year?: number | "2025") => void;
   recalcAllInstallments: () => void;
   setInstallmentCustomColumns2026: (columns: InstallmentCustomColumn[]) => void;
   setInstallmentConditionalRules2026: (rules: InstallmentConditionalRule[]) => void;
 
   setOpeningBalance: (n: number) => void;
   setRevenue: (year: number, month: number, itemKey: string, amount: number) => void;
+  setSelectedYear: (year: number) => void;
 
   importData: (d: any) => void;
   exportAllData: () => any;
@@ -174,8 +190,8 @@ type State = {
   getAccountById: (id: string) => Account | undefined;
   getTotalIncome: () => number;
   getTotalExpenses: () => number;
-  getOverdueInstallments: (year?: "2025") => Installment[];
-  getInstallmentByIndex: (index: number, year?: "2025") => Installment | undefined;
+  getOverdueInstallments: (year?: number | "2025") => Installment[];
+  getInstallmentByIndex: (index: number, year?: number | "2025") => Installment | undefined;
 
   syncHafizaToAccount: (hafiza: Hafiza) => void;
   syncExpenseToAccount: (expense: {
@@ -196,6 +212,7 @@ let pendingStorageWrite: { name: string; value: string } | null = null;
 let storageWriteTimer: ReturnType<typeof setTimeout> | null = null;
 let storageIsNewerVersion = false;
 let storageReadFailed = false;
+const LEGACY_STORE_NAME = "majlis-yemen-v1";
 
 const reportStorageError = (error: unknown) => {
   console.error("[Storage] Failed to access application data", error);
@@ -220,7 +237,9 @@ const deferredStorage: StateStorage = {
   getItem: (name) => {
     if (typeof window === "undefined") return null;
     try {
-      const raw = window.localStorage.getItem(name);
+      const raw =
+        window.localStorage.getItem(name) ??
+        (name === "majlis-yemen-v2" ? window.localStorage.getItem(LEGACY_STORE_NAME) : null);
       if (raw === null) return null;
       const decoded: unknown = JSON.parse(raw);
       if (
@@ -294,12 +313,118 @@ const recalculateRevenueMap = (accounts: Account[]): RevenueMap => {
   return newRevenue;
 };
 
+const emptyAnnualData = (customTabs: CustomTab[] = []): AnnualData => ({
+  hafiza: [],
+  hafizas: [],
+  accounts: [],
+  journal: [],
+  installments: [],
+  openingBalance: 0,
+  revenue: {},
+  customTabs: customTabs.map((tab) => ({ ...tab, columns: [...tab.columns], rows: [] })),
+});
+
+const annualDataKey = (year: number) => String(year);
+
+const getYearFromValue = (value: unknown, fallback = DEFAULT_FINANCIAL_YEAR): number => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (value >= 30000 && value <= 60000) {
+      return new Date((value - 25569) * 86400000).getUTCFullYear();
+    }
+    if (value >= 1900 && value <= 2200) return Math.trunc(value);
+  }
+  const text = String(value ?? "").trim();
+  const isoYear = text.match(/^(\d{4})[-/.]/);
+  if (isoYear) return Number(isoYear[1]);
+  const dayMonthYear = text.match(/^\d{1,2}[-/.]\d{1,2}[-/.](\d{4})$/);
+  if (dayMonthYear) return Number(dayMonthYear[1]);
+  const parsed = new Date(text);
+  return text && Number.isFinite(parsed.getTime()) ? parsed.getFullYear() : fallback;
+};
+
+const captureAnnualData = (state: Pick<
+  State,
+  | "selectedYear"
+  | "hafiza"
+  | "hafizas"
+  | "accounts"
+  | "journal"
+  | "installments"
+  | "installments2025"
+  | "openingBalance"
+  | "revenue"
+  | "customTabs"
+>): AnnualData => {
+  const hafiza = state.hafiza;
+  return {
+    hafiza,
+    hafizas: hafiza,
+    accounts: state.accounts,
+    journal: state.journal,
+    installments: state.selectedYear === 2025 ? state.installments2025 : state.installments,
+    openingBalance: state.openingBalance,
+    revenue: state.revenue,
+    customTabs: state.customTabs,
+  };
+};
+
+const splitLegacyAnnualData = (legacy: Record<string, any>): Record<string, AnnualData> => {
+  const years: Record<string, AnnualData> = {};
+  const ensure = (year: number) => {
+    const key = annualDataKey(year);
+    years[key] ??= emptyAnnualData();
+    return years[key];
+  };
+
+  const legacyHafiza = Array.isArray(legacy.hafiza)
+    ? legacy.hafiza
+    : Array.isArray(legacy.hafizas)
+      ? legacy.hafizas
+      : [];
+  legacyHafiza.forEach((row: Hafiza) => {
+    const target = ensure(getYearFromValue(row?.date));
+    target.hafiza.push(row);
+    target.hafizas = target.hafiza;
+  });
+  (Array.isArray(legacy.accounts) ? legacy.accounts : []).forEach((row: Account) => {
+    ensure(getYearFromValue(row?.date || row?.notifyDate)).accounts.push(row);
+  });
+  (Array.isArray(legacy.journal) ? legacy.journal : []).forEach((row: Journal) => {
+    ensure(getYearFromValue(row?.date)).journal.push(row);
+  });
+
+  const genericInstallments = Array.isArray(legacy.installments)
+    ? legacy.installments
+    : (seedInstallments as Installment[]).map(recalcInstallment);
+  ensure(DEFAULT_FINANCIAL_YEAR).installments = genericInstallments;
+  if (Array.isArray(legacy.installments2025)) {
+    ensure(2025).installments = legacy.installments2025;
+  }
+
+  if (legacy.revenue && typeof legacy.revenue === "object" && !Array.isArray(legacy.revenue)) {
+    Object.entries(legacy.revenue as Record<string, number>).forEach(([key, value]) => {
+      const year = getYearFromValue(key.split("-")[0], DEFAULT_FINANCIAL_YEAR);
+      ensure(year).revenue[key] = Number(value) || 0;
+    });
+  }
+
+  const defaultYear = ensure(DEFAULT_FINANCIAL_YEAR);
+  defaultYear.openingBalance = Number(legacy.openingBalance ?? 811664) || 0;
+  if (Array.isArray(legacy.customTabs)) defaultYear.customTabs = legacy.customTabs;
+  if (!years[annualDataKey(DEFAULT_FINANCIAL_YEAR)]) years[annualDataKey(DEFAULT_FINANCIAL_YEAR)] = emptyAnnualData();
+  return years;
+};
+
+const isValidFinancialYear = (year: number) => Number.isInteger(year) && year >= 1900 && year <= 2200;
+
 // ==========================================
 // 4. إنشاء المتجر (Store Creation)
 // ==========================================
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
+      selectedYear: DEFAULT_FINANCIAL_YEAR,
+      annualData: {},
       trainees: seedTrainees as Trainee[],
       hafiza: [],
       hafizas: [],
@@ -313,9 +438,31 @@ export const useStore = create<State>()(
       installmentCustomColumns2026: [],
       installmentConditionalRules2026: [],
 
+      setSelectedYear: (year) => {
+        const nextYear = Number(year);
+        if (!isValidFinancialYear(nextYear)) return;
+        set((state) => {
+          if (state.selectedYear === nextYear) return state;
+          const annualData = {
+            ...state.annualData,
+            [annualDataKey(state.selectedYear)]: captureAnnualData(state),
+          };
+          const target =
+            annualData[annualDataKey(nextYear)] || emptyAnnualData(state.customTabs);
+          return {
+            ...target,
+            selectedYear: nextYear,
+            annualData,
+            installments: nextYear === 2025 ? [] : target.installments,
+            installments2025: nextYear === 2025 ? target.installments : [],
+            hafizas: target.hafiza,
+          };
+        });
+      },
+
       syncHafizaToAccount: (hafiza: Hafiza) => {
         const year = hafiza.date?.split("-")[0];
-        if (year !== "2026") return;
+        if (year && Number(year) !== get().selectedYear) return;
 
         let existingAccount = get().accounts.find((acc) => acc.sourceHafizaId === hafiza.id);
         if (!existingAccount && hafiza.hafizaNo) {
@@ -579,13 +726,13 @@ export const useStore = create<State>()(
           remaining: Number(i.prevDue) || 0,
         } as Installment);
         set((s) => {
-          const key = year === "2025" ? "installments2025" : "installments";
+          const key = Number(year) === 2025 || s.selectedYear === 2025 ? "installments2025" : "installments";
           return { [key]: [...s[key], newInst] };
         });
       },
       updateInstallment: (index, i, year) =>
         set((s) => {
-          const key = year === "2025" ? "installments2025" : "installments";
+          const key = Number(year) === 2025 || s.selectedYear === 2025 ? "installments2025" : "installments";
           return {
             [key]: s[key].map((inst, idx) =>
               idx === index ? recalcInstallment({ ...inst, ...i }) : inst,
@@ -594,7 +741,7 @@ export const useStore = create<State>()(
         }),
       updateInstallmentPayment: (index, month, amount, year) =>
         set((s) => {
-          const key = year === "2025" ? "installments2025" : "installments";
+          const key = Number(year) === 2025 || s.selectedYear === 2025 ? "installments2025" : "installments";
           return {
             [key]: s[key].map((inst, idx) =>
               idx === index
@@ -605,18 +752,19 @@ export const useStore = create<State>()(
         }),
       deleteInstallment: (index, year) =>
         set((s) => {
-          const key = year === "2025" ? "installments2025" : "installments";
+          const key = Number(year) === 2025 || s.selectedYear === 2025 ? "installments2025" : "installments";
           return { [key]: s[key].filter((_, i) => i !== index) };
         }),
       clearInstallments: (year) => {
-        if (year === "2025") set({ installments2025: [] });
-        else set({ installments: [], installments2025: [] });
+        if (Number(year) === 2025 || get().selectedYear === 2025) set({ installments2025: [] });
+        else set({ installments: [] });
       },
       recalcAllInstallments: () =>
-        set((s) => ({
-          installments: s.installments.map(recalcInstallment),
-          installments2025: s.installments2025.map(recalcInstallment),
-        })),
+        set((s) =>
+          s.selectedYear === 2025
+            ? { installments2025: s.installments2025.map(recalcInstallment) }
+            : { installments: s.installments.map(recalcInstallment) },
+        ),
       setInstallmentCustomColumns2026: (columns) => set({ installmentCustomColumns2026: columns }),
       setInstallmentConditionalRules2026: (rules) =>
         set({ installmentConditionalRules2026: rules }),
@@ -625,7 +773,51 @@ export const useStore = create<State>()(
       setRevenue: (year, month, itemKey, amount) =>
         set((s) => ({ revenue: { ...s.revenue, [`${year}-${month}-${itemKey}`]: amount } })),
 
-      importData: (d) =>
+      importData: (d) => {
+        if (d?.annualData && typeof d.annualData === "object") {
+          set((s) => {
+            const annualData = { ...s.annualData };
+            Object.entries(d.annualData as Record<string, unknown>).forEach(([key, value]) => {
+              const year = Number(key);
+              if (!isValidFinancialYear(year) || !value || typeof value !== "object") return;
+              const raw = value as Partial<AnnualData>;
+              const hafiza = Array.isArray(raw.hafiza) ? raw.hafiza : [];
+              annualData[key] = {
+                hafiza,
+                hafizas: hafiza,
+                accounts: Array.isArray(raw.accounts) ? raw.accounts : [],
+                journal: Array.isArray(raw.journal) ? raw.journal : [],
+                installments: Array.isArray(raw.installments)
+                  ? raw.installments.map(recalcInstallment)
+                  : [],
+                openingBalance: Number(raw.openingBalance) || 0,
+                revenue: raw.revenue && typeof raw.revenue === "object" ? raw.revenue : {},
+                customTabs: Array.isArray(raw.customTabs) ? raw.customTabs : [],
+              };
+            });
+            const selectedYear = isValidFinancialYear(Number(d.selectedYear))
+              ? Number(d.selectedYear)
+              : s.selectedYear;
+            const active = annualData[annualDataKey(selectedYear)] || emptyAnnualData(s.customTabs);
+            return {
+              ...active,
+              selectedYear,
+              annualData,
+              trainees: Array.isArray(d.trainees) ? d.trainees : s.trainees,
+              installments: selectedYear === 2025 ? [] : active.installments,
+              installments2025: selectedYear === 2025 ? active.installments : [],
+              hafizas: active.hafiza,
+              installmentCustomColumns2026: Array.isArray(d.installmentCustomColumns2026)
+                ? d.installmentCustomColumns2026
+                : s.installmentCustomColumns2026,
+              installmentConditionalRules2026: Array.isArray(d.installmentConditionalRules2026)
+                ? d.installmentConditionalRules2026
+                : s.installmentConditionalRules2026,
+            };
+          });
+          return;
+        }
+
         set((s) => {
           const importedAccounts = d.accounts
             ? [
@@ -685,32 +877,41 @@ export const useStore = create<State>()(
             installmentConditionalRules2026:
               d.installmentConditionalRules2026 ?? s.installmentConditionalRules2026,
           };
-        }),
+        });
+      },
 
-      exportAllData: () => ({
-        trainees: get().trainees,
-        hafiza: get().hafiza,
-        hafizas: get().hafizas,
-        accounts: get().accounts,
-        journal: get().journal,
-        installments: get().installments,
-        installments2025: get().installments2025,
-        openingBalance: get().openingBalance,
-        revenue: get().revenue,
-        customTabs: get().customTabs,
-        installmentCustomColumns2026: get().installmentCustomColumns2026,
-        installmentConditionalRules2026: get().installmentConditionalRules2026,
-      }),
+      exportAllData: () => {
+        const state = get();
+        return {
+          selectedYear: state.selectedYear,
+          annualData: {
+            ...state.annualData,
+            [annualDataKey(state.selectedYear)]: captureAnnualData(state),
+          },
+          trainees: state.trainees,
+          hafiza: state.hafiza,
+          hafizas: state.hafizas,
+          accounts: state.accounts,
+          journal: state.journal,
+          installments: state.installments,
+          installments2025: state.installments2025,
+          openingBalance: state.openingBalance,
+          revenue: state.revenue,
+          customTabs: state.customTabs,
+          installmentCustomColumns2026: state.installmentCustomColumns2026,
+          installmentConditionalRules2026: state.installmentConditionalRules2026,
+        };
+      },
       clearAll: () =>
-        set({
+        set((s) => ({
           hafiza: [],
           hafizas: [],
           accounts: [],
           journal: [],
-          installments: [],
-          installments2025: [],
+          installments: s.selectedYear === 2025 ? s.installments : [],
+          installments2025: s.selectedYear === 2025 ? [] : s.installments2025,
           revenue: {},
-        }),
+        })),
       clearTab: (tab) =>
         set((s) => {
           if (tab === "hafiza" || tab === "hafizas") return { ...s, hafiza: [], hafizas: [] };
@@ -760,41 +961,74 @@ export const useStore = create<State>()(
       getTotalIncome: () => get().journal.reduce((sum, j) => sum + (j.credit || 0), 0),
       getTotalExpenses: () => get().journal.reduce((sum, j) => sum + (j.debit || 0), 0),
       getOverdueInstallments: (year) => {
-        const key = year === "2025" ? "installments2025" : "installments";
+        const key = Number(year) === 2025 || get().selectedYear === 2025 ? "installments2025" : "installments";
         return get()[key].filter((i: Installment) => i.remaining > 0);
       },
       getInstallmentByIndex: (index, year) => {
-        const key = year === "2025" ? "installments2025" : "installments";
+        const key = Number(year) === 2025 || get().selectedYear === 2025 ? "installments2025" : "installments";
         return get()[key][index];
       },
     }),
     {
-      name: "majlis-yemen-v1",
-      version: 2,
+      name: "majlis-yemen-v2",
+      version: 3,
       storage: createJSONStorage(() => deferredStorage),
       migrate: (persistedState, storedVersion) => {
-        if (storedVersion > 2) {
+        if (storedVersion > 3) {
           storageIsNewerVersion = true;
           reportStorageError(new Error(`Stored data was written by newer version ${storedVersion}`));
         }
-        return (persistedState && typeof persistedState === "object"
+        const persisted = (persistedState && typeof persistedState === "object"
           ? persistedState
-          : {}) as State;
+          : {}) as Record<string, any>;
+        if (storedVersion < 3 || !persisted.annualData) {
+          return {
+            ...persisted,
+            selectedYear: DEFAULT_FINANCIAL_YEAR,
+            annualData: splitLegacyAnnualData(persisted),
+          };
+        }
+        return persisted as State;
       },
-      partialize: (state) => ({
-        trainees: state.trainees,
-        hafiza: state.hafiza,
-        hafizas: state.hafizas,
-        accounts: state.accounts,
-        journal: state.journal,
-        installments: state.installments,
-        installments2025: state.installments2025,
-        openingBalance: state.openingBalance,
-        revenue: state.revenue,
-        customTabs: state.customTabs,
-        installmentCustomColumns2026: state.installmentCustomColumns2026,
-        installmentConditionalRules2026: state.installmentConditionalRules2026,
-      }),
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState && typeof persistedState === "object"
+          ? persistedState
+          : {}) as Partial<State>;
+        const selectedYear = isValidFinancialYear(Number(persisted.selectedYear))
+          ? Number(persisted.selectedYear)
+          : DEFAULT_FINANCIAL_YEAR;
+        const persistedAnnual = persisted.annualData;
+        const annualData = persistedAnnual && typeof persistedAnnual === "object"
+          ? persistedAnnual
+          : splitLegacyAnnualData(persisted as Record<string, any>);
+        const active = annualData[annualDataKey(selectedYear)] || emptyAnnualData();
+        return {
+          ...currentState,
+          ...persisted,
+          ...active,
+          selectedYear,
+          annualData,
+          installments: selectedYear === 2025 ? [] : active.installments,
+          installments2025: selectedYear === 2025 ? active.installments : [],
+          hafizas: active.hafiza,
+        };
+      },
+      partialize: (state) => {
+        const active = captureAnnualData(state);
+        return {
+          selectedYear: state.selectedYear,
+          annualData: {
+            ...state.annualData,
+            [annualDataKey(state.selectedYear)]: active,
+          },
+          trainees: state.trainees,
+          ...active,
+          installments: state.installments,
+          installments2025: state.installments2025,
+          installmentCustomColumns2026: state.installmentCustomColumns2026,
+          installmentConditionalRules2026: state.installmentConditionalRules2026,
+        };
+      },
     },
   ),
 );

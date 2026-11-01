@@ -299,6 +299,7 @@ const SortIcon = ({
 };
 
 export default function InstallmentsTab() {
+  const selectedYear = useStore((state) => state.selectedYear);
   const installments = useStore((state) => state.installments);
   const installments2025 = useStore((state) => state.installments2025);
   const clearInstallments = useStore((state) => state.clearInstallments);
@@ -379,6 +380,14 @@ export default function InstallmentsTab() {
   } | null > (null);
   const [editRowData, setEditRowData] =
   useState < any > ({});
+  React.useEffect(() => {
+    setPage2025(0);
+    setPage2026(0);
+    setSearch2025("");
+    setSearch2026("");
+    setEditRowModal(null);
+    setEditRowData({});
+  }, [selectedYear]);
   
   const extraCols2026 = installmentCustomColumns2026 || EMPTY_INSTALLMENT_CUSTOM_COLUMNS;
   const [newColModal, setNewColModal] =
@@ -872,12 +881,12 @@ export default function InstallmentsTab() {
           "اسم المتدرب",
           "الدفعة",
           "المساق",
-          "المتبقي من 2025",
+          `المتبقي من ${year - 1}`,
           "الرسوم",
           ...monthsList,
           ...extraCols.map((c) => c
             .name),
-          "مسدد 2026",
+          `مسدد ${year}`,
           "الرصيد المتبقي",
           "الحالة",
         ];
@@ -1024,15 +1033,15 @@ export default function InstallmentsTab() {
         { key: "specialty",
           label: "المساق" },
       ];
-    if (year === 2026) opts
+    if (year !== 2025) opts
   .push({ key: "prevDue",
-      label: "مدور 2025" });
+      label: `مدور ${year - 1}` });
     opts.push({ key: "fees",
       label: "الرسوم" });
     monthsList.forEach((m) => opts
       .push({ key: `month:${m}`,
         label: m.trim() }));
-    if (year === 2026)
+    if (year !== 2025)
       extraCols2026.forEach((c) =>
         opts.push({ key: `col:${c.name}`,
           label: c.name }));
@@ -1040,7 +1049,7 @@ export default function InstallmentsTab() {
       label: "إجمالي المسدد" });
     opts.push({ key: "remaining",
       label: "الرصيد المتبقي" });
-    if (year === 2026) {
+    if (year !== 2025) {
       opts.push({ key: "status",
         label: "الحالة" });
       opts.push({ key: "notes",
@@ -1115,10 +1124,10 @@ export default function InstallmentsTab() {
           r.specialty || "—"),
         wide: true,
       });
-      if (year === 2026) {
+      if (year !== 2025) {
         allCols.push({
           key: "prevDue",
-          label: "مدور 2025",
+          label: `مدور ${year - 1}`,
           cell: (r) => fmt(
             cleanNumber(r
               .prevDue)),
@@ -1227,7 +1236,7 @@ export default function InstallmentsTab() {
             )),
         tone: "due",
       });
-      if (year === 2026) {
+      if (year !== 2025) {
         allCols.push({
           key: "status",
           label: "الحالة",
@@ -1944,7 +1953,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
     number, name: string) => {
     if (rowIndex < 0) return;
     if (!confirm(
-        `هل أنت متأكد من حذف صف المتدرب "${name}" من جدول 2026؟`
+        `هل أنت متأكد من حذف صف المتدرب "${name}" من جدول ${selectedYear}؟`
         )) return;
     updateInstallments((
       installments || []).filter((
@@ -2200,7 +2209,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
   const importFile = async (e: React
     .ChangeEvent <
     HTMLInputElement > , year:
-    2025 | 2026) => {
+    number) => {
     const input = e.target;
     const file = input.files?.[0];
     if (!file) return;
@@ -2209,7 +2218,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       // تُبطل الملف عند التصفير فتخرج النتيجة فارغة بدون خطأ.
       const formattedData =
         await importInstallmentsInWorker(
-          file, year);
+          file, year as 2025 | 2026);
       if (!formattedData?.length) {
         const msg =
           "لم يتم العثور على أسماء متدربين في الملف — تأكد من وجود عمود «اسم المتدرب» في الصف الأول.";
@@ -2285,7 +2294,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
     }, 0);
 
     // 4. إجمالي المطلوب والمتبقي
-    const dueTotal = year === 2026 ? prevDue + 0 : fees;
+    const dueTotal = year !== 2025 ? prevDue + 0 : fees;
     const remaining = dueTotal - totalPaid;
     const safeName = safePdfFileName(row.name);
 
@@ -2310,9 +2319,9 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       </div>`;
 
     const prevRow =
-      year === 2026
+      year !== 2025
         ? `<tr class="row-due-old">
-            <td class="lbl">متبقي من العام 2025 (مدور)</td>
+            <td class="lbl">متبقي من العام ${year - 1} (مدور)</td>
             <td class="num">${escapeHtml(fmt(prevDue))}</td>
           </tr>`
         : "";
@@ -2602,14 +2611,14 @@ td.t-fees { background: ${colorTokens.fees} !important; }
   
   const stats2026 = [
   {
-    label: "المدور (متبقي 2025)",
+    label: `المدور (متبقي ${selectedYear - 1})`,
     value: fmt(totals2026.prevDue),
     bgClass: "bg-white",
     borderClass: "border-sky-100",
     accentClass: "bg-sky-600",
   },
   {
-    label: "إجمالي مسدد 2026",
+    label: `إجمالي مسدد ${selectedYear}`,
     value: fmt(totals2026.paid),
     bgClass: "bg-emerald-50/70",
     borderClass: "border-emerald-100",
@@ -2634,7 +2643,7 @@ async () => {
       }
       setDetailedPdfBusy2026(true);
       try {
-        await exportToPDF(2026, { ...
+        await exportToPDF(selectedYear, { ...
           DEFAULT_PRINT_SETTINGS }, { download: true });
       } finally {
         setDetailedPdfBusy2026(false);
@@ -2695,7 +2704,7 @@ async () => {
           <input
             type="file"
             accept=".xlsx,.xls"
-            onChange={(e) => importFile(e, 2026)}
+            onChange={(e) => importFile(e, selectedYear)}
             className="absolute h-0 w-0 opacity-0 overflow-hidden"
           />
         </label>
@@ -2704,10 +2713,10 @@ async () => {
       { label: "تصدير Excel التفصيلي",
         icon: FileSpreadsheet,
         onSelect: () => exportToExcel(
-            2026) },
+            selectedYear) },
       { label: "طباعة تفصيلية",
         icon: Printer, onSelect: () =>
-          setPrintSettingsYear(2026) },
+          setPrintSettingsYear(selectedYear) },
       {
         label: detailedPdfBusy2026 ?
           
@@ -2723,6 +2732,7 @@ async () => {
     <div className="w-full space-y-4 sm:space-y-6 p-0" dir="rtl">
       
 {/* ========== واجهة جدول 2025 ========== */}
+      {selectedYear === 2025 && (
       <div className="w-full bg-gradient-to-b from-sky-50/60 to-white shadow-lg border border-sky-100 rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-l from-sky-800 via-sky-600 to-sky-600 px-2 sm:px-6 py-2.5 sm:py-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center flex-wrap gap-2">
           <div className="min-w-0">
@@ -2991,17 +3001,19 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
           </div>
         </div>
       </div>
-{/* ========== واجهة جدول 2026 ========== */}
+      )}
+      {/* ========== الواجهة العامة لباقي السنوات ========== */}
+      {selectedYear !== 2025 && (
 <div className="w-full bg-gradient-to-b from-sky-50/60 to-white shadow-lg border border-sky-100 rounded-2xl overflow-hidden">
   <div className="bg-gradient-to-l from-sky-800 via-sky-600 to-sky-600 px-4 sm:px-6 py-4 flex flex-col gap-4">
     
     {/* العنوان والوصف */}
     <div className="min-w-0">
       <h2 className="text-xl font-extrabold text-white">
-        📊 سجل أقساط العام الحالي 2026
+        📊 سجل أقساط العام الحالي {selectedYear}
       </h2>
       <p className="text-lg sm:text-sm font-bold text-white/90 mt-1">
-        بيانات المسدد والرصيد المدور لعام 2026
+        بيانات المسدد والرصيد المدور لعام {selectedYear}
       </p>
     </div>
 
@@ -3070,14 +3082,14 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
         <input
           type="file"
           accept=".xlsx,.xls"
-          onChange={(e) => importFile(e, 2026)}
+          onChange={(e) => importFile(e, selectedYear)}
           className="absolute h-0 w-0 opacity-0 overflow-hidden"
         />
       </label>
 
       {/* السطر 4: تصدير إلى Excel + طباعة تفصيلية */}
       <button
-        onClick={() => exportToExcel(2026)}
+        onClick={() => exportToExcel(selectedYear)}
         className={`w-full ${BTN_COMPACT} bg-green-100 text-green-900 rounded-md font-bold shadow hover:bg-green-200 transition-colors flex items-center justify-center gap-1 text-sm`}
       >
         <FileSpreadsheet className={ICON_MOBILE} />
@@ -3085,7 +3097,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
       </button>
 
       <button
-        onClick={() => setPrintSettingsYear(2026)}
+        onClick={() => setPrintSettingsYear(selectedYear)}
         className={`w-full ${BTN_COMPACT} bg-green-800 text-black rounded-md font-bold shadow hover:bg-green-700 transition-colors flex items-center justify-center gap-1 text-sm`}
       >
         <Printer className={ICON_MOBILE} />
@@ -3094,20 +3106,20 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
 
       {/* السطر 5: مكون TabActions (يمتد على العمودين مع تنسيق الأزرار الداخلية 2 في كل سطر) */}
       <TabActions
-        title="أقساط العام 2026"
+        title={`أقساط العام ${selectedYear}`}
         rows={rows2026ForActions}
         columns={[
           { key: "name", label: "اسم المتدرب" },
           { key: "batch", label: "الدفعة" },
           { key: "specialty", label: "المساق" },
-          { key: "prevDue", label: "المتبقي من 2025" },
+          { key: "prevDue", label: `المتبقي من {selectedYear - 1}` },
           { key: "fees", label: "الرسوم" },
           { key: "totalPaid", label: "المسدد" },
           { key: "remaining", label: "المتبقي" },
           { key: "notes", label: "الملاحظات" },
           ...extraCols2026.map((c) => ({ key: c.name, label: c.name })),
         ]}
-        fileName="اقساط-2026"
+        fileName={`اقساط-${selectedYear}`}
         numericKeys={["prevDue", "fees", "totalPaid", "remaining"]}
         onClear={() => clearInstallments()}
         printLabel="الأقساط/إجمالي"
@@ -3130,7 +3142,7 @@ className="grid grid-cols-3 border border-1-black gap-2 w-full flex
         type="button"
         onClick={handleDetailedPdf2026}
         disabled={detailedPdfBusy2026}
-        title="تنزيل تقرير الأقساط التفصيلي لعام 2026"
+        title={`تنزيل تقرير الأقساط التفصيلي لعام ${selectedYear}`}
       >
         <Download
           className={`${ICON_MOBILE} ${
@@ -3185,7 +3197,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                     onClick={() => handleSort2026("prevDue")}
                   >
                     <div className="flex items-center justify-center gap-1">
-                      المتبقي من 2025 <SortIcon sortConfig={sortConfig2026} columnKey="prevDue" />
+                      المتبقي من {selectedYear - 1} <SortIcon sortConfig={sortConfig2026} columnKey="prevDue" />
                     </div>
                   </th>
                   <th
@@ -3234,7 +3246,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                     onClick={() => handleSort2026("totalPaid")}
                   >
                     <div className="flex items-center justify-center gap-1">
-                      مسدد 2026 <SortIcon sortConfig={sortConfig2026} columnKey="totalPaid" />
+                      مسدد {selectedYear} <SortIcon sortConfig={sortConfig2026} columnKey="totalPaid" />
                     </div>
                   </th>
                   <th
@@ -3401,7 +3413,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                             <button
                               onClick={() => {
                                 setEditRowData(r);
-                                setEditRowModal({ year: 2026, row: r, index: originalIndex });
+                                setEditRowModal({ year: selectedYear, row: r, index: originalIndex });
                               }}
                               className="p-1 bg-sky-50 text-amber-600 rounded border border-amber-200 hover:bg-amber-500 hover:text-white transition-colors"
                               title="تعديل الصف"
@@ -3409,14 +3421,14 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                               <Edit className={ICON_MOBILE} />
                             </button>
                             <button
-                              onClick={() => printStatement(r, 2026)}
+                              onClick={() => printStatement(r, selectedYear)}
                               className="p-1 bg-blue-50 text-blue-600 rounded border border-blue-200 hover:bg-blue-500 hover:text-white transition-colors"
                               title="طباعة الكشف"
                             >
                               <Printer className={ICON_MOBILE} />
                             </button>
                             <button
-                              onClick={() => handleExportPdf(r, 2026)}
+                              onClick={() => handleExportPdf(r, selectedYear)}
                               className="p-1 bg-emerald-50 text-emerald-600 rounded border border-emerald-200 hover:bg-emerald-500 hover:text-white transition-colors"
                               title="تنزيل PDF (متوافق مع شاومي)"
                             >
@@ -3479,6 +3491,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
           </div>
 
 
+      )}
       {/* ========== النوافذ المنبثقة ========== */}
 
       <Modal
@@ -3719,10 +3732,10 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
               />
             </div>
           )}
-          {editRowModal?.year === 2026 && (
+          {editRowModal?.year !== 2025 && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                المتبقي من 2025 (المدور)
+                المتبقي من {selectedYear - 1} (المدور)
               </label>
               <input
                 type="number" lang="ar-EG-u-nu-latn" dir="ltr"
@@ -3751,7 +3764,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
       </Modal>
 
       <Modal
-        title="➕ إضافة عمود جديد (2026)"
+        title={`➕ إضافة عمود جديد (${selectedYear})`}
         isOpen={newColModal}
         onClose={() => setNewColModal(false)}
       >
@@ -3831,7 +3844,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
       </Modal>
 
       <Modal
-        title="➕ إضافة طالب جديد لعام 2026"
+        title={`➕ إضافة طالب جديد لعام ${selectedYear}`}
         isOpen={newRowModal2026}
         onClose={() => setNewRowModal2026(false)}
       >
@@ -3884,7 +3897,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                المتبقي من 2025
+                المتبقي من {selectedYear - 1}
               </label>
               <input
                 type="number" lang="ar-EG-u-nu-latn" dir="ltr"
@@ -3912,7 +3925,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
       </Modal>
 
       <Modal
-        title="➕ إضافة قسط جديد - 2026"
+        title={`➕ إضافة قسط جديد - ${selectedYear}`}
         isOpen={newPaymentModal}
         onClose={() => setNewPaymentModal(false)}
       >
@@ -4101,10 +4114,10 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
 
       <PrintSettingsModal
         open={printSettingsYear !== null}
-        year={printSettingsYear ?? 2026}
-        columnOptions={printColumnOptions(printSettingsYear ?? 2026)}
+        year={printSettingsYear ?? selectedYear}
+        columnOptions={printColumnOptions(printSettingsYear ?? selectedYear)}
         onClose={() => setPrintSettingsYear(null)}
-        onPrint={(s) => exportToPDF(printSettingsYear ?? 2026, s)}
+        onPrint={(s) => exportToPDF(printSettingsYear ?? selectedYear, s)}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BarChart3, CalendarDays, FileText, UserRound, Wallet, Coins } from "lucide-react";
 import { useStore, type Account } from "@/lib/store";
 import TabActions, { type TabCol } from "./TabActions";
@@ -38,7 +38,7 @@ const MONTHS: string[] = [
 const TRAINEE_REPORT_START_YEAR = 2021;
 
 const PERIODS: Array<{ value: PeriodType; label: string }> = [
-  { value: "all", label: "كامل المدة (من 2026)" },
+  { value: "all", label: "كامل السنة المختارة" },
   { value: "year", label: "سنوي" },
   { value: "half", label: "نصف سنوي" },
   { value: "quarter", label: "ربع سنوي" },
@@ -71,15 +71,15 @@ const periodMonths = (period: PeriodType, month: number) => {
 };
 
 const periodLabel = (period: PeriodType, month: number, year: number) => {
-  if (period === "all") return `من عام 2026 حتى تاريخه`;
+  if (period === "all") return `كامل عام ${year}`;
   if (period === "year") return `السنة المالية ${year}`;
   if (period === "half") return `${month < 6 ? "النصف الأول" : "النصف الثاني"} لعام ${year}`;
   if (period === "quarter") return `الربع ${Math.floor(month / 3) + 1} لعام ${year}`;
   return `شهر ${MONTHS[month]} ${year}`;
 };
 
-const getYearOptions = (values: unknown[]) => {
-  const years = new Set<number>([2024, 2025, 2026]);
+const getYearOptions = (values: unknown[], selectedYear: number) => {
+  const years = new Set<number>([2024, 2025, 2026, new Date().getFullYear(), selectedYear]);
   values.forEach((value) => {
     const date = normalizeDate(value);
     if (date) years.add(date.getFullYear());
@@ -290,40 +290,51 @@ export default function ReportsTab() {
   const hafiza = useStore((state) => state.hafiza);
   const accounts = useStore((state) => state.accounts);
   const revenue = useStore((state) => state.revenue);
+  const year = useStore((state) => state.selectedYear);
+  const setSelectedYear = useStore((state) => state.setSelectedYear);
 
   const [source, setSource] = useState<ReportSource>("youssefLoan");
   const [period, setPeriod] = useState<PeriodType>("all");
-  const [year, setYear] = useState<number>(2026);
   const [month, setMonth] = useState<number>(0);
   const [selectedTrainee, setSelectedTrainee] = useState<string>("all");
   const [traineeGrouping, setTraineeGrouping] = useState<TraineeGrouping>("month");
   const [selectedFee, setSelectedFee] = useState<string>("all");
   const [traineeDisplayMode, setTraineeDisplayMode] = useState<TraineeDisplayMode>("both");
 
-  // الرصيد الافتتاحي مع الحفظ التلقائي في المتصفح
-  const [youssefOpeningBalance, setYoussefOpeningBalance] = useState<number>(() => {
-    const saved = localStorage.getItem("youssef_loan_opening_balance");
-    return saved ? Number(saved) || 0 : 0;
-  });
+  // أرصدة افتتاحية مستقلة لكل سنة؛ القيم القديمة تخص 2026 فقط.
+  const readOpeningBalance = (key: string, legacyKey: string, selectedYear: number) => {
+    const saved = localStorage.getItem(`${key}-${selectedYear}`);
+    if (saved !== null) return Number(saved) || 0;
+    if (selectedYear === 2026) {
+      const legacy = localStorage.getItem(legacyKey);
+      if (legacy !== null) return Number(legacy) || 0;
+    }
+    return 0;
+  };
+  const [youssefOpeningBalance, setYoussefOpeningBalance] = useState<number>(() => readOpeningBalance("youssef_loan_opening_balance_v2", "youssef_loan_opening_balance", year));
+  const [tawfiqOpeningBalance, setTawfiqOpeningBalance] = useState<number>(() => readOpeningBalance("tawfiq_custody_opening_balance_v2", "tawfiq_custody_opening_balance", year));
+  const loadedBalanceYear = useRef(year);
 
-  const [tawfiqOpeningBalance, setTawfiqOpeningBalance] = useState<number>(() => {
-    const saved = localStorage.getItem("tawfiq_custody_opening_balance");
-    return saved ? Number(saved) || 0 : 0;
-  });
+  useEffect(() => {
+    if (loadedBalanceYear.current === year) return;
+    setYoussefOpeningBalance(readOpeningBalance("youssef_loan_opening_balance_v2", "youssef_loan_opening_balance", year));
+    setTawfiqOpeningBalance(readOpeningBalance("tawfiq_custody_opening_balance_v2", "tawfiq_custody_opening_balance", year));
+    loadedBalanceYear.current = year;
+  }, [year]);
 
   const handleYoussefOpeningChange = (val: number) => {
     setYoussefOpeningBalance(val);
-    localStorage.setItem("youssef_loan_opening_balance", String(val));
+    localStorage.setItem(`youssef_loan_opening_balance_v2-${year}`, String(val));
   };
 
   const handleTawfiqOpeningChange = (val: number) => {
     setTawfiqOpeningBalance(val);
-    localStorage.setItem("tawfiq_custody_opening_balance", String(val));
+    localStorage.setItem(`tawfiq_custody_opening_balance_v2-${year}`, String(val));
   };
 
   const selectedMonths = useMemo(() => periodMonths(period, month), [period, month]);
   const selectedMonthSet = useMemo(() => new Set(selectedMonths), [selectedMonths]);
-  const years = useMemo(() => getYearOptions([...hafiza.map((row) => row.date), ...accounts.map((row) => row.date)]), [hafiza, accounts]);
+  const years = useMemo(() => getYearOptions([...hafiza.map((row) => row.date), ...accounts.map((row) => row.date)], year), [hafiza, accounts, year]);
   const traineeOptions = useMemo(() => Array.from(new Set(hafiza
     .filter((row) => {
       const date = normalizeDate(row.notifyDate);
@@ -343,17 +354,17 @@ export default function ReportsTab() {
   const inPeriod = (dateValue: unknown) => {
     const date = normalizeDate(dateValue);
     if (!date) return false;
-    if (period === "all") return date.getFullYear() >= 2026;
+    if (period === "all") return date.getFullYear() === year;
     if (period === "year") return date.getFullYear() === year;
     return date.getFullYear() === year && selectedMonthSet.has(date.getMonth());
   };
 
-  // 1. تقرير سلفة د/يوسف (من الحساب الجاري 2026 فما فوق)
+  // 1. تقرير سلفة د/يوسف (داخل السنة المختارة)
   const youssefRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
         const d = normalizeDate(row.date);
-        if (!d || d.getFullYear() < 2026) return false;
+        if (!d || d.getFullYear() !== year) return false;
         if (!inPeriod(row.date)) return false;
         return classifyCustodyRecord(row.description) === "youssef";
       })
@@ -364,7 +375,7 @@ export default function ReportsTab() {
 
     // سطر الرصيد الافتتاحي
     result.push({
-      date: "2026-01-01",
+      date: `${year}-01-01`,
       docNo: "افتتاحي",
       description: "الرصيد الافتتاحي المدور",
       name: "د/ يوسف",
@@ -420,8 +431,8 @@ export default function ReportsTab() {
     const remainingForSummary = youssefOpeningBalance - paidForSummary;
 
     result.push({
-      __summaryCard: { index: 0, label: "مبلغ العهدة الافتتاحي للعام 2026", value: youssefOpeningBalance },
-      description: "مبلغ العهدة الافتتاحي للعام 2026",
+      __summaryCard: { index: 0, label: `مبلغ العهدة الافتتاحي للعام ${year}`, value: youssefOpeningBalance },
+      description: `مبلغ العهدة الافتتاحي للعام ${year}`,
       credit: youssefOpeningBalance,
       summaryLevel: "summary-card",
     });
@@ -441,12 +452,12 @@ export default function ReportsTab() {
     return result;
   }, [accounts, youssefOpeningBalance, period, year, selectedMonthSet]);
 
-  // 2. تقرير عهدة توفيق الداعي (من الحساب الجاري 2026 فما فوق)
+  // 2. تقرير عهدة توفيق الداعي (داخل السنة المختارة)
   const tawfiqRows = useMemo<ReportRow[]>(() => {
     const matched = accounts
       .filter((row) => {
         const d = normalizeDate(row.date);
-        if (!d || d.getFullYear() < 2026) return false;
+        if (!d || d.getFullYear() !== year) return false;
         if (!inPeriod(row.date)) return false;
         return classifyCustodyRecord(row.description) === "tawfiq";
       })
@@ -457,7 +468,7 @@ export default function ReportsTab() {
 
     // سطر الرصيد الافتتاحي
     result.push({
-      date: "2026-01-01",
+      date: `${year}-01-01`,
       docNo: "افتتاحي",
       description: "الرصيد الافتتاحي للعهدة",
       name: "توفيق الداعي",
@@ -513,8 +524,8 @@ export default function ReportsTab() {
     const remainingForSummary = tawfiqOpeningBalance - paidForSummary;
 
     result.push({
-      __summaryCard: { index: 0, label: "مبلغ العهدة الافتتاحي للعام 2026", value: tawfiqOpeningBalance },
-      description: "مبلغ العهدة الافتتاحي للعام 2026",
+      __summaryCard: { index: 0, label: `مبلغ العهدة الافتتاحي للعام ${year}`, value: tawfiqOpeningBalance },
+      description: `مبلغ العهدة الافتتاحي للعام ${year}`,
       credit: tawfiqOpeningBalance,
       summaryLevel: "summary-card",
     });
@@ -563,7 +574,7 @@ export default function ReportsTab() {
     const rowYear = Number(parts[0]);
     const rowMonth = Number(parts[1]) - 1;
     return { date: `${MONTHS[rowMonth] || parts[1]} ${rowYear}`, item: revenueName(key), amount: amountValue(amount), _year: rowYear, _month: rowMonth };
-  }).filter((row) => (period === "all" ? row._year >= 2026 : row._year === year && selectedMonthSet.has(row._month as number))).map(({ _year, _month, ...row }) => row), [revenue, year, selectedMonthSet, period]);
+  }).filter((row) => (period === "all" ? row._year === year : row._year === year && selectedMonthSet.has(row._month as number))).map(({ _year, _month, ...row }) => row), [revenue, year, selectedMonthSet, period]);
 
   const traineeRows = useMemo<ReportRow[]>(() => {
     const payments = hafiza.flatMap((row) => {
@@ -865,12 +876,11 @@ export default function ReportsTab() {
                 </select>
               </label>
 
-              {period !== "all" && (
-                <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
+              <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
                   السنة
                   <select
                     value={year}
-                    onChange={(event) => setYear(Number(event.target.value))}
+                    onChange={(event) => setSelectedYear(Number(event.target.value))}
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-sky-600"
                   >
                     {years.map((item) => (
@@ -878,7 +888,6 @@ export default function ReportsTab() {
                     ))}
                   </select>
                 </label>
-              )}
 
               {period !== "all" && period !== "year" && (
                 <label className="flex flex-col gap-1 text-xs font-black text-slate-700">
@@ -1011,7 +1020,7 @@ export default function ReportsTab() {
                   if (!summaryRows.length) return null;
 
                   const cardStyles = [
-                    { label: "مبلغ العهدة الافتتاحي للعام 2026",   bg: "bg-amber-200",   text: "text-amber-950",   border: "border-amber-500",   cls: "summary-card-0" },
+                    { label: `مبلغ العهدة الافتتاحي للعام ${year}`,   bg: "bg-amber-200",   text: "text-amber-950",   border: "border-amber-500",   cls: "summary-card-0" },
                     { label: "المنصرف من العهدة خلال العام",        bg: "bg-rose-200",    text: "text-rose-950",    border: "border-rose-500",    cls: "summary-card-1" },
                     { label: "المتبقي من العهدة حتى تاريخ التقرير", bg: "bg-emerald-200", text: "text-emerald-950", border: "border-emerald-500", cls: "summary-card-2" },
                   ];

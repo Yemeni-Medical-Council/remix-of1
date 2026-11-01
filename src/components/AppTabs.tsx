@@ -11,9 +11,11 @@ import { downloadReportDocumentPdf } from "@/lib/reportPdf";
 import { importUsageInWorker } from "@/lib/excelImportWorkerClient";
 import { saveBlobToInternalStorage } from "@/lib/nativeFileStorage";
 import WebActionMenu from "./WebActionMenu";
+import { useStore } from "@/lib/store";
 
 const mainHeaders = ["رقم الاستمارة", "كشف التسوية", "التاريخ", "البيان"];
-const STORAGE_KEY = "app-tabs-usages-v1";
+const LEGACY_STORAGE_KEY = "app-tabs-usages-v1";
+const STORAGE_KEY = (year: number) => `app-tabs-usages-v2-${year}`;
 
 const COLORS = { TOTAL_ALL: "#E5DFEC", BAB_TOTAL: "#DBEEF3", FASL: "#FDE9D9", BAND: "#C6D9F0" };
 const ARGB = { TOTAL_ALL: "FFE5DFEC", BAB_TOTAL: "FFDBEEF3", FASL: "FFFDE9D9", BAND: "FFC6D9F0",
@@ -339,6 +341,7 @@ const USAGE_UI_CSS = `
 
 const AppTabs: React.FC = () => {
   const { reportDate, reportDateLabel } = useReportDate();
+  const year = useStore((s) => s.selectedYear);
   const [dataRows, setDataRows] = useState<any[]>([]);
   const [storageReady, setStorageReady] = useState(false);
   const [storageBlocked, setStorageBlocked] = useState(false);
@@ -348,39 +351,50 @@ const AppTabs: React.FC = () => {
   const latestDataRows = useRef(dataRows);
   const storageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const storageErrorNotified = useRef(false);
+  const loadedYear = useRef<number | null>(null);
 
   useEffect(() => {
+    loadedYear.current = null;
+    setStorageReady(false);
+    setStorageBlocked(false);
+    storageErrorNotified.current = false;
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const key = STORAGE_KEY(year);
+      let raw = window.localStorage.getItem(key);
+      if (raw === null && year === 2026) raw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+      let rows: any[] = [];
       if (raw !== null) {
         const parsed: unknown = JSON.parse(raw);
         const validRows = Array.isArray(parsed) && parsed.every((row) =>
-          row &&
-          typeof row === "object" &&
-          typeof (row as any).id === "string" &&
-          Number.isInteger(Number((row as any).monthId)) &&
-          Number((row as any).monthId) >= 1 &&
-          Number((row as any).monthId) <= 12,
+          row && typeof row === "object" && typeof (row as any).id === "string" &&
+          Number.isInteger(Number((row as any).monthId)) && Number((row as any).monthId) >= 1 && Number((row as any).monthId) <= 12,
         );
         if (!validRows) throw new Error("Stored usage rows have an invalid shape");
-        setDataRows(parsed as any[]);
+        rows = parsed as any[];
       }
+      latestDataRows.current = rows;
+      setDataRows(rows);
+      loadedYear.current = year;
     } catch (error) {
       console.error("[Storage] Unable to load usage rows; preserving stored data", error);
+      setDataRows([]);
+      latestDataRows.current = [];
+      loadedYear.current = year;
       setStorageBlocked(true);
       toast.error("تعذرت قراءة بيانات الاستخدامات المحفوظة. استورد ملف Excel صالحاً للاستعادة قبل التعديل.");
     } finally {
       setStorageReady(true);
     }
-  }, []);
+  }, [year]);
 
   useEffect(() => {
-    if (!storageReady || storageBlocked) return;
+    if (!storageReady || storageBlocked || loadedYear.current !== year) return;
     latestDataRows.current = dataRows;
     if (storageTimer.current) clearTimeout(storageTimer.current);
     storageTimer.current = setTimeout(() => {
+      if (loadedYear.current !== year) return;
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(latestDataRows.current));
+        localStorage.setItem(STORAGE_KEY(year), JSON.stringify(latestDataRows.current));
       } catch (error) {
         console.error("[Storage] Failed to persist usage rows", error);
         if (!storageErrorNotified.current) {
@@ -393,14 +407,15 @@ const AppTabs: React.FC = () => {
     return () => {
       if (storageTimer.current) clearTimeout(storageTimer.current);
     };
-  }, [dataRows, storageReady, storageBlocked]);
+  }, [dataRows, storageReady, storageBlocked, year]);
 
   useEffect(() => {
-    if (!storageReady || storageBlocked) return;
+    if (!storageReady || storageBlocked || loadedYear.current !== year) return;
     const flush = () => {
+      if (loadedYear.current !== year) return;
       if (storageTimer.current) clearTimeout(storageTimer.current);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(latestDataRows.current));
+        localStorage.setItem(STORAGE_KEY(year), JSON.stringify(latestDataRows.current));
       } catch (error) {
         console.error("[Storage] Failed to flush usage rows", error);
       }
@@ -411,7 +426,7 @@ const AppTabs: React.FC = () => {
       window.removeEventListener("pagehide", flush);
       flush();
     };
-  }, [storageReady, storageBlocked]);
+  }, [storageReady, storageBlocked, year]);
 
   const rowsOfMonth = useCallback(
     (id: number) => dataRows.filter((r) => r.monthId === id),
@@ -426,7 +441,7 @@ const AppTabs: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!storageReady || storageBlocked) return;
+    if (!storageReady || storageBlocked || loadedYear.current !== year) return;
     setDataRows((prev) => {
       const counts: Record<number, number> = {};
       prev.forEach((r) => (counts[r.monthId] = (counts[r.monthId] || 0) + 1));
@@ -434,7 +449,7 @@ const AppTabs: React.FC = () => {
       MONTHS.forEach((m) => { if (!counts[m.id]) additions.push(makeEmptyRow(m.id), makeEmptyRow(m.id)); });
       return additions.length ? [...prev, ...additions] : prev;
     });
-  }, [storageReady, storageBlocked]);
+  }, [storageReady, storageBlocked, year]);
 
   const updateCell = useCallback((rowId: string, key: string, rawValue: string) => {
     if (storageBlocked) {
@@ -504,8 +519,9 @@ const AppTabs: React.FC = () => {
       if (storageBlocked) {
         if (!window.confirm("تعذر قراءة التخزين السابق. هل تريد استعادة سجل الاستخدامات من هذا الملف؟")) return;
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+          localStorage.setItem(STORAGE_KEY(year), JSON.stringify(imported));
           latestDataRows.current = imported;
+          loadedYear.current = year;
           setDataRows(imported);
           setStorageBlocked(false);
           storageErrorNotified.current = false;

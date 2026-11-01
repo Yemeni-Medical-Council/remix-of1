@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp, Printer, Download, FileText } from "lucide-react";
 import { fmt } from "@/lib/format";
+import { useStore } from "@/lib/store";
 
 interface TraineeAccountStatementProps {
   trainee?: {
@@ -21,10 +22,12 @@ export default function TraineeAccountStatement({
     specialty: "المساق",
     phone: "رقم الهاتف",
   },
-  year = 2026,
+  year,
   onPrint,
   onDownloadPdf,
 }: TraineeAccountStatementProps) {
+  const selectedYear = useStore((state) => state.selectedYear);
+  const displayYear = year ?? selectedYear;
   const [isExpanded, setIsExpanded] = useState(true);
 
   // البيانات المالية (يمكن تعديلها حسب الحاجة)
@@ -36,7 +39,7 @@ export default function TraineeAccountStatement({
       accentColor: "border-l-4 border-blue-500",
     },
     {
-      label: "متبقي من العام 2025 (مدور)",
+      label: `متبقي من العام ${displayYear - 1} (مدور)`,
       amount: 300000,
       bgColor: "bg-yellow-50",
       accentColor: "border-l-4 border-yellow-500",
@@ -69,7 +72,7 @@ export default function TraineeAccountStatement({
       >
         <div className="flex items-center gap-3">
 <h3 className="text-xl sm:text-xs font-bold text-black">
-            📋 كشف حساب متدرب للعام {year}م
+            📋 كشف حساب متدرب للعام {displayYear}م
           </h3>
         </div>
         <button className="p-1 hover:bg-white/20 rounded-lg transition-colors">

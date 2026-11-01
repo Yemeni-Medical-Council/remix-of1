@@ -30,6 +30,7 @@ const AppTabs = lazy(() => import("@/components/AppTabs"));
 import { canInstall, onInstallAvailability, promptInstall } from "@/lib/pwa";
 import { installAndroidBackButton } from "@/lib/capacitorNavigation";
 import NativePrintPreviewHost from "@/components/NativePrintPreviewHost";
+import { useStore } from "@/lib/store";
 
 // إعداد مسار التوجيه والبيانات التعريفية للمتصفح
 export const Route = createFileRoute("/")({
@@ -165,9 +166,17 @@ const getInitialTab = (): Tab => {
 
 function Index() {
   const [activeTab, setActiveTab] = useState<Tab>(() => getInitialTab());
+  const selectedYear = useStore((state) => state.selectedYear);
+  const setSelectedYear = useStore((state) => state.setSelectedYear);
   const activeTabRef = useRef(activeTab);
   const tabHistoryRef = useRef<Tab[]>([getInitialTab()]);
   const [pwaInstallable, setPwaInstallable] = useState<boolean>(false);
+  const firstYear = Math.min(2021, selectedYear);
+  const lastYear = Math.max(new Date().getFullYear() + 10, selectedYear);
+  const financialYears = Array.from(
+    { length: lastYear - firstYear + 1 },
+    (_, index) => firstYear + index,
+  );
 
   useEffect(() => {
     const handleStorageError = () => {
@@ -297,6 +306,26 @@ function Index() {
             </button>
           )}
         </div>
+      </div>
+
+      <div className="flex min-h-11 items-center justify-between gap-2 border-b border-[#b8d4e8] bg-[#e8f0f8] px-3 py-1.5 sm:px-5">
+        <label htmlFor="financial-year" className="shrink-0 text-xs font-bold text-[#2e6b8a] sm:text-sm">
+          السنة المالية
+        </label>
+        <select
+          id="financial-year"
+          value={selectedYear}
+          onChange={(event) => setSelectedYear(Number(event.target.value))}
+          className="min-h-8 rounded-lg border border-[#9bbbd0] bg-white px-2 text-sm font-bold text-[#173d54] shadow-sm outline-none focus:ring-2 focus:ring-[#6ba3c8]"
+          aria-label="اختر السنة المالية لعرض بياناتها"
+        >
+          {financialYears.map((year) => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+        <span className="min-w-0 flex-1 truncate text-left text-[10px] text-slate-600 sm:text-xs">
+          بيانات التبويبات معروضة لهذه السنة فقط
+        </span>
       </div>
 
       {/* محتوى التبويب النشط */}
