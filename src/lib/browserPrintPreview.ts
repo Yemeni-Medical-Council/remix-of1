@@ -1,5 +1,7 @@
-import { REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "./printTableHtml";
+import { Capacitor } from "@capacitor/core";
+import { reportLetterheadHtml } from "./printTableHtml";
 import { downloadRenderedReportPdf } from "./reportPdf";
+import { printReportHtmlAsync } from "./nativePrinter";
 
 interface OpenBrowserPrintPreviewOptions {
   title: string;
@@ -29,13 +31,66 @@ export function openBrowserPrintPreview(options: OpenBrowserPrintPreviewOptions)
   const defaultMargin = options.defaultMarginMm !== undefined
     ? `${options.defaultMarginMm}mm`
     : options.margin === "normal" ? "8mm" : "3mm";
+  const hasEmbeddedLetterhead = tableHtml.includes("report-letterhead");
+
+  if (Capacitor.isNativePlatform() && !options.autoDownloadPdf) {
+    const nativeHtml = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تقرير مالي</title>
+  <style>
+    @page { size: ${paperSize} ${defaultOrientation}; margin: ${fitToContent ? "0mm" : defaultMargin}; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { width: 100%; margin: 0; padding: 0; background: #fff; color: #000; direction: rtl; }
+    body { font-family: Cairo, Tahoma, Arial, sans-serif; font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .native-print-paper { width: 100%; margin: 0 auto; padding: 0; background: #fff; }
+    .report-letterhead-block { display: block; width: 100%; margin: 0 auto 3mm; break-inside: avoid; page-break-inside: avoid; }
+    .report-letterhead-frame { display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%; border: 1.5px solid #000; border-radius: 4px; padding: 5px 12px; background: #fff; color: #000; }
+    .report-letterhead-side { flex: 1 1 36%; display: flex; flex-direction: column; justify-content: center; }
+    .report-letterhead-right { text-align: right; direction: rtl; }
+    .report-letterhead-center { flex: 0 0 28%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 4px; }
+    .letterhead-title-ar, .letterhead-branch-ar, .letterhead-bismillah { font-weight: 900; color: #000; }
+    .letterhead-title-ar { font-size: 13.5px; }
+    .letterhead-sub-ar { font-size: 12px; font-weight: 800; }
+    .letterhead-branch-ar { font-size: 12.5px; }
+    .letterhead-bismillah { font-size: 14.5px; white-space: nowrap; }
+    .letterhead-center-divider { width: 75px; height: 1.5px; margin: 3px auto 0; background: #000; }
+    .report-letterhead-left { text-align: left; direction: ltr; }
+    .letterhead-title-en { font-size: 12px; font-weight: 900; }
+    .letterhead-sub-en { font-size: 10.5px; font-weight: 800; }
+    .letterhead-branch-en { font-size: 11px; font-weight: 900; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    img { max-width: 100%; }
+    ${contentCss}
+    @media print { html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; } }
+  </style>
+</head>
+<body>
+  <main class="native-print-paper">
+    ${hasEmbeddedLetterhead ? "" : reportLetterheadHtml()}
+    ${tableHtml}
+  </main>
+</body>
+</html>`;
+
+    void printReportHtmlAsync(nativeHtml, title).then((printed) => {
+      if (!printed) window.alert("تعذر فتح خدمة الطباعة في Android. تحقق من تثبيت خدمة الطباعة ثم أعد المحاولة.");
+    }).catch((error) => {
+      console.error("[Print] Failed to open Android print service", error);
+      window.alert("تعذر فتح خدمة الطباعة في Android. أعد المحاولة بعد التحقق من إعدادات الطباعة.");
+    });
+    return true;
+  }
+
   const newWin = window.open("", "_blank");
   if (!newWin) {
     alert("يرجى السماح بالنوافذ المنبثقة لمعاينة الطباعة");
     return false;
   }
-
-  const hasEmbeddedLetterhead = tableHtml.includes("report-letterhead");
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">

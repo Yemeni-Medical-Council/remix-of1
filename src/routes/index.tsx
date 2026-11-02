@@ -255,7 +255,7 @@ function Index() {
 
   return (
     <div
-      className="apk-tabs-ui w-full min-h-screen bg-[#e8f0ff] selection:bg-[#6ba3c8]/30 text-[13px]"
+      className="apk-tabs-ui w-full min-h-[100dvh] bg-[#e8f0ff] selection:bg-[#6ba3c8]/30 text-[13px]"
       dir="rtl"
     >
       {/* الهيدر العلوي */}
@@ -312,7 +312,7 @@ function Index() {
       </div>
 
       {/* محتوى التبويب النشط */}
-      <div className="app-tab-content min-h-[calc(100vh-120px)] w-full min-w-0 bg-[#f4f9fd] p-0 pb-24 sm:pb-24">
+      <div className="app-tab-content min-h-[calc(100dvh-120px)] w-full min-w-0 bg-[#f4f9fd] p-0 pb-24 sm:pb-24">
         <Suspense
           fallback={
             <div
