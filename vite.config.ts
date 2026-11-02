@@ -31,7 +31,7 @@ export default defineConfig({
           "favicon.ico",
           "icon-192.png",
           "icon-512.png",
-          "Cairo-Variable.ttf",
+          "Cairo-Regular.ttf",
           "NotoSansArabic-Regular.ttf",
           "NotoSansArabic-SemiBold.ttf",
           "NotoKufiArabic-Medium.ttf",
@@ -70,6 +70,18 @@ export default defineConfig({
                     },
                   },
                 ],
+              },
+            },
+            {
+              // خطوط جوجل: تعمل بدون إنترنت بعد أول تحميل
+              urlPattern: ({ url }) =>
+                url.origin === "https://fonts.googleapis.com" ||
+                url.origin === "https://fonts.gstatic.com",
+              handler: "StaleWhileRevalidate",
+              options: {
+                cacheName: "google-fonts",
+                expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
             {

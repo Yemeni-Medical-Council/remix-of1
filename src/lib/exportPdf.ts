@@ -7,7 +7,7 @@ import {
   getReportPeriodLabel,
   type ReportPeriodMode,
 } from "./reportPeriods";
-import { REPORT_LETTERHEAD_SRC, reportLetterheadRowHtml } from "@/lib/printTableHtml";
+import { REPORT_LETTERHEAD_SRC } from "@/lib/printTableHtml";
 import revSchema from "@/data/revenueTemplate.json";
 import { printReportHtmlAsync } from "@/lib/nativePrinter";
 import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
@@ -468,11 +468,8 @@ export async function revenuePdf(
   let body = `<h1>${REV_SCHEMA.title}</h1>`;
   body += `<div class="meta">${REV_SCHEMA.office} — تاريخ التقرير: ${reportDateLabel}</div>`;
   body += `<div class="meta">عن شهر ${MONTHS_PDF[month - 1]} من العام المالي ${year}م</div>`;
-  body += `<table><colgroup>
-    <col style="width:34%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%">
-    <col style="width:14%"><col style="width:14%"><col style="width:14%">
-  </colgroup><thead>
-    ${reportLetterheadRowHtml(8)}
+  body += `<table><thead>
+    ${reportLetterheadRow(8)}
     <tr>
       <th rowspan="2">بيان مفردات الموارد</th>
       <th rowspan="2">الباب</th><th rowspan="2">الفصل</th><th rowspan="2">البند</th><th rowspan="2">النوع</th>
@@ -508,34 +505,9 @@ export async function revenuePdf(
 
   const title = `${REV_SCHEMA.title} - ${MONTHS_PDF[month - 1]} ${year}م`;
   const revenuePrintCss = `
-    thead { display: table-header-group; }
-    .report-letterhead-row { break-inside: avoid; page-break-inside: avoid; }
-    .report-letterhead-cell { border: 0 !important; background: #ffffff !important; padding: 0 !important; }
-    .report-letterhead-block { margin: 0 0 2mm !important; }
-    table { table-layout: fixed !important; font-size: 14px !important; }
-    th, td {
-      border: 1px solid #000000 !important;
-      padding: 5px 4px !important;
-      text-align: center !important;
-      vertical-align: middle !important;
-      font-family: Cairo, sans-serif !important;
-      font-size: 14px !important;
-      font-weight: 800 !important;
-      line-height: 1.3 !important;
-      overflow-wrap: break-word !important;
-      word-break: normal !important;
-    }
-    thead th {
-      background: #14532d !important;
-      color: #ffffff !important;
-      font-size: 14px !important;
-      font-weight: 900 !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    thead th .pdf-cell-text { color: #ffffff !important; background: transparent !important; }
-    td.acc { white-space: normal !important; overflow-wrap: anywhere !important; }
-    tbody tr:nth-child(even) td { background: #f8fafc; }
+    ${reportLetterheadStyles}
+    table { table-layout: auto !important; }
+    td.acc { white-space: normal !important; overflow-wrap: break-word !important; }
     tbody tr.group-row td {
       background: #fef3c7 !important;
       color: #451a03 !important;
@@ -547,12 +519,11 @@ export async function revenuePdf(
       font-weight: 800 !important;
     }
     tbody tr.total-row td {
-      background: #14532d !important;
+      background: #0437bb !important;
       color: #ffffff !important;
       border: 1px solid #000000 !important;
       font-weight: 900 !important;
     }
-    tbody tr { break-inside: avoid; page-break-inside: avoid; }
   `;
   const opened = openBrowserPrintPreview({
     title,
@@ -561,7 +532,7 @@ export async function revenuePdf(
     contentCss: `${reportDocumentCss}\n${revenuePrintCss}`,
     defaultOrientation: "landscape",
     defaultPageSize: "A4",
-    defaultMarginMm: 8,
+    defaultMarginMm: 3,
   });
   if (!opened) throw new Error("تم منع فتح نافذة معاينة الطباعة");
 }

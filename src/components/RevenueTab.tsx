@@ -40,10 +40,11 @@ export function typeKey(c: number, s: number, i: number, t: number) {
 export default function RevenueTab() {
   // 1. استخراج حالة الإيرادات ودالة التحديث من مخزن زوستاند (Zustand Store)
   const { revenue, setRevenue, clearTab } = useStore() as any;
+  const year = useStore((state) => state.selectedYear);
+  const setYear = useStore((state) => state.setSelectedYear);
   const { reportDate } = useReportDate();
 
   // 2. إدارة حالة التاريخ المحاسبي الحالي
-  const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
 
   // دالة مساعدة لجلب المبالغ بأمان من المخزن وتفادي القيم غير المعرفة (Undefined)
@@ -145,7 +146,7 @@ export default function RevenueTab() {
             <span>السنة المالية</span>
           </label>
           <input
-            type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+            type="number"
             value={year}
             onChange={(e) => setYear(Number(e.target.value) || year)}
             className="w-full px-3 py-2.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-sky-500 focus:bg-white transition-all text-center"
@@ -393,7 +394,7 @@ export default function RevenueTab() {
                                   <td className="border border-black bg-sky-50/10 whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base">
                                     <div className="relative flex items-center min-w-[100px]">
                                       <input
-                                        type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                                        type="number"
                                         value={v.cur || ""}
                                         onChange={(e) =>
                                           setRevenue(year, month, k, Number(e.target.value) || 0)

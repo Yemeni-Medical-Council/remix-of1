@@ -3,7 +3,6 @@ type AppBackHandler = () => boolean | Promise<boolean>;
 type ListenerHandle = { remove: () => Promise<void> };
 
 const reportWindows = new Set<ReportWindow>();
-const nativePreviewClosers = new Set<() => boolean>();
 
 const isClosed = (reportWindow: ReportWindow) => {
   try {
@@ -38,26 +37,8 @@ export function unregisterReportWindow(reportWindow: ReportWindow | null) {
   if (reportWindow) reportWindows.delete(reportWindow);
 }
 
-/** يسجل نافذة معاينة مضمّنة ليغلقها زر الرجوع قبل تغيير التبويب أو الخروج. */
-export function registerNativePreviewCloser(close: () => boolean): () => void {
-  nativePreviewClosers.add(close);
-  return () => nativePreviewClosers.delete(close);
-}
-
 /** يغلق آخر تقرير ما زال مفتوحاً، ويعيد true إذا تمت معالجة الرجوع. */
 export function closeActiveReportWindow(): boolean {
-  for (const closePreview of Array.from(nativePreviewClosers).reverse()) {
-    try {
-      if (closePreview()) {
-        nativePreviewClosers.delete(closePreview);
-        return true;
-      }
-    } catch (error) {
-      console.warn("تعذر إغلاق معاينة التقرير المضمّنة:", error);
-      nativePreviewClosers.delete(closePreview);
-    }
-  }
-
   const openReports = Array.from(reportWindows).reverse();
 
   for (const reportWindow of openReports) {

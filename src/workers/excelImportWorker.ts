@@ -4,7 +4,7 @@ import { parseUsageExcel } from "@/lib/parseUsageExcel";
 
 export type ExcelWorkerRequest =
   | { mode: "shared"; buffer: ArrayBuffer; name: string; kind: ImportKind }
-  | { mode: "installments"; buffer: ArrayBuffer; year: 2025 | 2026 }
+  | { mode: "installments"; buffer: ArrayBuffer; year: number }
   | { mode: "usage"; buffer: ArrayBuffer; importMonthId: number };
 
 self.onmessage = async (event: MessageEvent<ExcelWorkerRequest>) => {

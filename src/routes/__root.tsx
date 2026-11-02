@@ -101,20 +101,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "إدارة القيود اليومية والحوافظ والأقساط والتقارير المالية بسهولة ووضوح." },
       {
         property: "og:image",
-        content: "/icon-512.png",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/6c7998d6-30eb-43ef-ba5a-44d267b39f88",
       },
       {
         name: "twitter:image",
-        content: "/icon-512.png",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/6c7998d6-30eb-43ef-ba5a-44d267b39f88",
       },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
-        rel: "preload",
-        href: "/Cairo-Variable.ttf",
-        as: "font",
-        type: "font/ttf",
-        crossOrigin: "anonymous",
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap",
       },
       {
         rel: "stylesheet",

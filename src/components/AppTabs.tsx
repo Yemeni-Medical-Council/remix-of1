@@ -5,7 +5,7 @@ import {
 import * as XLSX from "xlsx";
 import { useReportDate } from "@/lib/reportDate";
 import { toast } from "sonner";
-import { localCairoFontCss, reportLetterheadHtml, runningLetterheadCss } from "@/lib/printTableHtml";
+import { reportLetterheadHtml, runningLetterheadCss } from "@/lib/printTableHtml";
 import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 import { downloadReportDocumentPdf } from "@/lib/reportPdf";
 import { importUsageInWorker } from "@/lib/excelImportWorkerClient";
@@ -186,9 +186,10 @@ const EditableCell: React.FC<{
   if (isDate) {
     return (
       <input
-        type="date" lang="ar-EG-u-nu-latn" dir="ltr"
+        type="date"
         value={str}
         onChange={(e) => onCommit(rowId, field, e.target.value)}
+        dir="ltr"
         className="u-input w-full min-w-[128px] rounded-md px-1 py-1 text-center text-[11px] leading-tight"
       />
     );
@@ -341,7 +342,7 @@ const USAGE_UI_CSS = `
 
 const AppTabs: React.FC = () => {
   const { reportDate, reportDateLabel } = useReportDate();
-  const year = useStore((s) => s.selectedYear);
+  const year = useStore((state) => state.selectedYear);
   const [dataRows, setDataRows] = useState<any[]>([]);
   const [storageReady, setStorageReady] = useState(false);
   const [storageBlocked, setStorageBlocked] = useState(false);
@@ -350,36 +351,33 @@ const AppTabs: React.FC = () => {
 
   const latestDataRows = useRef(dataRows);
   const storageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const storageErrorNotified = useRef(false);
-  const loadedYear = useRef<number | null>(null);
+  const [loadedYear, setLoadedYear] = useState<number | null>(null);
 
   useEffect(() => {
-    loadedYear.current = null;
+    setLoadedYear(null);
     setStorageReady(false);
     setStorageBlocked(false);
-    storageErrorNotified.current = false;
     try {
-      const key = STORAGE_KEY(year);
-      let raw = window.localStorage.getItem(key);
+      let raw = window.localStorage.getItem(STORAGE_KEY(year));
       if (raw === null && year === 2026) raw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
       let rows: any[] = [];
       if (raw !== null) {
         const parsed: unknown = JSON.parse(raw);
         const validRows = Array.isArray(parsed) && parsed.every((row) =>
-          row && typeof row === "object" && typeof (row as any).id === "string" &&
-          Number.isInteger(Number((row as any).monthId)) && Number((row as any).monthId) >= 1 && Number((row as any).monthId) <= 12,
+          row && typeof row === "object" && typeof row.id === "string" &&
+          Number.isInteger(Number(row.monthId)) && Number(row.monthId) >= 1 && Number(row.monthId) <= 12,
         );
         if (!validRows) throw new Error("Stored usage rows have an invalid shape");
         rows = parsed as any[];
       }
       latestDataRows.current = rows;
       setDataRows(rows);
-      loadedYear.current = year;
+      setLoadedYear(year);
     } catch (error) {
       console.error("[Storage] Unable to load usage rows; preserving stored data", error);
-      setDataRows([]);
       latestDataRows.current = [];
-      loadedYear.current = year;
+      setDataRows([]);
+      setLoadedYear(year);
       setStorageBlocked(true);
       toast.error("تعذرت قراءة بيانات الاستخدامات المحفوظة. استورد ملف Excel صالحاً للاستعادة قبل التعديل.");
     } finally {
@@ -388,31 +386,29 @@ const AppTabs: React.FC = () => {
   }, [year]);
 
   useEffect(() => {
-    if (!storageReady || storageBlocked || loadedYear.current !== year) return;
+    if (!storageReady || storageBlocked || loadedYear !== year) return;
     latestDataRows.current = dataRows;
     if (storageTimer.current) clearTimeout(storageTimer.current);
     storageTimer.current = setTimeout(() => {
-      if (loadedYear.current !== year) return;
+      if (loadedYear !== year) return;
       try {
         localStorage.setItem(STORAGE_KEY(year), JSON.stringify(latestDataRows.current));
       } catch (error) {
         console.error("[Storage] Failed to persist usage rows", error);
-        if (!storageErrorNotified.current) {
-          toast.error("تعذر حفظ بيانات الاستخدامات؛ تحقق من مساحة التخزين ثم أعد المحاولة.");
-          storageErrorNotified.current = true;
-        }
+        setStorageBlocked(true);
+        toast.error("تعذر حفظ بيانات الاستخدامات؛ تحقق من مساحة التخزين ثم أعد المحاولة.");
       }
       storageTimer.current = null;
-    }, 80);
+    }, 1200);
     return () => {
       if (storageTimer.current) clearTimeout(storageTimer.current);
     };
-  }, [dataRows, storageReady, storageBlocked, year]);
+  }, [dataRows, storageReady, storageBlocked, loadedYear, year]);
 
   useEffect(() => {
-    if (!storageReady || storageBlocked || loadedYear.current !== year) return;
+    if (!storageReady || storageBlocked || loadedYear !== year) return;
     const flush = () => {
-      if (loadedYear.current !== year) return;
+      if (loadedYear !== year) return;
       if (storageTimer.current) clearTimeout(storageTimer.current);
       try {
         localStorage.setItem(STORAGE_KEY(year), JSON.stringify(latestDataRows.current));
@@ -426,7 +422,7 @@ const AppTabs: React.FC = () => {
       window.removeEventListener("pagehide", flush);
       flush();
     };
-  }, [storageReady, storageBlocked, year]);
+  }, [storageReady, storageBlocked, loadedYear, year]);
 
   const rowsOfMonth = useCallback(
     (id: number) => dataRows.filter((r) => r.monthId === id),
@@ -441,7 +437,7 @@ const AppTabs: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!storageReady || storageBlocked || loadedYear.current !== year) return;
+    if (!storageReady || storageBlocked || loadedYear !== year) return;
     setDataRows((prev) => {
       const counts: Record<number, number> = {};
       prev.forEach((r) => (counts[r.monthId] = (counts[r.monthId] || 0) + 1));
@@ -449,40 +445,28 @@ const AppTabs: React.FC = () => {
       MONTHS.forEach((m) => { if (!counts[m.id]) additions.push(makeEmptyRow(m.id), makeEmptyRow(m.id)); });
       return additions.length ? [...prev, ...additions] : prev;
     });
-  }, [storageReady, storageBlocked, year]);
+  }, [storageReady, storageBlocked, loadedYear, year]);
 
   const updateCell = useCallback((rowId: string, key: string, rawValue: string) => {
-    if (storageBlocked) {
-      toast.error("استعد بيانات الاستخدامات من ملف Excel قبل التعديل.");
-      return;
-    }
+    if (!storageReady || storageBlocked) return;
     setDataRows((prev) =>
       prev.map((row) => (row.id === rowId ? recomputeRow({ ...row, [key]: rawValue }) : row))
     );
-  }, [storageBlocked]);
+  }, [storageReady, storageBlocked]);
 
   const handleAddRow = (monthId: number) => {
-    if (storageBlocked) {
-      toast.error("استعد بيانات الاستخدامات من ملف Excel قبل التعديل.");
-      return;
-    }
+    if (!storageReady || storageBlocked) return;
     setDataRows((prev) => [...prev, makeEmptyRow(monthId)]);
   };
 
   const handleDeleteRow = (rowId: string) => {
-    if (storageBlocked) {
-      toast.error("استعد بيانات الاستخدامات من ملف Excel قبل التعديل.");
-      return;
-    }
+    if (!storageReady || storageBlocked) return;
     if (!window.confirm("هل تريد حذف هذا السطر؟")) return;
     setDataRows((prev) => prev.filter((row) => row.id !== rowId));
   };
 
   const handleClearAll = () => {
-    if (storageBlocked) {
-      toast.error("لا يمكن مسح التخزين المتعذر قراءته؛ استخدم استيراد ملف صالح للاستعادة.");
-      return;
-    }
+    if (!storageReady || storageBlocked) return;
     if (!window.confirm("سيتم حذف جميع بيانات كل الأشهر نهائياً. هل أنت متأكد؟")) return;
     const fresh: any[] = [];
     MONTHS.forEach((m) => fresh.push(makeEmptyRow(m.id), makeEmptyRow(m.id)));
@@ -515,28 +499,17 @@ const AppTabs: React.FC = () => {
         toast.error("لم يتم العثور على صفوف استخدامات صالحة في ملف Excel");
         return;
       }
-      const importedMonths = new Set(imported.map((row: any) => row.monthId));
       if (storageBlocked) {
-        if (!window.confirm("تعذر قراءة التخزين السابق. هل تريد استعادة سجل الاستخدامات من هذا الملف؟")) return;
-        try {
-          localStorage.setItem(STORAGE_KEY(year), JSON.stringify(imported));
-          latestDataRows.current = imported;
-          loadedYear.current = year;
-          setDataRows(imported);
-          setStorageBlocked(false);
-          storageErrorNotified.current = false;
-          toast.success(`تمت استعادة ${imported.length} صف من ملف Excel`);
-        } catch (error) {
-          console.error("[Storage] Failed to recover usage rows from import", error);
-          toast.error("تعذر حفظ ملف الاستعادة؛ لم يتم استبدال البيانات المحفوظة.");
-        }
+        if (!window.confirm("تعذر قراءة بيانات الاستخدامات المحفوظة. هل تريد استعادة سجل هذه السنة من ملف Excel؟")) return;
+        localStorage.setItem(STORAGE_KEY(year), JSON.stringify(imported));
+        latestDataRows.current = imported;
+        setLoadedYear(year);
+        setDataRows(imported);
+        setStorageBlocked(false);
+        toast.success(`تمت استعادة ${imported.length} صف من ملف Excel`);
         return;
       }
-      const replacedCount = dataRows.filter((row) => importedMonths.has(row.monthId)).length;
-      if (
-        replacedCount > 0 &&
-        !window.confirm(`سيستبدل الملف ${replacedCount} صفاً محفوظاً في ${importedMonths.size} شهر. هل تريد المتابعة؟`)
-      ) return;
+      const importedMonths = new Set(imported.map((row: any) => row.monthId));
       setDataRows((prev) => [
         ...prev.filter((row) => !importedMonths.has(row.monthId)),
         ...imported,
@@ -741,8 +714,9 @@ const AppTabs: React.FC = () => {
 
     return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
     <title>سجل مفردات الاستخدامات والنفقات العامة - ${reportDateLabel}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&display=swap">
     <style>
-      ${localCairoFontCss()}
       @page { size: A4 landscape; margin: 3mm; }
       * { box-sizing: border-box; }
       html, body { margin:0; padding:0; }
@@ -753,7 +727,7 @@ const AppTabs: React.FC = () => {
 .report-date { text-align:center; color:#000 !important; margin:0 0 5px; font-size:18px; font-weight:700; }
       table { width:100%; max-width:100%; min-width:0; border-collapse:collapse; table-layout:auto !important; font-size:clamp(14px,1.05vw,16px); }
       th, td { border:1px solid #000; padding:2px 3px !important; text-align:center; vertical-align:middle; white-space:normal; overflow:visible; overflow-wrap:break-word; word-break:normal; hyphens:none; line-height:1.15; font-size:clamp(14px,1.05vw,16px); color:#000 !important; font-weight:700 !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-      .num, .numeric-cell, .date-cell { width:1%; min-width:0; white-space:nowrap !important; overflow:visible; overflow-wrap:normal; word-break:keep-all; hyphens:none; font-family:'Cairo',sans-serif !important; font-size:clamp(14px,1vw,16px) !important; font-variant-numeric:tabular-nums; direction:ltr; }
+      .num, .numeric-cell, .date-cell { width:1%; min-width:0; white-space:nowrap !important; overflow:visible; overflow-wrap:normal; word-break:keep-all; hyphens:none; font-family:'Times New Roman',Times,serif !important; font-size:clamp(14px,1vw,16px) !important; font-variant-numeric:tabular-nums; direction:ltr; }
       .text-cell { 
 width:auto; 
 white-space:normal; overflow-wrap:break-word; word-break:normal; }

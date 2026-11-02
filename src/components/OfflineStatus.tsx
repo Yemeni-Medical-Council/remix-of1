@@ -1,18 +1,65 @@
 import { useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
 
+const CONNECTIVITY_CHECK_INTERVAL_MS = 15_000;
+const CONNECTIVITY_CHECK_TIMEOUT_MS = 5_000;
+
 export default function OfflineStatus() {
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    const updateConnectionState = () => setIsOffline(!navigator.onLine);
-    updateConnectionState();
-    window.addEventListener("offline", updateConnectionState);
-    window.addEventListener("online", updateConnectionState);
+    let disposed = false;
+    let activeController: AbortController | null = null;
+
+    const checkConnectivity = async () => {
+      if (!navigator.onLine) {
+        if (!disposed) setIsOffline(true);
+        return;
+      }
+
+      activeController?.abort();
+      const controller = new AbortController();
+      activeController = controller;
+      const timeoutId = window.setTimeout(
+        () => controller.abort(),
+        CONNECTIVITY_CHECK_TIMEOUT_MS,
+      );
+
+      try {
+        // هذا الفحص اختياري للحالة فقط؛ لا يُستخدم لتحميل بيانات التطبيق.
+        const response = await fetch(`/manifest.json?offline_probe=${Date.now()}`, {
+          method: "HEAD",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!disposed) setIsOffline(!response.ok);
+      } catch {
+        if (!disposed) setIsOffline(true);
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
+
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => {
+      setIsOffline(false);
+      void checkConnectivity();
+    };
+
+    void checkConnectivity();
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+    const intervalId = window.setInterval(
+      checkConnectivity,
+      CONNECTIVITY_CHECK_INTERVAL_MS,
+    );
 
     return () => {
-      window.removeEventListener("offline", updateConnectionState);
-      window.removeEventListener("online", updateConnectionState);
+      disposed = true;
+      activeController?.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
     };
   }, []);
 

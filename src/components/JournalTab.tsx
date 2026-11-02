@@ -426,8 +426,9 @@ export default function JournalTab() {
         </td>
         <td className="w-[110px] sm:w-[130px] !px-1.5 !py-2 !text-xs sm:!text-sm whitespace-nowrap">
           <input
-            type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+            type="number"
             inputMode="decimal"
+            dir="ltr"
             value={l.amount || ""}
             onChange={(e) => updateLine(l.id, "amount", e.target.value)}
             placeholder="0.00"
@@ -555,7 +556,7 @@ export default function JournalTab() {
             {/* السطر الثاني: تاريخ القيد | البيان العام */}
             <Field label="تاريخ القيد" icon={<CalendarDays className="h-3.5 w-3.5" />}>
               <input
-                type="date" lang="ar-EG-u-nu-latn" dir="ltr"
+                type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className={inputCls}

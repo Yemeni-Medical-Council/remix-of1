@@ -266,7 +266,7 @@ const deferredStorage: StateStorage = {
     }
     pendingStorageWrite = { name, value };
     if (storageWriteTimer) clearTimeout(storageWriteTimer);
-    storageWriteTimer = setTimeout(flushStorageWrite, 80);
+    storageWriteTimer = setTimeout(flushStorageWrite, 1200);
   },
   removeItem: (name) => {
     if (pendingStorageWrite?.name === name) pendingStorageWrite = null;

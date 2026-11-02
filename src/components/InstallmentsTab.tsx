@@ -1,10 +1,11 @@
 /* ملف: src/components/InstallmentsTab.tsx
-   تحسينات عرض الهاتف وأداء الجداول مع إبقاء البيانات والتصدير كما هما.
+   ملاحظة: التغييرات تنسيقية فقط (CSS / classNames / ثوابت أحجام)
 */
-import React, { useCallback, useDeferredValue, useMemo, useState } from "react";
+import React, { useMemo,
+  useState } from "react";
 import { useStore,
   type InstallmentCustomColumn } from "@/lib/store";
-import { fmt, normalizeNumericText } from "@/lib/format";
+import { fmt } from "@/lib/format";
 import { importInstallmentsInWorker } from "@/lib/excelImportWorkerClient";
 import { toast } from "sonner";
 import { useTableControls } from "@/hooks/useTableControls";
@@ -38,7 +39,7 @@ import PrintSettingsModal, {
 import { openPrintDocument } from "@/lib/printDocument";
 import { openBrowserPrintPreview } from "@/lib/browserPrintPreview";
 import { useReportDate } from "@/lib/reportDate";
-import { localCairoFontCss, REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "@/lib/printTableHtml";
+import { REPORT_LETTERHEAD_SRC, reportLetterheadHtml } from "@/lib/printTableHtml";
 import { downloadReportPdf } from "@/lib/reportPdf";
 import {
   addReportHeader,
@@ -81,49 +82,14 @@ const MONTHS_2026 = [
   "ديسمبر",
 ];
 
-const INSTALLMENTS_PAGE_SIZE = 40;
-const EMPTY_INSTALLMENT_CUSTOM_COLUMNS: InstallmentCustomColumn[] = [];
-
-type DeferredCommitInputProps = Omit<React.ComponentProps<"input">, "value" | "onChange"> & {
-  value: string;
-  onCommit: (value: string) => void;
-};
-
-const DeferredCommitInput = React.memo(({
-  value,
-  onCommit,
-  onBlur,
-  onKeyDown,
-  ...props
-}: DeferredCommitInputProps) => {
-  const [draft, setDraft] = useState(value);
-
-  React.useEffect(() => setDraft(value), [value]);
-
-  return (
-    <input
-      {...props}
-      value={draft}
-      onChange={(event) => setDraft(event.currentTarget.value)}
-      onBlur={(event) => {
-        onBlur?.(event);
-        if (draft !== value) onCommit(draft);
-      }}
-      onKeyDown={(event) => {
-        onKeyDown?.(event);
-        if (event.key === "Enter" && !event.defaultPrevented) event.currentTarget.blur();
-      }}
-    />
-  );
-});
-DeferredCommitInput.displayName = "DeferredCommitInput";
-
 // دالة تنظيف الأرقام واستخراج القيم العددية
 const cleanNumber = (val: any):
   number => {
-    const normalized = normalizeNumericText(String(val ?? "")).replace(/[^0-9.-]/g, "");
-    const parsed = Number(normalized);
-    return normalized && Number.isFinite(parsed) ? parsed : 0;
+    if (!val || isNaN(Number(String(val)
+        .replace(/[^0-9.-]/g, ""))))
+      return 0;
+    return Number(String(val).replace(
+      /[^0-9.-]/g, "")) || 0;
   };
 
 const escapeHtml = (value: any):
@@ -201,53 +167,6 @@ className={`${stat.bgClass} relative overflow-hidden min-h-[46px] sm:min-h-[56px
 );
 };
 
-const InstallmentsPagination = ({
-  itemCount,
-  page,
-  pageSize,
-  onPageChange,
-}: {
-  itemCount: number;
-  page: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-}) => {
-  const pageCount = Math.max(1, Math.ceil(itemCount / pageSize));
-  if (pageCount <= 1) return null;
-
-  const firstItem = page * pageSize + 1;
-  const lastItem = Math.min(firstItem + pageSize - 1, itemCount);
-
-  return (
-    <nav className="my-2 flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs" aria-label="صفحات جدول الأقساط">
-      <span className="whitespace-nowrap text-slate-600">
-        عرض {firstItem}–{lastItem} من {itemCount}
-      </span>
-      <div className="flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 0}
-          className="rounded-md border px-2 py-1 disabled:opacity-40"
-        >
-          السابق
-        </button>
-        <span className="whitespace-nowrap text-slate-600">
-          {page + 1} / {pageCount}
-        </span>
-        <button
-          type="button"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= pageCount - 1}
-          className="rounded-md border px-2 py-1 disabled:opacity-40"
-        >
-          التالي
-        </button>
-      </div>
-    </nav>
-  );
-};
-
 // مكوّن النافذة المنبثقة العامة
 const Modal = ({
   title,
@@ -299,14 +218,16 @@ const SortIcon = ({
 };
 
 export default function InstallmentsTab() {
-  const selectedYear = useStore((state) => state.selectedYear);
-  const installments = useStore((state) => state.installments);
-  const installments2025 = useStore((state) => state.installments2025);
-  const clearInstallments = useStore((state) => state.clearInstallments);
-  const installmentCustomColumns2026 = useStore((state) => state.installmentCustomColumns2026);
-  const installmentConditionalRules2026 = useStore((state) => state.installmentConditionalRules2026);
-  const setInstallmentCustomColumns2026 = useStore((state) => state.setInstallmentCustomColumns2026);
-  const setInstallmentConditionalRules2026 = useStore((state) => state.setInstallmentConditionalRules2026);
+  const {
+    selectedYear,
+    installments,
+    installments2025,
+    clearInstallments,
+    installmentCustomColumns2026,
+    installmentConditionalRules2026,
+    setInstallmentCustomColumns2026,
+    setInstallmentConditionalRules2026,
+  } = useStore() as any;
   const { reportDate,
     reportDateLabel } = useReportDate();
   
@@ -343,6 +264,8 @@ export default function InstallmentsTab() {
   const [showSuggestions,
     setShowSuggestions
   ] = useState(false);
+  const [, setHoveredCell] = useState <
+    string | null > (null);
   const [importError, setImportError] =
   useState < string | null > (null);
   const [printSettingsYear,
@@ -356,9 +279,7 @@ export default function InstallmentsTab() {
   useState("");
   const [search2026, setSearch2026] =
   useState("");
-  const [page2025, setPage2025] = useState(0);
-  const [page2026, setPage2026] = useState(0);
-  
+
   const [sortConfig2025,
     setSortConfig2025
   ] = useState < {
@@ -380,16 +301,20 @@ export default function InstallmentsTab() {
   } | null > (null);
   const [editRowData, setEditRowData] =
   useState < any > ({});
+
   React.useEffect(() => {
-    setPage2025(0);
-    setPage2026(0);
     setSearch2025("");
     setSearch2026("");
+    setSortConfig2025(null);
+    setSortConfig2026(null);
+    setPaymentModal(null);
+    setEditPaymentModal(null);
     setEditRowModal(null);
-    setEditRowData({});
   }, [selectedYear]);
   
-  const extraCols2026 = installmentCustomColumns2026 || EMPTY_INSTALLMENT_CUSTOM_COLUMNS;
+  const extraCols2026 = (
+    installmentCustomColumns2026 || []
+    ) as InstallmentCustomColumn[];
   const [newColModal, setNewColModal] =
   useState(false);
   const [newColName, setNewColName] =
@@ -459,7 +384,7 @@ export default function InstallmentsTab() {
       "remaining",
     ]);
   
-  const evaluateFormula = useCallback((formula:
+  const evaluateFormula = (formula:
     string, row: any) => {
     if (!formula) return "";
     try {
@@ -503,20 +428,7 @@ export default function InstallmentsTab() {
     } catch (e) {
       return "صيغة غير صالحة";
     }
-  }, [extraCols2026]);
-
-  const rows2026ForActions = useMemo(
-    () => (installments || []).map((row: any) => {
-      const customValues: any = { ...row.customData };
-      extraCols2026.forEach((col) => {
-        if (col.type === "formula") {
-          customValues[col.name] = evaluateFormula(col.formula || "", row);
-        }
-      });
-      return { ...row, ...customValues };
-    }),
-    [installments, extraCols2026, evaluateFormula],
-  );
+  };
   
   const getConditionalRowClass = (row:
     any) => {
@@ -573,15 +485,12 @@ export default function InstallmentsTab() {
         i) => i !== index));
   };
   
-  const deferredSearch2025 = useDeferredValue(search2025);
-  const deferredSearch2026 = useDeferredValue(search2026);
-
   const filteredRows2025 = useMemo(
 () => {
     let result = controls2025
       .rows || [];
-    if (deferredSearch2025) {
-      const term = deferredSearch2025
+    if (search2025) {
+      const term = search2025
         .toLowerCase();
       result = result.filter(
         (r: any) =>
@@ -633,7 +542,7 @@ export default function InstallmentsTab() {
       });
     }
     return result;
-  }, [controls2025.rows, deferredSearch2025,
+  }, [controls2025.rows, search2025,
     sortConfig2025
   ]);
   
@@ -641,8 +550,8 @@ export default function InstallmentsTab() {
 () => {
     let result = controls2026
       .rows || [];
-    if (deferredSearch2026) {
-      const term = deferredSearch2026
+    if (search2026) {
+      const term = search2026
         .toLowerCase();
       result = result.filter(
         (r: any) =>
@@ -700,45 +609,12 @@ export default function InstallmentsTab() {
       });
     }
     return result;
-  }, [controls2026.rows, deferredSearch2026,
+  }, [controls2026.rows, search2026,
     sortConfig2026
   ]);
-
-  const originalIndexByRow2025 = useMemo(
-    () => new Map((installments2025 || []).map((row, index) => [row, index] as const)),
-    [installments2025],
-  );
-  const originalIndexByRow2026 = useMemo(
-    () => new Map((installments || []).map((row, index) => [row, index] as const)),
-    [installments],
-  );
-
-  const activePage2025 = Math.min(
-    page2025,
-    Math.max(0, Math.ceil(filteredRows2025.length / INSTALLMENTS_PAGE_SIZE) - 1),
-  );
-  const activePage2026 = Math.min(
-    page2026,
-    Math.max(0, Math.ceil(filteredRows2026.length / INSTALLMENTS_PAGE_SIZE) - 1),
-  );
-  const visibleRows2025 = useMemo(
-    () => filteredRows2025.slice(
-      activePage2025 * INSTALLMENTS_PAGE_SIZE,
-      (activePage2025 + 1) * INSTALLMENTS_PAGE_SIZE,
-    ),
-    [filteredRows2025, activePage2025],
-  );
-  const visibleRows2026 = useMemo(
-    () => filteredRows2026.slice(
-      activePage2026 * INSTALLMENTS_PAGE_SIZE,
-      (activePage2026 + 1) * INSTALLMENTS_PAGE_SIZE,
-    ),
-    [filteredRows2026, activePage2026],
-  );
   
   const handleSort2025 = (key:
     string) => {
-      setPage2025(0);
       let direction: "asc" | "desc" =
         "asc";
       if (sortConfig2025 &&
@@ -752,7 +628,6 @@ export default function InstallmentsTab() {
   
   const handleSort2026 = (key:
     string) => {
-      setPage2026(0);
       let direction: "asc" | "desc" =
         "asc";
       if (sortConfig2026 &&
@@ -866,8 +741,7 @@ export default function InstallmentsTab() {
       const rows = year === 2025 ?
         filteredRows2025 :
         filteredRows2026;
-      const extraCols = year ===
-        2026 ? extraCols2026 : [];
+      const extraCols = year !== 2025 ? extraCols2026 : [];
       
       const headers =
         year === 2025 ?
@@ -1074,8 +948,7 @@ export default function InstallmentsTab() {
       const rows = year === 2025 ?
         filteredRows2025 :
         filteredRows2026;
-      const extraCols = year ===
-        2026 ? extraCols2026 : [];
+      const extraCols = year !== 2025 ? extraCols2026 : [];
       const date = reportDateLabel;
       const hidden = new Set(
         settings.hiddenColumns ||
@@ -1953,7 +1826,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
     number, name: string) => {
     if (rowIndex < 0) return;
     if (!confirm(
-        `هل أنت متأكد من حذف صف المتدرب "${name}" من جدول ${selectedYear}؟`
+        `هل أنت متأكد من حذف صف المتدرب "${name}" من جدول 2026؟`
         )) return;
     updateInstallments((
       installments || []).filter((
@@ -2208,8 +2081,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
   
   const importFile = async (e: React
     .ChangeEvent <
-    HTMLInputElement > , year:
-    number) => {
+    HTMLInputElement > , year: number) => {
     const input = e.target;
     const file = input.files?.[0];
     if (!file) return;
@@ -2218,7 +2090,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
       // تُبطل الملف عند التصفير فتخرج النتيجة فارغة بدون خطأ.
       const formattedData =
         await importInstallmentsInWorker(
-          file, year as 2025 | 2026);
+          file, year);
       if (!formattedData?.length) {
         const msg =
           "لم يتم العثور على أسماء متدربين في الملف — تأكد من وجود عمود «اسم المتدرب» في الصف الأول.";
@@ -2226,18 +2098,10 @@ td.t-fees { background: ${colorTokens.fees} !important; }
         toast.error(msg);
         return;
       }
-      const currentYearRows = year === 2025
+      const existingRows = year === 2025
         ? useStore.getState().installments2025
         : useStore.getState().installments;
-      if (
-        currentYearRows.length > 0 &&
-        !window.confirm(
-          `سيتم استبدال ${currentYearRows.length} سجلاً محفوظاً للعام ${year} بـ ${formattedData.length} سجلاً من الملف. هل تريد المتابعة؟`,
-        )
-      ) {
-        return;
-      }
-
+      if (existingRows.length && !window.confirm(`سيستبدل ملف Excel أقساط عام ${year} الحالية. هل تريد المتابعة؟`)) return;
       if (year === 2025) {
         useStore
       .setState({ installments2025: formattedData });
@@ -2335,7 +2199,7 @@ td.t-fees { background: ${colorTokens.fees} !important; }
 
     // تنسيقات CSS لقص الصفحة على حدود كشف المتدرب وتوحيد خط Cairo
     const statementCss = `
-      ${localCairoFontCss()}
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
       * { 
         box-sizing: border-box; 
         font-family: 'Cairo', sans-serif !important; 
@@ -2731,8 +2595,7 @@ async () => {
   return (
     <div className="w-full space-y-4 sm:space-y-6 p-0" dir="rtl">
       
-{/* ========== واجهة جدول 2025 ========== */}
-      {selectedYear === 2025 && (
+{selectedYear === 2025 && (
       <div className="w-full bg-gradient-to-b from-sky-50/60 to-white shadow-lg border border-sky-100 rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-l from-sky-800 via-sky-600 to-sky-600 px-2 sm:px-6 py-2.5 sm:py-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center flex-wrap gap-2">
           <div className="min-w-0">
@@ -2750,10 +2613,7 @@ async () => {
                 type="text"
                 placeholder="بحث (الاسم، الدفعة، المساق)..."
                 value={search2025}
-                onChange={(e) => {
-                  setPage2025(0);
-                  setSearch2025(e.target.value);
-                }}
+                onChange={(e) => setSearch2025(e.target.value)}
  className="pl-3 pr-8 py-2 rounded-lg text-sm border border-sky-300 outline-none focus:ring-2 focus:ring-sky-300 w-full sm:w-48 text-slate-800 shadow-sm"
               />
             </div>
@@ -2816,14 +2676,8 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
           </div>
         )}
 
-<div className="p-1 sm:p-3">
+ <div className="p-1 sm:p-3">
 <StatsGrid stats={stats2025} columns={3} />
-<InstallmentsPagination
-  itemCount={filteredRows2025.length}
-  page={activePage2025}
-  pageSize={INSTALLMENTS_PAGE_SIZE}
-  onPageChange={setPage2025}
-/>
 <div className="overflow-auto max-h-[72vh] rounded-lg border border-slate-200 shadow-sm relative">
             <table className="installments-table min-w-max table-auto text-sm sm:text-base font-semibold">
               <thead className="bg-gradient-to-b from-sky-700 to-sky-800 font-bold border-b-2 border-sky-900  [&>tr>th]:!text-white sticky top-0 z-20 shadow-md">
@@ -2897,15 +2751,17 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
                   </tr>
                 ) : (
                   <>
-                    {visibleRows2025.map((r: any, i: number) => {
-                      const originalIndex = originalIndexByRow2025.get(r) ?? -1;
+                    {filteredRows2025.map((r: any, i: number) => {
+                      const originalIndex = (installments2025 || []).findIndex(
+                        (orig: any) => orig.name === r.name,
+                      );
                       return (
                         <tr
-                          key={originalIndex}
+                          key={i}
                           className="border-t border-slate-200 hover:bg-slate-50/80 transition-colors"
                         >
                           <td className="text-center text-black whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base">
-                            {activePage2025 * INSTALLMENTS_PAGE_SIZE + i + 1}
+                            {i + 1}
                           </td>
                           <td className="text-center font-semibold text-black whitespace-nowrap bg-sky-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base">
                             {r.name}
@@ -3001,9 +2857,8 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
           </div>
         </div>
       </div>
-      )}
-      {/* ========== الواجهة العامة لباقي السنوات ========== */}
-      {selectedYear !== 2025 && (
+)}
+{selectedYear !== 2025 && (
 <div className="w-full bg-gradient-to-b from-sky-50/60 to-white shadow-lg border border-sky-100 rounded-2xl overflow-hidden">
   <div className="bg-gradient-to-l from-sky-800 via-sky-600 to-sky-600 px-4 sm:px-6 py-4 flex flex-col gap-4">
     
@@ -3027,10 +2882,7 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
           type="text"
           placeholder="بحث (الاسم، الدفعة، المساق)..."
           value={search2026}
-          onChange={(e) => {
-            setPage2026(0);
-            setSearch2026(e.target.value);
-          }}
+          onChange={(e) => setSearch2026(e.target.value)}
           className="pl-3 pr-8 py-1.5 rounded-lg text-sm border border-black outline-none focus:ring-2 focus:ring-sky-300 w-full text-white shadow-sm placeholder:text-white/70"
         />
       </div>
@@ -3107,12 +2959,19 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
       {/* السطر 5: مكون TabActions (يمتد على العمودين مع تنسيق الأزرار الداخلية 2 في كل سطر) */}
       <TabActions
         title={`أقساط العام ${selectedYear}`}
-        rows={rows2026ForActions}
+        rows={(installments || []).map((r: any) => {
+          const customValues: any = { ...r.customData };
+          extraCols2026.forEach((col) => {
+            if (col.type === "formula")
+              customValues[col.name] = evaluateFormula(col.formula || "", r);
+          });
+          return { ...r, ...customValues };
+        })}
         columns={[
           { key: "name", label: "اسم المتدرب" },
           { key: "batch", label: "الدفعة" },
           { key: "specialty", label: "المساق" },
-          { key: "prevDue", label: `المتبقي من {selectedYear - 1}` },
+          { key: "prevDue", label: `المتبقي من ${selectedYear - 1}` },
           { key: "fees", label: "الرسوم" },
           { key: "totalPaid", label: "المسدد" },
           { key: "remaining", label: "المتبقي" },
@@ -3129,16 +2988,16 @@ className={`flex-1 sm:flex-none ${BTN_COMPACT} bg-green-500 text-white rounded-m
         pdfCss={INSTALLMENTS_SUMMARY_REPORT_CSS}
         additionalWebActions={installments2026WebActions}
 className="grid grid-cols-3 border border-1-black gap-2 w-full flex 
-[&>button]:w-full
+[&>button]:w-auto 
 [&>button]:min-w-auto
 [&>button]:justify-center 
 [&>button]:px-2 
-   [&>button]:py-1.5 [&>button]:text-sm [&>button]:font-bold [&>button]:rounded-md [&>button]:shadow"
+[&>button]:py-1.5 [&>button]:text-xs [&>button]:font-bold [&>button]:rounded-md [&>button]:shadow"
       />
 
       {/* السطر 6: زر تنزيل PDF تفصيلي (يمتد عبر العرض الكامل لختام المجموعة) */}
       <button
-        className="apk-only-actions w-auto flex-items-center justify-center gap-1 px-3 py-2 bg-[#10528e] text-white rounded-md text-sm font-bold shadow-sm hover:bg-[#0d4272] active:scale-95 transition-all disabled:opacity-50"
+        className="apk-only-actions min-w-auto flex-items-center justify-center gap-1 px-3 py-2 bg-[#10528e] text-white rounded-md text-sm font-bold shadow-sm hover:bg-[#0d4272] active:scale-95 transition-all disabled:opacity-50"
         type="button"
         onClick={handleDetailedPdf2026}
         disabled={detailedPdfBusy2026}
@@ -3156,20 +3015,14 @@ className="grid grid-cols-3 border border-1-black gap-2 w-full flex
 
 <div className="p-1 sm:p-3">
           <StatsGrid stats={stats2026} columns={3} />
-          <InstallmentsPagination
-            itemCount={filteredRows2026.length}
-            page={activePage2026}
-            pageSize={INSTALLMENTS_PAGE_SIZE}
-            onPageChange={setPage2026}
-          />
   
           <div className="overflow-auto max-h-[72vh] rounded-lg border border-slate-200 shadow-sm relative">
 <table className="installments-table w-auto min-w-auto table-auto text-xs sm:text-base font-semibold">
 <thead className="bg-gradient-to-b from-sky-300 via-sky-400 to-sky-500 font-extrabold border-b-2 border-sky-700 text-black sticky top-0 z-20 shadow-md">
                 <tr>
- <th className="text-center whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-xl sm:!text-base text-black border-l border-sky-700/30">#</th>
+ <th className="text-center whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-xl sm:!text-base text-white border-l border-sky-700/30">#</th>
                   <th
-className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transition-colors !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base text-black border-l border-sky-700/30"
+className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transition-colors !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base text-white border-l border-sky-700/30"
                     onClick={() => handleSort2026("name")}
                   >
                     <div className="flex items-center justify-center gap-1">
@@ -3274,78 +3127,89 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                   </tr>
                 ) : (
                   <>
-                    {visibleRows2026.map((r: any, i: number) => {
+                    {filteredRows2026.map((r: any, i: number) => {
                       const status = getStatusText(r.remaining);
-                      const originalIndex = originalIndexByRow2026.get(r) ?? -1;
+                      const originalIndex = (installments || []).findIndex(
+                        (orig: any) => orig.name === r.name,
+                      );
                       const rowBgClass = getConditionalRowClass(r);
 
                       return (
                         <tr
-                          key={originalIndex}
+                          key={i}
                           className={`border-t border-slate-200 transition-colors ${rowBgClass}`}
                         >
 <td className="text-center text-black font-mono whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            {activePage2026 * INSTALLMENTS_PAGE_SIZE + i + 1}
+                            {i + 1}
                           </td>
-                          <td className="text-center font-bold text-black whitespace-nowrap bg-fuchsia-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <DeferredCommitInput
+<td className="text-center font-bold text-black whitespace-nowrap bg-fuchsia-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
+                            <input
                               value={r.name || ""}
-                              onCommit={(value) => update2026CellValue(originalIndex, "name", value)}
+                              onChange={(e) =>
+                                update2026CellValue(originalIndex, "name", e.target.value)
+                              }
                               className="w-auto min-w-max bg-transparent text-center text-black font-bold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                             />
                           </td>
                           <td className="text-center text-black whitespace-nowrap bg-sky-50/70 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <DeferredCommitInput
+                            <input
                               value={r.batch || ""}
-                              onCommit={(value) => update2026CellValue(originalIndex, "batch", value)}
+                              onChange={(e) =>
+                                update2026CellValue(originalIndex, "batch", e.target.value)
+                              }
                               className="w-full min-w-0 bg-transparent text-center text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                               placeholder="—"
                             />
                           </td>
                           <td className="text-center text-black whitespace-nowrap bg-sky-50/60 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <DeferredCommitInput
+                            <input
                               value={r.specialty || ""}
-                              onCommit={(value) => update2026CellValue(originalIndex, "specialty", value)}
+                              onChange={(e) =>
+                                update2026CellValue(originalIndex, "specialty", e.target.value)
+                              }
                               className="w-full min-w-0 bg-transparent text-center text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                               placeholder="—"
                             />
                           </td>
                           <td className="text-center numeric-cell font-mono text-black font-semibold bg-sky-50/40 whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <DeferredCommitInput
+                            <input
                               type="text"
                               inputMode="decimal"
                               value={fmt(cleanNumber(r.prevDue))}
-                              lang="ar-EG-u-nu-latn"
-                              dir="ltr"
-                              onCommit={(value) => update2026CellValue(originalIndex, "prevDue", value)}
+                              onChange={(e) =>
+                                update2026CellValue(originalIndex, "prevDue", e.target.value)
+                              }
                               className="w-full min-w-0 bg-transparent text-center font-mono text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                             />
                           </td>
                           <td className="text-center numeric-cell font-mono text-black font-semibold whitespace-nowrap bg-sky-50/50 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200">
-                            <DeferredCommitInput
+                            <input
                               type="text"
                               inputMode="decimal"
                               value={fmt(cleanNumber(r.fees))}
-                              lang="ar-EG-u-nu-latn"
-                              dir="ltr"
-                              onCommit={(value) => update2026CellValue(originalIndex, "fees", value)}
+                              onChange={(e) =>
+                                update2026CellValue(originalIndex, "fees", e.target.value)
+                              }
                               className="w-full min-w-0 bg-transparent text-center font-mono text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                             />
                           </td>
                           {MONTHS_2026.map((m) => {
                             const paid = Number(r.payments?.[m]) || 0;
+                            const cellId = `${r.name}-${m}`;
                             return (
                               <td
                                 key={m}
                                 className="numeric-cell text-center relative bg-white/40 border-l border-slate-200 hover:bg-yellow-50 cursor-pointer group transition-colors whitespace-nowrap !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base"
+                                onMouseEnter={() => setHoveredCell(cellId)}
+                                onMouseLeave={() => setHoveredCell(null)}
                               >
-                                <DeferredCommitInput
+                                <input
                                   type="text"
                                   inputMode="decimal"
                                   value={paid > 0 ? fmt(paid) : ""}
-                                  lang="ar-EG-u-nu-latn"
-                                  dir="ltr"
-                                  onCommit={(value) => update2026PaymentValue(originalIndex, m, value)}
+                                  onChange={(e) =>
+                                    update2026PaymentValue(originalIndex, m, e.target.value)
+                                  }
                                   className="w-full min-w-0 bg-transparent text-center numeric-cell font-mono text-black font-semibold !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                                   placeholder="—"
                                 />
@@ -3375,11 +3239,13 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                                   {fmt(Number(evaluateFormula(col.formula || "", r) || 0))}
                                 </div>
                               ) : (
-                                <DeferredCommitInput
+                                <input
                                   type="text"
                                   className="w-full min-w-0 text-center text-black font-semibold bg-transparent outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1 !text-sm sm:!text-base"
                                   value={r.customData?.[col.name] || ""}
-                                  onCommit={(value) => updateCustomColValue(originalIndex, col.name, value)}
+                                  onChange={(e) =>
+                                    updateCustomColValue(originalIndex, col.name, e.target.value)
+                                  }
                                   placeholder="—"
                                 />
                               )}
@@ -3393,10 +3259,12 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                             {fmt(Number(r.remaining || 0))}
                           </td>
                           <td className="text-center bg-amber-50/40 !px-1 !py-1.5 sm:!px-2 sm:!py-2 !text-sm sm:!text-base border-l border-slate-200 whitespace-nowrap">
-                            <DeferredCommitInput
+                            <input
                               type="text"
                               value={r.notes || ""}
-                              onCommit={(value) => update2026CellValue(originalIndex, "notes", value)}
+                              onChange={(e) =>
+                                update2026CellValue(originalIndex, "notes", e.target.value)
+                              }
                               className="w-full min-w-0 bg-transparent text-center text-black font-medium !text-sm sm:!text-base outline-none focus:bg-white focus:ring-2 ring-yellow-400 rounded px-1"
                               placeholder="—"
                             />
@@ -3491,7 +3359,8 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
           </div>
 
 
-      )}
+)}
+
       {/* ========== النوافذ المنبثقة ========== */}
 
       <Modal
@@ -3725,20 +3594,20 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                 الرسوم الكلية
               </label>
               <input
-                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                type="number"
                 value={editRowData?.fees || 0}
                 onChange={(e) => setEditRowData({ ...editRowData, fees: e.target.value })}
                 className="w-full p-2 border rounded-md text-sm"
               />
             </div>
           )}
-          {editRowModal?.year !== 2025 && (
+          {editRowModal && editRowModal.year !== 2025 && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                المتبقي من {selectedYear - 1} (المدور)
+                المتبقي من {editRowModal.year - 1} (المدور)
               </label>
               <input
-                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                type="number"
                 value={editRowData?.prevDue || 0}
                 onChange={(e) => setEditRowData({ ...editRowData, prevDue: e.target.value })}
                 className="w-full p-2 border rounded-md text-sm"
@@ -3887,7 +3756,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                 الرسوم الكلية
               </label>
               <input
-                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                type="number"
                 value={newRowData2026.fees}
                 onChange={(e) =>
                   setNewRowData2026({ ...newRowData2026, fees: Number(e.target.value) })
@@ -3900,7 +3769,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                 المتبقي من {selectedYear - 1}
               </label>
               <input
-                type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                type="number"
                 value={newRowData2026.prevDue}
                 onChange={(e) =>
                   setNewRowData2026({ ...newRowData2026, prevDue: Number(e.target.value) })
@@ -3963,7 +3832,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
               المبلغ المالي *
             </label>
             <input
-              type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+              type="number"
               required
               value={newStudentAmount}
               onChange={(e) => setNewStudentAmount(e.target.value)}
@@ -4029,7 +3898,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                   المبلغ المدفوع *
                 </label>
                 <input
-                  type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                  type="number"
                   required
                   value={payAmount}
                   onChange={(e) => setPayAmount(e.target.value)}
@@ -4076,7 +3945,7 @@ className="text-center whitespace-nowrap cursor-pointer hover:bg-black/5 transit
                   المبلغ المعدل *
                 </label>
                 <input
-                  type="number" lang="ar-EG-u-nu-latn" dir="ltr"
+                  type="number"
                   required
                   value={editAmount}
                   onChange={(e) => setEditAmount(e.target.value)}

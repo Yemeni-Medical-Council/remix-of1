@@ -73,7 +73,7 @@ export function importUsageInWorker(file: File, importMonthId: number) {
   );
 }
 
-export function importInstallmentsInWorker(file: File, year: 2025 | 2026) {
+export function importInstallmentsInWorker(file: File, year: number) {
   return runWithFallback(
     file,
     (buffer) => ({ mode: "installments", buffer, year }),
